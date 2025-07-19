@@ -1,0 +1,35 @@
+# ─── Node.js ───
+node_modules/**               # 의존성 설치 디렉터리
+npm-debug.log*              # npm 에러 로그
+yarn-debug.log*             # yarn 에러 로그
+yarn-error.log*
+pnpm-debug.log*
+
+# ─── 빌드 출력물 ───
+out/                        # tsc 출력 디렉터리 (package.json 의 "outDir")
+dist/                       # 번들러 출력물
+build/                      # 기타 빌드 디렉터리
+
+# ─── VS Code 전용 ───
+.vscode/                    # 에디터 개인 설정
+.vscode-test/               # @vscode/test-electron 출력물
+
+# ─── 환경변수 & 시크릿 ───
+.env                        # 환경변수 파일
+.env.*.local                # 로컬 환경별 덮어쓰기 파일
+
+# ─── 테스트 커버리지 ───
+coverage/                   # nyc, jest 등 커버리지 리포트
+.nyc_output/                # nyc 임시 출력
+
+# ─── 로그 파일 ───
+*.log                       # 일반 로그 파일
+
+# ─── 패키징/아카이브 ───
+*.vsix                      # VS Code 익스텐션 패키지 파일
+*.tgz                       # npm pack
+
+# ─── 운영체제 & 에디터 잔재 ───
+.DS_Store                   # macOS
+Thumbs.db                   # Windows
+.idea/                      # IntelliJ 계열
