@@ -1,6 +1,6 @@
 /* src/components/Welcome/Welcome.module.css */
-@import '../../styles/fonts.css';
-@import '../../styles/colors.css'; /* colors.css 내부에서 :root 변수 선언 가정 */
+@import '../../../styles/fonts.css';
+@import '../../../styles/colors.css'; /* colors.css 내부에서 :root 변수 선언 가정 */
 
 .container {
   padding: 16px;

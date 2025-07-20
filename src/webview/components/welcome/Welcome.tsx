@@ -1,7 +1,7 @@
 // src/components/Welcome/Welcome.tsx
 import React from 'react';
 import styles from './Welcome.module.css';
-import logo from '../../assets/logo/logo.png';
+import logo from '../../../assets/logo/logo.png';
 
 interface WelcomeProps {
   title: string;

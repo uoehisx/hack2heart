@@ -1,8 +1,8 @@
 // src/webview/index.tsx
 import React from 'react';
 import { createRoot } from 'react-dom/client';
+import Welcome from './components/welcome/welcome';
 // Update the import path to match the actual file location and name
-import Welcome from './components/welcome/Welcome';
 
 const container = document.getElementById('root');
 if (container) {
