@@ -15,15 +15,15 @@ export const TestPanel = () => {
   };
 
   const openSidebar = (sidebarId: string, title: string) => {
-    // VS Code API를 통해 사이드바 포커스 메시지 전송
+    // VS Code API를 통해 사이드바 변경 메시지 전송
     if ((window as any).vscode) {
       (window as any).vscode.postMessage({
-        command: 'focusSidebar',
+        command: 'changeSidebar',
         sidebarId: sidebarId,
         title: title,
       });
     } else {
-      console.log(`Would focus sidebar: ${sidebarId} - ${title}`);
+      console.log(`Would change to sidebar: ${sidebarId} - ${title}`);
     }
   };
 
@@ -34,8 +34,16 @@ export const TestPanel = () => {
   ];
 
   const sidebarButtons = [
-    { id: 'hack2heart.sidebar-welcome', title: 'Welcome Sidebar', icon: '🏠' },
-    { id: 'hack2heart.sidebar-profile', title: 'Profile Sidebar', icon: '👤' },
+    {
+      id: 'hack2heart.sidebar-welcome',
+      title: 'Welcome Sidebar',
+      icon: '🏠',
+    },
+    {
+      id: 'hack2heart.sidebar-profile',
+      title: 'Profile Sidebar',
+      icon: '👤',
+    },
     { id: 'hack2heart.sidebar-home', title: 'Home Sidebar', icon: '🏡' },
     { id: 'hack2heart.sidebar-chat', title: 'Chat Sidebar', icon: '💬' },
   ];
@@ -72,8 +80,8 @@ export const TestPanel = () => {
         }}
       >
         <p style={{ margin: '0', lineHeight: '1.5' }}>
-          이 패널에서 다른 패널들과 사이드바들을 테스트할 수 있습니다. 아래
-          버튼들을 클릭해서 각각의 뷰를 열어보세요.
+          이 패널에서 다른 패널들과 사이드바 내용을 테스트할 수 있습니다. 아래
+          버튼들을 클릭해서 각각의 뷰를 열거나 사이드바 내용을 변경해보세요.
         </p>
       </div>
 
@@ -146,7 +154,7 @@ export const TestPanel = () => {
             gap: '8px',
           }}
         >
-          📱 사이드바 테스트
+          📱 사이드바 내용 변경 테스트
         </h2>
         <div
           style={{
@@ -247,7 +255,7 @@ export const TestPanel = () => {
       >
         💡 <strong>개발 팁:</strong> 개발자 도구 콘솔을 열어서 각 패널과
         사이드바가 올바르게 분기되는지 확인해보세요! 패널 버튼은 새 패널을 열고,
-        사이드바 버튼은 해당 사이드바로 포커스를 이동시킵니다.
+        사이드바 버튼은 사이드바의 내용을 다른 컴포넌트로 변경합니다.
       </div>
     </div>
   );

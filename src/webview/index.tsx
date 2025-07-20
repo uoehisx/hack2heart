@@ -6,11 +6,7 @@ import { TestPanel } from './panel/TestPanel';
 import { UploadPanel } from './panel/UploadPanel';
 import { ExplorePanel } from './panel/ExplorePanel';
 import { MycodePanel } from './panel/MycodePanel';
-import { ProfileSidebar } from './sidebar/ProfileSidebar';
-import { HomeSidebar } from './sidebar/HomeSidebar';
-import { ChatSidebar } from './sidebar/ChatSidebar';
-import { TestSidebar } from './sidebar/TestSidebar';
-import { WelcomeSidebar } from './sidebar/WelcomeSidebar';
+import { Sidebar } from './sidebar/Sidebar';
 
 // Webview ID와 타입을 추출하는 함수
 function getViewInfo(): { viewType: 'sidebar' | 'panel'; viewId: string } {
@@ -35,10 +31,7 @@ function getViewInfo(): { viewType: 'sidebar' | 'panel'; viewId: string } {
 }
 
 // 컴포넌트 렌더링 함수
-function renderComponent(
-  viewType: 'sidebar' | 'panel',
-  viewId: string
-): React.ReactElement {
+function renderComponent(viewType: 'sidebar' | 'panel', viewId: string) {
   console.log(`=== RENDERING COMPONENT ===`);
   console.log(`ViewType: "${viewType}", ViewId: "${viewId}"`);
 
@@ -56,18 +49,7 @@ function renderComponent(
         return <TestPanel />;
     }
   } else {
-    switch (viewId) {
-      case 'hack2heart.sidebar-welcome':
-        return <WelcomeSidebar />;
-      case 'hack2heart.sidebar-profile':
-        return <ProfileSidebar />;
-      case 'hack2heart.sidebar-home':
-        return <HomeSidebar />;
-      case 'hack2heart.sidebar-chat':
-        return <ChatSidebar />;
-      default:
-        return <TestSidebar />;
-    }
+    return <Sidebar viewId={viewId} />;
   }
 }
 

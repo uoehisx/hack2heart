@@ -3,8 +3,11 @@ import { SidebarProvider } from './sidebarProvider';
 import { PanelProvider } from './panelProvider';
 
 export function activate(context: vscode.ExtensionContext) {
-  // PanelProvider 인스턴스 생성
-  const panelProvider = new PanelProvider(context);
+  // SidebarProvider 인스턴스 생성
+  const sidebarProvider = new SidebarProvider(context);
+
+  // PanelProvider 인스턴스 생성 (sidebarProvider 전달)
+  const panelProvider = new PanelProvider(context, sidebarProvider);
 
   // Welcome 화면을 여는 명령을 등록합니다.
   let disposable = vscode.commands.registerCommand(
@@ -19,15 +22,37 @@ export function activate(context: vscode.ExtensionContext) {
 
   context.subscriptions.push(disposable);
 
-  // 사이드바 WebviewViewProvider 등록
+  // 사이드바 변경 명령들 등록
+  const sidebarCommands = [
+    'hack2heart.sidebar-welcome',
+    'hack2heart.sidebar-profile',
+    'hack2heart.sidebar-home',
+    'hack2heart.sidebar-chat',
+  ];
+
+  sidebarCommands.forEach(sidebarId => {
+    const command = vscode.commands.registerCommand(`${sidebarId}.show`, () => {
+      // 먼저 사이드바 컨테이너를 포커스
+      vscode.commands.executeCommand(
+        'workbench.view.extension.hack2heart-sidebar'
+      );
+      // 그 다음 특정 사이드바 뷰를 포커스
+      setTimeout(() => {
+        vscode.commands.executeCommand(`${sidebarId}.focus`);
+      }, 100);
+    });
+    context.subscriptions.push(command);
+  });
+
+  // 사이드바 WebviewViewProvider 등록 (단일 사이드바)
   context.subscriptions.push(
     vscode.window.registerWebviewViewProvider(
       'hack2heart.sidebar-welcome',
-      new SidebarProvider(context)
+      sidebarProvider
     )
   );
 
-  // 패널 WebviewViewProvider들 등록 (필요한 경우)
+  // 패널 WebviewViewProvider들 등록
   const panelViews = [
     'hack2heart.panel-test',
     'hack2heart.panel-explore',

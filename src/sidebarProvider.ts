@@ -2,6 +2,8 @@ import path from 'path';
 import * as vscode from 'vscode';
 
 export class SidebarProvider implements vscode.WebviewViewProvider {
+  private _view?: vscode.WebviewView;
+
   constructor(private readonly _context: vscode.ExtensionContext) {}
 
   resolveWebviewView(
@@ -9,6 +11,8 @@ export class SidebarProvider implements vscode.WebviewViewProvider {
     context: vscode.WebviewViewResolveContext,
     _token: vscode.CancellationToken
   ) {
+    this._view = webviewView;
+
     webviewView.webview.options = {
       enableScripts: true,
       localResourceRoots: [
@@ -28,12 +32,44 @@ export class SidebarProvider implements vscode.WebviewViewProvider {
       )
     );
 
+    // webviewView에서 실제 뷰 ID 가져오기
+    const viewId =
+      (webviewView as any).viewType || 'hack2heart.sidebar-welcome';
+    console.log(`Resolving sidebar view: ${viewId}`);
+
     const sidebarHtml = getSidebarWebviewContent(
       scriptUri.toString(),
       styleUri.toString(),
-      'hack2heart.sidebar-welcome' // sidebar의 경우 기본 ID 사용
+      viewId
     );
     webviewView.webview.html = sidebarHtml;
+
+    // 메시지 리스너 추가
+    webviewView.webview.onDidReceiveMessage(message => {
+      switch (message.command) {
+        case 'changeSidebarContent':
+          // 사이드바 내용 변경
+          const newContent = message.content;
+          console.log(`Changing sidebar content to: ${newContent}`);
+          this.updateSidebarContent(newContent);
+          break;
+      }
+    });
+  }
+
+  private updateSidebarContent(contentType: string) {
+    if (this._view) {
+      // 새로운 내용 타입을 webview에 전달
+      this._view.webview.postMessage({
+        command: 'updateContent',
+        contentType: contentType,
+      });
+    }
+  }
+
+  // 외부에서 사이드바 내용을 변경할 수 있는 메소드
+  public changeSidebarContent(contentType: string) {
+    this.updateSidebarContent(contentType);
   }
 }
 

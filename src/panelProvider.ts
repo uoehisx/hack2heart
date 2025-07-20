@@ -1,8 +1,12 @@
 import * as vscode from 'vscode';
 import * as path from 'path';
+import { SidebarProvider } from './sidebarProvider';
 
 export class PanelProvider {
-  constructor(private readonly _context: vscode.ExtensionContext) {}
+  constructor(
+    private readonly _context: vscode.ExtensionContext,
+    private readonly _sidebarProvider?: SidebarProvider
+  ) {}
 
   public createPanel(panelId: string, title: string): void {
     const panel = vscode.window.createWebviewPanel(
@@ -63,8 +67,47 @@ export class PanelProvider {
           console.log(`Opening new panel: ${newPanelId} - ${newTitle}`);
           this.createPanel(newPanelId, newTitle);
           return;
+        case 'changeSidebar':
+          // 사이드바 변경
+          const sidebarId = message.sidebarId;
+          const contentType = this.getSidebarContentType(sidebarId);
+          console.log(`Changing sidebar content to: ${contentType}`);
+
+          // 사이드바 컨테이너를 먼저 포커스
+          vscode.commands.executeCommand(
+            'workbench.view.extension.hack2heart-sidebar'
+          );
+
+          // 사이드바 내용 변경
+          if (this._sidebarProvider) {
+            setTimeout(() => {
+              this._sidebarProvider!.changeSidebarContent(contentType);
+            }, 100);
+          }
+          return;
+        case 'focusSidebar':
+          // 기존 코드 유지 (호환성)
+          const focusSidebarId = message.sidebarId;
+          console.log(`Focusing sidebar: ${focusSidebarId}`);
+          vscode.commands.executeCommand(`${focusSidebarId}.focus`);
+          return;
       }
     });
+  }
+
+  private getSidebarContentType(sidebarId: string): string {
+    switch (sidebarId) {
+      case 'hack2heart.sidebar-welcome':
+        return 'welcome';
+      case 'hack2heart.sidebar-profile':
+        return 'profile';
+      case 'hack2heart.sidebar-home':
+        return 'home';
+      case 'hack2heart.sidebar-chat':
+        return 'chat';
+      default:
+        return 'welcome';
+    }
   }
 
   private getPanelWebviewContent(
