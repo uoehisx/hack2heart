@@ -39,13 +39,13 @@ export const Sidebar = ({
 
   // Handler to move to profile sidebar
   const handleGoToProfile = () => setCurrentContent('profile');
-
+  const handleGoToExplore=()=>setCurrentContent('explore');
   const renderCurrentSidebar = () => {
     switch (currentContent) {
       case 'test':
         return <WelcomeSidebar onGithubLogin={handleGoToProfile} />;
       case 'profile':
-        return <ProfileSidebar />;
+        return <ProfileSidebar onContinue={handleGoToExplore} />;
       case 'home':
         return <HomeSidebar />;
       case 'chat':

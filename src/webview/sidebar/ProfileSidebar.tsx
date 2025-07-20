@@ -12,12 +12,12 @@ const profileImages = [
 const genders = ['Male', 'Female', 'Other'];
 const lookingFor = ['Love', 'Friend', 'Co-worker'];
 
-export const ProfileSidebar = () => {
+export const ProfileSidebar = ({onContinue}:{onContinue:()=>void}) => {
   const [profileImg, setProfileImg] = useState(profileImages[0]);
   const [name, setName] = useState('');
   const [birth, setBirth] = useState('');
   const [gender, setGender] = useState('');
-  const [looking, setLooking] = useState('');
+  const [looking, setLooking] = useState<string[]>([]);
 
   useEffect(() => {
     // Pick a random profile image on first mount
@@ -54,7 +54,7 @@ export const ProfileSidebar = () => {
             {genders.map(g => (
               <label key={g} style={{ display: 'flex', alignItems: 'center', gap: 4, fontFamily: 'Inter, sans-serif' }}>
                 <input
-                  type="radio"
+                  type="checkbox"
                   name="gender"
                   value={g}
                   checked={gender === g}
@@ -72,11 +72,17 @@ export const ProfileSidebar = () => {
             {lookingFor.map(l => (
               <label key={l} style={{ display: 'flex', alignItems: 'center', gap: 4, fontFamily: 'Inter, sans-serif' }}>
                 <input
-                  type="radio"
+                  type="checkbox"
                   name="looking"
                   value={l}
-                  checked={looking === l}
-                  onChange={() => setLooking(l)}
+                  checked={looking.includes(l)}
+                  onChange={() =>{
+                    setLooking(prev=>
+                      prev.includes(l)
+                      ? prev.filter(item=>item!==l)
+                      :[...prev,l]
+                    );
+                  }}
                   lang="en"
                 />
                 {l}
@@ -87,7 +93,7 @@ export const ProfileSidebar = () => {
         <button
           type="button"
           style={{ width: '100%', padding: '12px 0', borderRadius: 8, background: '#444', color: '#fff', fontWeight: 600, fontSize: 16, border: 'none', cursor: 'pointer' }}
-          onClick={() => {/* handle submit here */}}
+          onClick={() => {onContinue}}
         >
           Continue
         </button>
