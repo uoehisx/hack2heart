@@ -11,7 +11,7 @@ export const WelcomeTitle = styled.h2`
   margin: 0;
   font-size: 24px;
   font-weight: 600;
-  color: var(--primary-color, purple);
+  color: var(--accent-color, #6a4bff);
 `;
 
 export const DescriptionText = styled.h3`

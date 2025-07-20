@@ -36,10 +36,14 @@ export const Sidebar = ({
     };
   }, []);
 
+
+  // Handler to move to profile sidebar
+  const handleGoToProfile = () => setCurrentContent('profile');
+
   const renderCurrentSidebar = () => {
     switch (currentContent) {
       case 'test':
-        return <WelcomeSidebar />;
+        return <WelcomeSidebar onGithubLogin={handleGoToProfile} />;
       case 'profile':
         return <ProfileSidebar />;
       case 'home':
@@ -47,7 +51,7 @@ export const Sidebar = ({
       case 'chat':
         return <ChatSidebar />;
       default:
-        return <WelcomeSidebar />;
+        return <WelcomeSidebar onGithubLogin={handleGoToProfile} />;
     }
   };
 
