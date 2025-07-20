@@ -1,5 +1,4 @@
 import * as vscode from 'vscode';
-import * as path from 'path';
 import { SidebarProvider } from './sidebarProvider';
 import { PanelProvider } from './panelProvider';
 

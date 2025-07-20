@@ -56,6 +56,13 @@ export class PanelProvider {
         case 'log':
           console.log(message.text);
           return;
+        case 'openPanel':
+          // 새로운 패널 열기
+          const newPanelId = message.panelId;
+          const newTitle = message.title;
+          console.log(`Opening new panel: ${newPanelId} - ${newTitle}`);
+          this.createPanel(newPanelId, newTitle);
+          return;
       }
     });
   }
