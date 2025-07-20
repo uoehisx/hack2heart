@@ -1,45 +1,19 @@
 import * as vscode from 'vscode';
 import * as path from 'path';
-import { WelcomeSidebarProvider } from './sidebarProvider';
+import { SidebarProvider } from './sidebarProvider';
+import { PanelProvider } from './panelProvider';
 
 export function activate(context: vscode.ExtensionContext) {
-  console.log('축하합니다! 확장 프로그램 "hack2heart"가 활성화되었습니다!');
+  // PanelProvider 인스턴스 생성
+  const panelProvider = new PanelProvider(context);
 
   // Welcome 화면을 여는 명령을 등록합니다.
   let disposable = vscode.commands.registerCommand(
     'hack2heart.test-command',
     () => {
-      const panel = vscode.window.createWebviewPanel(
-        'welcomeScreen', // Webview 패널의 고유 ID
-        'Hack2Heart에 오신 것을 환영합니다!', // 사용자에게 표시될 패널 제목
-        vscode.ViewColumn.One, // 새 패널을 표시할 열
-        {
-          enableScripts: true, // Webview에서 스크립트 실행 허용
-          // 로컬 리소스 루트 지정: 'dist' 폴더와 'src' 폴더에서 리소스를 로드할 수 있도록 허용
-          localResourceRoots: [
-            // vscode.Uri.file(path.join(context.extensionPath, 'dist')),
-            vscode.Uri.file(path.join(context.extensionPath, 'src')),
-          ],
-        }
-      );
-
-      // 'dist' 폴더 내의 번들된 JavaScript 파일 경로를 가져옵니다.
-      const onDiskPath = vscode.Uri.file(
-        path.join(context.extensionPath, 'dist', 'bundle.js')
-      );
-
-      const scriptUri = panel.webview.asWebviewUri(onDiskPath);
-
-      // CSS 파일 경로를 가져옵니다. (webpack 설정에 따라 경로가 다를 수 있습니다.)
-      const styleUri = panel.webview.asWebviewUri(
-        vscode.Uri.file(path.join(context.extensionPath, 'dist', 'main.css'))
-      );
-
-      // Webview에 대한 HTML 콘텐츠를 설정합니다.
-      // panel에서는 쿼리스트링으로 view=panel 전달
-      panel.webview.html = getWebviewContent(
-        scriptUri.toString(),
-        styleUri.toString()
+      panelProvider.createPanel(
+        'hack2heart.panel-test',
+        'Hack2Heart Test Panel'
       );
     }
   );
@@ -50,33 +24,26 @@ export function activate(context: vscode.ExtensionContext) {
   context.subscriptions.push(
     vscode.window.registerWebviewViewProvider(
       'hack2heart.sidebar-welcome',
-      new WelcomeSidebarProvider(context)
+      new SidebarProvider(context)
     )
   );
-}
 
-// Webview에 표시될 HTML 콘텐츠를 반환하는 헬퍼 함수
-function getWebviewContent(scriptUri: string, styleUri: string) {
-  return `<!DOCTYPE html>
-    <html lang="en">
-    <head>
-        <meta charset="UTF-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>Welcome</title>
-        <link rel="stylesheet" href="${styleUri}">
-    </head>
-    <body>
-        <div id="root"></div>
-        <script src="${scriptUri}"></script>
-        <script>
-            // Webview 내에서 React 앱을 초기화하는 코드
-            // 이 코드는 'bundle.js'에 포함된 React 앱 엔트리 포인트와 일치해야 합니다.
-            // 예를 들어, src/components/Welcome/Welcome.tsx 파일이 React 앱의 루트 컴포넌트이고,
-            // 이 컴포넌트가 'root' div에 렌더링되도록 번들되어 있다고 가정합니다.
-            // 실제 React 렌더링 코드는 webpack을 통해 bundle.js에 포함될 것입니다.
-        </script>
-    </body>
-    </html>`;
+  // 패널 WebviewViewProvider들 등록 (필요한 경우)
+  const panelViews = [
+    'hack2heart.panel-test',
+    'hack2heart.panel-explore',
+    'hack2heart.panel-upload',
+    'hack2heart.panel-mycode',
+  ];
+
+  panelViews.forEach(viewId => {
+    context.subscriptions.push(
+      vscode.window.registerWebviewViewProvider(
+        viewId,
+        new SidebarProvider(context)
+      )
+    );
+  });
 }
 
 // deactivate 함수는 확장이 비활성화될 때 호출됩니다.

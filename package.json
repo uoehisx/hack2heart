@@ -9,10 +9,6 @@
     "categories": [
         "Other"
     ],
-    "activationEvents": [
-        "onCommand:hack2heart.test-command",
-        "onView:hack2heart.sidebar-welcome"
-    ],
     "main": "./dist/extension.js",
     "contributes": {
         "viewsContainers": {
@@ -22,21 +18,51 @@
                     "title": "Hack2Heart",
                     "icon": "src/assets/logo/logo.png"
                 }
+            ],
+            "panel": [
+                {
+                    "id": "hack2heart-panel",
+                    "title": "Hack2Heart Panel",
+                    "icon": "$(heart)"
+                }
             ]
         },
         "views": {
+            "hack2heart-panel": [
+                {
+                    "type": "webview",
+                    "id": "hack2heart.panel-test",
+                    "name": "Test"
+                },
+                {
+                    "type": "webview",
+                    "id": "hack2heart.panel-explore",
+                    "name": "Explore"
+                },
+                {
+                    "type": "webview",
+                    "id": "hack2heart.panel-upload",
+                    "name": "Upload"
+                },
+                {
+                    "type": "webview",
+                    "id": "hack2heart.panel-mycode",
+                    "name": "My Code"
+                }
+            ],
             "hack2heart-sidebar": [
                 {
                     "type": "webview",
                     "id": "hack2heart.sidebar-welcome",
-                    "name": "Welcome"
+                    "name": "Welcome",
+                    "icon": "$(home)"
                 }
             ]
         },
         "commands": [
             {
                 "command": "hack2heart.test-command",
-                "title": "Hack2Heart: Welcome 화면 열기"
+                "title": "Hack2Heart: 테스트 화면 열기"
             }
         ]
     },

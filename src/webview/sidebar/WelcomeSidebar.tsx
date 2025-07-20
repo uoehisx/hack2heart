@@ -1,4 +1,3 @@
-// src/components/Welcome/Welcome.tsx
 import React from 'react';
 import logo from '../../assets/logo/logo.png';
 import {
@@ -6,7 +5,7 @@ import {
   SignInButton,
   WelcomeContainer,
   WelcomeTitle,
-} from './Welcome.styles';
+} from './WelcomeSidebar.styles';
 
 interface WelcomeProps {
   onGithubLogin?: () => void;

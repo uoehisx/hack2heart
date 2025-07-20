@@ -1,7 +1,7 @@
 import path from 'path';
 import * as vscode from 'vscode';
 
-export class WelcomeSidebarProvider implements vscode.WebviewViewProvider {
+export class SidebarProvider implements vscode.WebviewViewProvider {
   constructor(private readonly _context: vscode.ExtensionContext) {}
 
   resolveWebviewView(
@@ -28,16 +28,20 @@ export class WelcomeSidebarProvider implements vscode.WebviewViewProvider {
       )
     );
 
-    // sidebar에서는 쿼리스트링으로 view=sidebar 전달
     const sidebarHtml = getSidebarWebviewContent(
       scriptUri.toString(),
-      styleUri.toString()
+      styleUri.toString(),
+      'hack2heart.sidebar-welcome' // sidebar의 경우 기본 ID 사용
     );
     webviewView.webview.html = sidebarHtml;
   }
 }
 
-function getSidebarWebviewContent(scriptUri: string, styleUri: string) {
+function getSidebarWebviewContent(
+  scriptUri: string,
+  styleUri: string,
+  viewId: string
+) {
   return `<!DOCTYPE html>
     <html lang="en">
     <head>
@@ -48,10 +52,20 @@ function getSidebarWebviewContent(scriptUri: string, styleUri: string) {
     </head>
     <body>
         <div id="root"></div>
-        <script src="${scriptUri}"></script>
         <script>
-            // Webview 내에서 React 앱을 초기화하는 코드
+            // VS Code API를 웹뷰에서 사용할 수 있도록 설정
+            const vscode = acquireVsCodeApi();
+            window.vscode = vscode;
+            
+            // 사이드바 정보를 window 객체에 저장
+            window.viewInfo = {
+              viewType: 'sidebar',
+              viewId: '${viewId}'
+            };
+            
+            console.log('Sidebar WebView initialized with:', window.viewInfo);
         </script>
+        <script src="${scriptUri}"></script>
     </body>
     </html>`;
 }

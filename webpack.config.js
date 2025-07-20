@@ -117,4 +117,4 @@ const webviewConfig = {
   devtool: 'nosources-source-map', // 개발 도구 설정
 };
 
-module.exports = [extensionConfig, webviewConfig]; // 두 개의 설정을 함께 내보냅니다.
+module.exports = [extensionConfig, webviewConfig];
