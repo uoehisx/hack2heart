@@ -1,43 +1,67 @@
 import * as vscode from 'vscode';
-import * as path from 'path'; // path 모듈 임포트
+import * as path from 'path';
+import { WelcomeSidebarProvider } from './sidebarProvider';
 
 export function activate(context: vscode.ExtensionContext) {
-    console.log('축하합니다! 확장 프로그램 "hack2heart"가 활성화되었습니다!');
+  console.log('축하합니다! 확장 프로그램 "hack2heart"가 활성화되었습니다!');
 
-    // Welcome 화면을 여는 명령을 등록합니다.
-    let disposable = vscode.commands.registerCommand('hack2heart.showWelcome', () => {
-        const panel = vscode.window.createWebviewPanel(
-            'welcomeScreen', // Webview 패널의 고유 ID
-            'Hack2Heart에 오신 것을 환영합니다!', // 사용자에게 표시될 패널 제목
-            vscode.ViewColumn.One, // 새 패널을 표시할 열
-            {
-                enableScripts: true, // Webview에서 스크립트 실행 허용
-                // 로컬 리소스 루트 지정: 'dist' 폴더에서 리소스를 로드할 수 있도록 허용
-                localResourceRoots: [vscode.Uri.file(path.join(context.extensionPath, 'dist'))]
-            }
-        );
+  // Welcome 화면을 여는 명령을 등록합니다.
+  let disposable = vscode.commands.registerCommand(
+    'hack2heart.test-command',
+    () => {
+      const panel = vscode.window.createWebviewPanel(
+        'welcomeScreen', // Webview 패널의 고유 ID
+        'Hack2Heart에 오신 것을 환영합니다!', // 사용자에게 표시될 패널 제목
+        vscode.ViewColumn.One, // 새 패널을 표시할 열
+        {
+          enableScripts: true, // Webview에서 스크립트 실행 허용
+          // 로컬 리소스 루트 지정: 'dist' 폴더와 'src' 폴더에서 리소스를 로드할 수 있도록 허용
+          localResourceRoots: [
+            // vscode.Uri.file(path.join(context.extensionPath, 'dist')),
+            vscode.Uri.file(path.join(context.extensionPath, 'src')),
+          ],
+        }
+      );
 
-        // 'dist' 폴더 내의 번들된 JavaScript 파일 경로를 가져옵니다.
-        const onDiskPath = vscode.Uri.file(path.join(context.extensionPath, 'dist', 'bundle.js'));
-        const scriptUri = panel.webview.asWebviewUri(onDiskPath);
+      // 'dist' 폴더 내의 번들된 JavaScript 파일 경로를 가져옵니다.
+      const onDiskPath = vscode.Uri.file(
+        path.join(context.extensionPath, 'dist', 'bundle.js')
+      );
 
-        // CSS 파일 경로를 가져옵니다. (webpack 설정에 따라 경로가 다를 수 있습니다.)
-        const styleUri = panel.webview.asWebviewUri(vscode.Uri.file(path.join(context.extensionPath, 'dist', 'main.css')));
+      const scriptUri = panel.webview.asWebviewUri(onDiskPath);
 
-        // Webview에 대한 HTML 콘텐츠를 설정합니다.
-        panel.webview.html = getWebviewContent(scriptUri.toString(), styleUri.toString());
-    });
+      // CSS 파일 경로를 가져옵니다. (webpack 설정에 따라 경로가 다를 수 있습니다.)
+      const styleUri = panel.webview.asWebviewUri(
+        vscode.Uri.file(path.join(context.extensionPath, 'dist', 'main.css'))
+      );
 
-    context.subscriptions.push(disposable);
+      // Webview에 대한 HTML 콘텐츠를 설정합니다.
+      // panel에서는 쿼리스트링으로 view=panel 전달
+      panel.webview.html = getWebviewContent(
+        scriptUri.toString() + '?view=panel',
+        styleUri.toString()
+      );
+    }
+  );
 
-    // (선택 사항) 확장 프로그램 활성화 시 Welcome 화면을 자동으로 한 번만 표시합니다.
-    // 이 기능을 사용하려면, globalState에 플래그를 저장하여 한 번만 표시되도록 제어하는 메커니즘을 구현하는 것이 좋습니다.
-    // vscode.commands.executeCommand('hack2heart.showWelcome');
+  context.subscriptions.push(disposable);
+
+  // 사이드바 WebviewViewProvider 등록
+  context.subscriptions.push(
+    vscode.window.registerWebviewViewProvider(
+      WelcomeSidebarProvider.viewType,
+      new WelcomeSidebarProvider(context)
+    )
+  );
+
+  // (선택 사항) 확장 프로그램 활성화 시 Welcome 화면을 자동으로 한 번만 표시합니다.
+  // 이 기능을 사용하려면, globalState에 플래그를 저장하여 한 번만 표시되도록 제어하는 메커니즘을 구현하는 것이 좋습니다.
+  // vscode.commands.executeCommand('hack2heart.showWelcome');
 }
 
 // Webview에 표시될 HTML 콘텐츠를 반환하는 헬퍼 함수
 function getWebviewContent(scriptUri: string, styleUri: string) {
-    return `<!DOCTYPE html>
+  return `<!DOCTYPE html>
     <html lang="en">
     <head>
         <meta charset="UTF-8">

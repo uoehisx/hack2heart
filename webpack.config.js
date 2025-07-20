@@ -17,30 +17,30 @@ const extensionConfig = {
   output: {
     path: path.resolve(__dirname, 'dist'),
     filename: 'extension.js',
-    libraryTarget: 'commonjs2'
+    libraryTarget: 'commonjs2',
   },
   externals: {
-    vscode: 'commonjs vscode' // VS Code 모듈은 번들링에서 제외
+    vscode: 'commonjs vscode', // VS Code 모듈은 번들링에서 제외
   },
   resolve: {
-    extensions: ['.ts', '.js']
+    extensions: ['.ts', '.tsx', '.js'],
   },
   module: {
     rules: [
       {
-        test: /\.ts$/,
+        test: /\.ts?$/,
         exclude: /node_modules/,
         use: [
           {
-            loader: 'ts-loader'
-          }
-        ]
-      }
-    ]
+            loader: 'ts-loader',
+          },
+        ],
+      },
+    ],
   },
   devtool: 'nosources-source-map',
   infrastructureLogging: {
-    level: "log", // 문제 매처에 필요한 로깅 활성화
+    level: 'log', // 문제 매처에 필요한 로깅 활성화
   },
 };
 
@@ -55,7 +55,7 @@ const webviewConfig = {
     filename: 'bundle.js', // React 앱 번들 파일명
   },
   resolve: {
-    extensions: ['.ts', '.tsx', '.js', '.jsx', '.css', '.module.css'] // React 및 CSS Modules를 위한 확장자 추가
+    extensions: ['.ts', '.tsx', '.js', '.jsx', '.css', '.module.css'], // React 및 CSS Modules를 위한 확장자 추가
   },
   module: {
     rules: [
@@ -67,11 +67,11 @@ const webviewConfig = {
             loader: 'ts-loader',
             options: {
               compilerOptions: {
-                "jsx": "react" // JSX를 React로 변환하도록 설정
-              }
-            }
-          }
-        ]
+                jsx: 'react', // JSX를 React로 변환하도록 설정
+              },
+            },
+          },
+        ],
       },
       {
         test: /\.module\.css$/, // CSS Modules 처리 (.module.css 확장자)
@@ -81,22 +81,26 @@ const webviewConfig = {
             loader: 'css-loader',
             options: {
               modules: {
-                localIdentName: '[name]__[local]--[hash:base64:5]' // CSS 클래스 이름 규칙 설정
+                localIdentName: '[name]__[local]--[hash:base64:5]', // CSS 클래스 이름 규칙 설정
               },
-              importLoaders: 1 // @import 규칙 처리
-            }
-          }
-        ]
+              importLoaders: 1, // @import 규칙 처리
+            },
+          },
+        ],
       },
       {
         test: /\.css$/, // 일반 CSS 파일 처리 (.module.css가 아닌 .css 확장자)
         exclude: /\.module\.css$/,
-        use: [
-          MiniCssExtractPlugin.loader,
-          'css-loader'
-        ]
-      }
-    ]
+        use: [MiniCssExtractPlugin.loader, 'css-loader'],
+      },
+      {
+        test: /\.(png|jpe?g|gif|svg)$/i, // 이미지 파일 처리
+        type: 'asset/resource',
+        generator: {
+          filename: 'assets/[name].[hash][ext][query]',
+        },
+      },
+    ],
   },
   plugins: [
     new MiniCssExtractPlugin({
@@ -105,6 +109,5 @@ const webviewConfig = {
   ],
   devtool: 'nosources-source-map', // 개발 도구 설정
 };
-
 
 module.exports = [extensionConfig, webviewConfig]; // 두 개의 설정을 함께 내보냅니다.
