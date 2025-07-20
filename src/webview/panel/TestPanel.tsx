@@ -2,17 +2,17 @@ import React from 'react';
 
 export const TestPanel = () => {
   const openPanel = (panelId: string, title: string) => {
-    // VS Code API를 통해 메시지 전송
-    if ((window as any).vscode) {
-      (window as any).vscode.postMessage({
-        command: 'openPanel',
-        panelId: panelId,
-        title: title,
-      });
-    } else {
-      console.log(`Would open panel: ${panelId} - ${title}`);
-    }
-  };
+  // VS Code API를 통해 메시지 전송
+  if ((window as any).vscode) {
+    (window as any).vscode.postMessage({
+      command: 'openPanel',
+      panelId: panelId,
+      title: title,
+    });
+  } else {
+    console.log(`Would open panel: ${panelId} - ${title}`);
+  }
+};
 
   const openSidebar = (sidebarId: string, title: string) => {
     // VS Code API를 통해 사이드바 변경 메시지 전송

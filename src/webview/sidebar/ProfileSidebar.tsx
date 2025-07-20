@@ -12,7 +12,7 @@ const profileImages = [
 const genders = ['Male', 'Female', 'Other'];
 const lookingFor = ['Love', 'Friend', 'Co-worker'];
 
-export const ProfileSidebar = ({onContinue}:{onContinue:()=>void}) => {
+export const ProfileSidebar = () => {
   const [profileImg, setProfileImg] = useState(profileImages[0]);
   const [name, setName] = useState('');
   const [birth, setBirth] = useState('');
@@ -24,6 +24,19 @@ export const ProfileSidebar = ({onContinue}:{onContinue:()=>void}) => {
     const idx = Math.floor(Math.random() * profileImages.length);
     setProfileImg(profileImages[idx]);
   }, []);
+
+
+  const onContinueButtonHandler = () => {
+    if ((window as any).vscode) {
+      (window as any).vscode.postMessage({
+        command: 'openPanel',
+        panelId: 'hack2heart.panel-explore',
+        title: 'Explore Panel',
+      });
+    } else {
+      console.log('VS Code API not found. This only works in a VS Code webview.');
+    }
+  }
 
   return (
     <div lang="en" style={{ minHeight: '100vh', width: '100vw', display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'transparent', fontFamily: 'Inter, sans-serif' }}>
@@ -93,7 +106,7 @@ export const ProfileSidebar = ({onContinue}:{onContinue:()=>void}) => {
         <button
           type="button"
           style={{ width: '100%', padding: '12px 0', borderRadius: 8, background: '#444', color: '#fff', fontWeight: 600, fontSize: 16, border: 'none', cursor: 'pointer' }}
-          onClick={() => {onContinue}}
+          onClick={onContinueButtonHandler}
         >
           Continue
         </button>
