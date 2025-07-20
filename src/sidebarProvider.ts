@@ -1,10 +1,17 @@
 import path from 'path';
 import * as vscode from 'vscode';
+import { SIDEBAR_TYPES } from './constants';
 
 export class SidebarProvider implements vscode.WebviewViewProvider {
   private _view?: vscode.WebviewView;
+  private _panelProvider?: any; // PanelProvider 참조
 
-  constructor(private readonly _context: vscode.ExtensionContext) {}
+  constructor(
+    private readonly _context: vscode.ExtensionContext,
+    panelProvider?: any
+  ) {
+    this._panelProvider = panelProvider;
+  }
 
   resolveWebviewView(
     webviewView: vscode.WebviewView,
@@ -44,32 +51,47 @@ export class SidebarProvider implements vscode.WebviewViewProvider {
     );
     webviewView.webview.html = sidebarHtml;
 
-    // 메시지 리스너 추가
+    // 사이드바에서 메시지를 받을 때의 이벤트 핸들러
     webviewView.webview.onDidReceiveMessage(message => {
       switch (message.command) {
-        case 'changeSidebarContent':
+        case 'alert':
+          vscode.window.showInformationMessage(message.text);
+          return;
+        case 'log':
+          console.log(message.text);
+          return;
+        case 'openPanel':
+          // 새로운 패널 열기
+          if (this._panelProvider) {
+            const viewId = message.viewId;
+            const title = message.title;
+            console.log(`Opening panel from sidebar: ${viewId} - ${title}`);
+            this._panelProvider.createPanel(viewId, title);
+          }
+          return;
+        case 'changeSidebar':
           // 사이드바 내용 변경
-          const newContent = message.content;
-          console.log(`Changing sidebar content to: ${newContent}`);
-          this.updateSidebarContent(newContent);
+          const viewId = message.viewId;
+          console.log(`Changing sidebar content to: ${viewId}`);
+          this.updateSidebarContent(viewId);
           break;
       }
     });
   }
 
-  private updateSidebarContent(contentType: string) {
+  private updateSidebarContent(viewId: SIDEBAR_TYPES) {
     if (this._view) {
       // 새로운 내용 타입을 webview에 전달
       this._view.webview.postMessage({
         command: 'updateContent',
-        contentType: contentType,
+        viewId,
       });
     }
   }
 
   // 외부에서 사이드바 내용을 변경할 수 있는 메소드
-  public changeSidebarContent(contentType: string) {
-    this.updateSidebarContent(contentType);
+  public changeSidebarContent(viewId: SIDEBAR_TYPES) {
+    this.updateSidebarContent(viewId);
   }
 }
 

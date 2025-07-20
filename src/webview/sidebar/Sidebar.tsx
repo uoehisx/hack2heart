@@ -3,6 +3,8 @@ import { WelcomeSidebar } from './WelcomeSidebar';
 import { ProfileSidebar } from './ProfileSidebar';
 import { HomeSidebar } from './HomeSidebar';
 import { ChatSidebar } from './ChatSidebar';
+import { TestSidebar } from './TestSidebar';
+import { SIDEBAR_TYPES } from '../../constants';
 
 interface VscodeApi {
   postMessage(message: any): void;
@@ -13,10 +15,10 @@ declare const vscode: VscodeApi;
 export const Sidebar = ({
   viewId,
 }: {
-  viewId?: string; // Optional prop to pass viewId if needed
+  viewId?: SIDEBAR_TYPES; // Optional prop to pass viewId if needed
 }) => {
-  const [currentContent, setCurrentContent] = useState<string>(
-    viewId || 'welcome'
+  const [currentViewId, setCurrentViewId] = useState<SIDEBAR_TYPES>(
+    viewId || SIDEBAR_TYPES.WELCOME
   );
 
   useEffect(() => {
@@ -24,8 +26,8 @@ export const Sidebar = ({
     const handleMessage = (event: MessageEvent) => {
       const message = event.data;
       if (message.command === 'updateContent') {
-        console.log('Received updateContent message:', message.contentType);
-        setCurrentContent(message.contentType);
+        console.log('Received updateContent message:', message.viewId);
+        setCurrentViewId(message.viewId as SIDEBAR_TYPES);
       }
     };
 
@@ -36,27 +38,22 @@ export const Sidebar = ({
     };
   }, []);
 
-
-  // Handler to move to profile sidebar
-  const handleGoToProfile = () => setCurrentContent('profile');
-  const renderCurrentSidebar = () => {
-    switch (currentContent) {
-      case 'test':
-        return <WelcomeSidebar onGithubLogin={handleGoToProfile} />;
-      case 'profile':
-        return <ProfileSidebar />;
-      case 'home':
-        return <HomeSidebar />;
-      case 'chat':
-        return <ChatSidebar />;
-      default:
-        return <WelcomeSidebar onGithubLogin={handleGoToProfile} />;
-    }
-  };
-
   return (
     <div style={{ height: '100%', width: '100%' }}>
-      {renderCurrentSidebar()}
+      {(() => {
+        switch (currentViewId) {
+          case SIDEBAR_TYPES.WELCOME:
+            return <WelcomeSidebar />;
+          case SIDEBAR_TYPES.PROFILE:
+            return <ProfileSidebar />;
+          case SIDEBAR_TYPES.HOME:
+            return <HomeSidebar />;
+          case SIDEBAR_TYPES.CHAT:
+            return <ChatSidebar />;
+          default:
+            return <TestSidebar />;
+        }
+      })()}
     </div>
   );
 };

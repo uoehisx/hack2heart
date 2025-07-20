@@ -1,51 +1,77 @@
 import React from 'react';
+import {
+  DEFAULT_PANEL_TITLES,
+  DEFAULT_SIDEBAR_TITLES,
+  PANEL_TYPES,
+  SIDEBAR_TYPES,
+} from '../../constants';
 
-export const TestPanel = () => {
-  const openPanel = (panelId: string, title: string) => {
+export const openPanel = (viewId: PANEL_TYPES, title?: string) => {
   // VS Code API를 통해 메시지 전송
   if ((window as any).vscode) {
     (window as any).vscode.postMessage({
       command: 'openPanel',
-      panelId: panelId,
-      title: title,
+      viewId: viewId,
+      title: title || DEFAULT_PANEL_TITLES[viewId],
     });
   } else {
-    console.log(`Would open panel: ${panelId} - ${title}`);
+    console.log(`Would open panel: ${viewId} - ${title}`);
   }
 };
 
-  const openSidebar = (sidebarId: string, title: string) => {
-    // VS Code API를 통해 사이드바 변경 메시지 전송
-    if ((window as any).vscode) {
-      (window as any).vscode.postMessage({
-        command: 'changeSidebar',
-        sidebarId: sidebarId,
-        title: title,
-      });
-    } else {
-      console.log(`Would change to sidebar: ${sidebarId} - ${title}`);
-    }
-  };
+export const openSidebar = (viewId: SIDEBAR_TYPES, title?: string) => {
+  // VS Code API를 통해 사이드바 변경 메시지 전송
+  if ((window as any).vscode) {
+    (window as any).vscode.postMessage({
+      command: 'changeSidebar',
+      viewId,
+      title: title || DEFAULT_SIDEBAR_TITLES[viewId],
+    });
+  } else {
+    console.log(`Would change to sidebar: ${viewId} - ${title}`);
+  }
+};
 
+export const TestPanel = () => {
   const panelButtons = [
-    { id: 'hack2heart.panel-explore', title: 'Explore Panel', icon: '🔍' },
-    { id: 'hack2heart.panel-upload', title: 'Upload Panel', icon: '📤' },
-    { id: 'hack2heart.panel-mycode', title: 'My Code Panel', icon: '💻' },
+    {
+      id: PANEL_TYPES.EXPLORE,
+      title: DEFAULT_PANEL_TITLES[PANEL_TYPES.EXPLORE],
+      icon: '🔍',
+    },
+    {
+      id: PANEL_TYPES.UPLOAD,
+      title: DEFAULT_PANEL_TITLES[PANEL_TYPES.UPLOAD],
+      icon: '📤',
+    },
+    {
+      id: PANEL_TYPES.MYCODE,
+      title: DEFAULT_PANEL_TITLES[PANEL_TYPES.MYCODE],
+      icon: '💻',
+    },
   ];
 
   const sidebarButtons = [
     {
-      id: 'hack2heart.sidebar-welcome',
-      title: 'Welcome Sidebar',
+      id: SIDEBAR_TYPES.WELCOME,
+      title: DEFAULT_SIDEBAR_TITLES[SIDEBAR_TYPES.WELCOME],
       icon: '🏠',
     },
     {
-      id: 'hack2heart.sidebar-profile',
-      title: 'Profile Sidebar',
+      id: SIDEBAR_TYPES.PROFILE,
+      title: DEFAULT_SIDEBAR_TITLES[SIDEBAR_TYPES.PROFILE],
       icon: '👤',
     },
-    { id: 'hack2heart.sidebar-home', title: 'Home Sidebar', icon: '🏡' },
-    { id: 'hack2heart.sidebar-chat', title: 'Chat Sidebar', icon: '💬' },
+    {
+      id: SIDEBAR_TYPES.HOME,
+      title: DEFAULT_SIDEBAR_TITLES[SIDEBAR_TYPES.HOME],
+      icon: '🏡',
+    },
+    {
+      id: SIDEBAR_TYPES.CHAT,
+      title: DEFAULT_SIDEBAR_TITLES[SIDEBAR_TYPES.CHAT],
+      icon: '💬',
+    },
   ];
 
   return (

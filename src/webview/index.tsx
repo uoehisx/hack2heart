@@ -7,6 +7,7 @@ import { UploadPanel } from './panel/UploadPanel';
 import { ExplorePanel } from './panel/ExplorePanel';
 import { MycodePanel } from './panel/MycodePanel';
 import { Sidebar } from './sidebar/Sidebar';
+import { PANEL_TYPES, SIDEBAR_TYPES } from '../constants';
 
 // Webview ID와 타입을 추출하는 함수
 function getViewInfo(): { viewType: 'sidebar' | 'panel'; viewId: string } {
@@ -31,25 +32,28 @@ function getViewInfo(): { viewType: 'sidebar' | 'panel'; viewId: string } {
 }
 
 // 컴포넌트 렌더링 함수
-function renderComponent(viewType: 'sidebar' | 'panel', viewId: string) {
+function renderComponent(
+  viewType: 'sidebar' | 'panel',
+  viewId: PANEL_TYPES | SIDEBAR_TYPES
+) {
   console.log(`=== RENDERING COMPONENT ===`);
   console.log(`ViewType: "${viewType}", ViewId: "${viewId}"`);
 
   if (viewType === 'panel') {
     switch (viewId) {
-      case 'hack2heart.panel-test':
+      case PANEL_TYPES.TEST:
         return <TestPanel />;
-      case 'hack2heart.panel-explore':
+      case PANEL_TYPES.EXPLORE:
         return <ExplorePanel />;
-      case 'hack2heart.panel-upload':
+      case PANEL_TYPES.UPLOAD:
         return <UploadPanel />;
-      case 'hack2heart.panel-mycode':
+      case PANEL_TYPES.MYCODE:
         return <MycodePanel />;
       default:
         return <TestPanel />;
     }
   } else {
-    return <Sidebar viewId={viewId} />;
+    return <Sidebar viewId={viewId as SIDEBAR_TYPES} />;
   }
 }
 
@@ -61,7 +65,9 @@ if (container) {
   console.log(`Rendering ${viewType} component with ID: ${viewId}`);
 
   root.render(
-    <React.StrictMode>{renderComponent(viewType, viewId)}</React.StrictMode>
+    <React.StrictMode>
+      {renderComponent(viewType, viewId as PANEL_TYPES)}
+    </React.StrictMode>
   );
 } else {
   console.error('Root element not found');

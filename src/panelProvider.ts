@@ -1,17 +1,22 @@
 import * as vscode from 'vscode';
 import * as path from 'path';
 import { SidebarProvider } from './sidebarProvider';
+import { DEFAULT_PANEL_TITLES, PANEL_TYPES } from './constants';
 
 export class PanelProvider {
   constructor(
     private readonly _context: vscode.ExtensionContext,
-    private readonly _sidebarProvider?: SidebarProvider
+    private _sidebarProvider?: SidebarProvider
   ) {}
 
-  public createPanel(panelId: string, title: string): void {
+  public setSidebarProvider(sidebarProvider: SidebarProvider) {
+    this._sidebarProvider = sidebarProvider;
+  }
+
+  public createPanel(viewId: PANEL_TYPES, title?: string): void {
     const panel = vscode.window.createWebviewPanel(
-      panelId, // Webview 패널의 고유 ID
-      title, // 사용자에게 표시될 패널 제목
+      viewId, // Webview 패널의 고유 ID
+      title || DEFAULT_PANEL_TITLES[viewId], // 사용자에게 표시될 패널 제목
       vscode.ViewColumn.One, // 새 패널을 표시할 열
       {
         enableScripts: true,
@@ -37,21 +42,21 @@ export class PanelProvider {
     );
 
     // Webview에 대한 HTML 콘텐츠를 설정합니다.
-    // panel에서는 쿼리스트링으로 view=panel&id={panelId} 전달
+    // panel에서는 쿼리스트링으로 view=panel&id={viewId} 전달
     panel.webview.html = this.getPanelWebviewContent(
       scriptUri.toString(),
       styleUri.toString(),
-      panelId
+      viewId
     );
 
-    console.log(`Panel created successfully: ${panelId}`);
+    console.log(`Panel created successfully: ${viewId}`);
 
     // 패널이 닫힐 때의 이벤트 핸들러
     panel.onDidDispose(() => {
       console.log('Welcome panel disposed');
     });
 
-    // 웹뷰에서 메시지를 받을 때의 이벤트 핸들러
+    // 패널에서 메시지를 받을 때의 이벤트 핸들러
     panel.webview.onDidReceiveMessage(message => {
       switch (message.command) {
         case 'alert':
@@ -62,16 +67,15 @@ export class PanelProvider {
           return;
         case 'openPanel':
           // 새로운 패널 열기
-          const newPanelId = message.panelId;
+          const newViewId = message.viewId;
           const newTitle = message.title;
-          console.log(`Opening new panel: ${newPanelId} - ${newTitle}`);
-          this.createPanel(newPanelId, newTitle);
+          console.log(`Opening new panel: ${newViewId} - ${newTitle}`);
+          this.createPanel(newViewId, newTitle);
           return;
         case 'changeSidebar':
           // 사이드바 변경
-          const sidebarId = message.sidebarId;
-          const contentType = this.getSidebarContentType(sidebarId);
-          console.log(`Changing sidebar content to: ${contentType}`);
+          const viewId = message.viewId;
+          console.log(`Changing sidebar content to: ${viewId}`);
 
           // 사이드바 컨테이너를 먼저 포커스
           vscode.commands.executeCommand(
@@ -81,39 +85,18 @@ export class PanelProvider {
           // 사이드바 내용 변경
           if (this._sidebarProvider) {
             setTimeout(() => {
-              this._sidebarProvider!.changeSidebarContent(contentType);
+              this._sidebarProvider!.changeSidebarContent(viewId);
             }, 100);
           }
-          return;
-        case 'focusSidebar':
-          // 기존 코드 유지 (호환성)
-          const focusSidebarId = message.sidebarId;
-          console.log(`Focusing sidebar: ${focusSidebarId}`);
-          vscode.commands.executeCommand(`${focusSidebarId}.focus`);
           return;
       }
     });
   }
 
-  private getSidebarContentType(sidebarId: string): string {
-    switch (sidebarId) {
-      case 'hack2heart.sidebar-welcome':
-        return 'welcome';
-      case 'hack2heart.sidebar-profile':
-        return 'profile';
-      case 'hack2heart.sidebar-home':
-        return 'home';
-      case 'hack2heart.sidebar-chat':
-        return 'chat';
-      default:
-        return 'welcome';
-    }
-  }
-
   private getPanelWebviewContent(
     scriptUri: string,
     styleUri: string,
-    panelId: string
+    viewId: string
   ): string {
     return `<!DOCTYPE html>
     <html lang="en">
@@ -133,7 +116,7 @@ export class PanelProvider {
             // 패널 정보를 window 객체에 저장
             window.viewInfo = {
               viewType: 'panel',
-              viewId: '${panelId}'
+              viewId: '${viewId}'
             };
             
             console.log('Panel WebView initialized with:', window.viewInfo);

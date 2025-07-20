@@ -6,12 +6,14 @@ import {
   WelcomeContainer,
   WelcomeTitle,
 } from './WelcomeSidebar.styles';
+import { openSidebar } from '../panel/TestPanel';
+import { SIDEBAR_TYPES } from '../../constants';
 
-interface WelcomeProps {
-  onGithubLogin?: () => void;
-}
+export const WelcomeSidebar = () => {
+  const onGithubLogin = () => {
+    openSidebar(SIDEBAR_TYPES.PROFILE);
+  };
 
-export const WelcomeSidebar = ({ onGithubLogin }: WelcomeProps) => {
   return (
     <WelcomeContainer>
       <section>
