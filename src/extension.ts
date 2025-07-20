@@ -38,7 +38,7 @@ export function activate(context: vscode.ExtensionContext) {
       // Webview에 대한 HTML 콘텐츠를 설정합니다.
       // panel에서는 쿼리스트링으로 view=panel 전달
       panel.webview.html = getWebviewContent(
-        scriptUri.toString() + '?view=panel',
+        scriptUri.toString(),
         styleUri.toString()
       );
     }
@@ -49,14 +49,10 @@ export function activate(context: vscode.ExtensionContext) {
   // 사이드바 WebviewViewProvider 등록
   context.subscriptions.push(
     vscode.window.registerWebviewViewProvider(
-      WelcomeSidebarProvider.viewType,
+      'hack2heart.sidebar-welcome',
       new WelcomeSidebarProvider(context)
     )
   );
-
-  // (선택 사항) 확장 프로그램 활성화 시 Welcome 화면을 자동으로 한 번만 표시합니다.
-  // 이 기능을 사용하려면, globalState에 플래그를 저장하여 한 번만 표시되도록 제어하는 메커니즘을 구현하는 것이 좋습니다.
-  // vscode.commands.executeCommand('hack2heart.showWelcome');
 }
 
 // Webview에 표시될 HTML 콘텐츠를 반환하는 헬퍼 함수

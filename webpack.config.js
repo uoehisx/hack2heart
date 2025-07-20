@@ -1,100 +1,95 @@
 //@ts-check
-
 'use strict';
 
 const path = require('path');
-const MiniCssExtractPlugin = require('mini-css-extract-plugin'); // CSS를 별도의 파일로 추출하기 위한 플러그인
+const MiniCssExtractPlugin = require('mini-css-extract-plugin');
 
-//@ts-check
 /** @typedef {import('webpack').Configuration} WebpackConfig **/
 
-/** @type WebpackConfig */
+/** 확장 프로그램용 (Node.js 환경) */
 const extensionConfig = {
-  target: 'node', // VS Code extensions run in a Node.js-context
-  mode: 'none', // development 또는 production으로 설정 가능
-
-  entry: './src/extension.ts', // 확장 프로그램의 진입점
+  target: 'node',
+  mode: 'none',
+  entry: './src/extension.ts',
   output: {
     path: path.resolve(__dirname, 'dist'),
     filename: 'extension.js',
-    libraryTarget: 'commonjs2',
+    libraryTarget: 'commonjs2', // VSCode가 요구하는 방식
   },
   externals: {
-    vscode: 'commonjs vscode', // VS Code 모듈은 번들링에서 제외
+    vscode: 'commonjs vscode',
   },
   resolve: {
-    extensions: ['.ts', '.tsx', '.js'],
+    extensions: ['.ts', '.js'],
   },
   module: {
     rules: [
       {
-        test: /\.ts?$/,
+        test: /\.ts$/,
         exclude: /node_modules/,
-        use: [
-          {
-            loader: 'ts-loader',
-          },
-        ],
+        use: 'ts-loader',
       },
     ],
   },
   devtool: 'nosources-source-map',
   infrastructureLogging: {
-    level: 'log', // 문제 매처에 필요한 로깅 활성화
+    level: 'log',
   },
 };
 
-/** @type WebpackConfig */
+/** 웹뷰용 (브라우저 환경) */
 const webviewConfig = {
-  target: 'web', // 웹뷰는 브라우저 환경에서 실행되므로 'web'으로 설정
-  mode: 'none', // development 또는 production으로 설정 가능
-
-  entry: './src/webview/index.tsx', // React 앱의 진입점 (이 파일은 새로 생성해야 합니다)
+  target: 'web',
+  mode: 'none',
+  entry: './src/webview/index.tsx',
   output: {
     path: path.resolve(__dirname, 'dist'),
-    filename: 'bundle.js', // React 앱 번들 파일명
+    filename: 'bundle.js',
+    // libraryTarget 생략 (브라우저 환경은 보통 IIFE or undefined)
+    // experiments.outputModule: false 보장됨
   },
   resolve: {
-    extensions: ['.ts', '.tsx', '.js', '.jsx', '.css', '.module.css'], // React 및 CSS Modules를 위한 확장자 추가
+    extensions: ['.ts', '.tsx', '.js', '.jsx', '.css', '.module.css'],
+    fallback: {
+      process: false,
+    },
   },
   module: {
     rules: [
       {
-        test: /\.tsx?$/, // .ts 또는 .tsx 파일 처리
+        test: /\.tsx?$/,
         exclude: /node_modules/,
-        use: [
-          {
-            loader: 'ts-loader',
-            options: {
-              compilerOptions: {
-                jsx: 'react', // JSX를 React로 변환하도록 설정
-              },
+        use: {
+          loader: 'ts-loader',
+          options: {
+            compilerOptions: {
+              jsx: 'react-jsx', // 최신 React JSX Transform
             },
           },
-        ],
+        },
       },
       {
-        test: /\.module\.css$/, // CSS Modules 처리 (.module.css 확장자)
+        test: /\.module\.css$/,
         use: [
-          MiniCssExtractPlugin.loader, // CSS를 별도 파일로 추출
+          MiniCssExtractPlugin.loader,
           {
             loader: 'css-loader',
             options: {
               modules: {
-                localIdentName: '[name]__[local]--[hash:base64:5]', // CSS 클래스 이름 규칙 설정
+                localIdentName: '[name]__[local]--[hash:base64:5]',
               },
-              importLoaders: 1, // @import 규칙 처리
+              importLoaders: 1,
             },
           },
         ],
       },
       {
-        test: /\.css$/, // 일반 CSS 파일 처리 (.module.css가 아닌 .css 확장자)
+        test: /\.css$/,
         exclude: /\.module\.css$/,
         use: [MiniCssExtractPlugin.loader, 'css-loader'],
       },
       {
-        test: /\.(png|jpe?g|gif|svg)$/i, // 이미지 파일 처리
+        test: /\.(png|jpe?g|gif|svg)$/i,
         type: 'asset/resource',
         generator: {
           filename: 'assets/[name].[hash][ext][query]',
@@ -104,10 +99,10 @@ const webviewConfig = {
   },
   plugins: [
     new MiniCssExtractPlugin({
-      filename: 'main.css', // 추출된 CSS 번들 파일명
+      filename: 'main.css',
     }),
   ],
-  devtool: 'nosources-source-map', // 개발 도구 설정
+  devtool: 'nosources-source-map',
 };
 
-module.exports = [extensionConfig, webviewConfig]; // 두 개의 설정을 함께 내보냅니다.
+module.exports = [extensionConfig, webviewConfig];

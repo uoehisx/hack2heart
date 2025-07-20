@@ -2,7 +2,6 @@ import path from 'path';
 import * as vscode from 'vscode';
 
 export class WelcomeSidebarProvider implements vscode.WebviewViewProvider {
-  public static readonly viewType = 'hack2heart.sidebar-welcome';
   constructor(private readonly _context: vscode.ExtensionContext) {}
 
   resolveWebviewView(
@@ -31,7 +30,7 @@ export class WelcomeSidebarProvider implements vscode.WebviewViewProvider {
 
     // sidebar에서는 쿼리스트링으로 view=sidebar 전달
     const sidebarHtml = getSidebarWebviewContent(
-      scriptUri.toString() + '?view=sidebar',
+      scriptUri.toString(),
       styleUri.toString()
     );
     webviewView.webview.html = sidebarHtml;

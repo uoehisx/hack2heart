@@ -27,6 +27,7 @@
         "views": {
             "hack2heart-sidebar": [
                 {
+                    "type": "webview",
                     "id": "hack2heart.sidebar-welcome",
                     "name": "Welcome"
                 }
