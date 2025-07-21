@@ -1,29 +1,29 @@
-import "slick-carousel/slick/slick.css";
-import "slick-carousel/slick/slick-theme.css";
+import 'slick-carousel/slick/slick.css';
+import 'slick-carousel/slick/slick-theme.css';
 
-import React from "react";
-import Slider from "react-slick";
-import styled from "styled-components";
+import React from 'react';
+import Slider from 'react-slick';
 
-import fireBtn from "../../assets/buttons/fire.png";
-import likeBtn from "../../assets/buttons/Thumbs Up.png";
-import dislikeBtn from "../../assets/buttons/Thumbs Down.png";
+import fireBtn from '../../assets/buttons/fire.png';
+import likeBtn from '../../assets/buttons/Thumbs Up.png';
+import dislikeBtn from '../../assets/buttons/Thumbs Down.png';
+import styled from '@emotion/styled';
 
-const CARD_WIDTH=580
+const CARD_WIDTH = 580;
 
-const currentUser={
-  profileImage:"/assets/profileImage/gopher.png",
-  name:"John1234",
-  gender:"Male",
-  age:26,
+const currentUser = {
+  profileImage: '/assets/profileImage/gopher.png',
+  name: 'John1234',
+  gender: 'Male',
+  age: 26,
 };
 
 /* ───────── 레이아웃 컨테이너 ───────── */
 /* → 전체 ExplorePanel 을 원하는 만큼 아래로 이동 */
 const Wrapper = styled.div`
-  margin-top: 40px;  
-  background:#1F1F1F;
-  padding:32px 0;      /* 카드 묶음을 아래로 내림 */
+  margin-top: 40px;
+  background: #1f1f1f;
+  padding: 32px 0; /* 카드 묶음을 아래로 내림 */
 `;
 
 /* ───────── Slider 커스텀 ───────── */
@@ -36,30 +36,30 @@ const StyledSlider = styled(Slider)`
 
   /* slide 간 여백 */
   .slick-slide {
-    width:${CARD_WIDTH}px !important;
+    width: ${CARD_WIDTH}px !important;
     padding: 0 12px;
     box-sizing: border-box;
   }
 
   /* dots 위치 & 간격 조정 */
   .slick-dots {
-    position:absolute;
-    top:-24px;
-    left:0;
-    right:0;
-    display:flex !important;
-    justify-content:center;
-               /* 슬라이더 아래 여백 */
+    position: absolute;
+    top: -24px;
+    left: 0;
+    right: 0;
+    display: flex !important;
+    justify-content: center;
+    /* 슬라이더 아래 여백 */
     li {
       margin: 0 4px;
     }
     button:before {
-      font-size: 10px;           /* 기본 점 크기 */
-      color: #bbb;               /* 비활성 색상 */
-      opacity: 1;                /* 투명도 초기화 */
+      font-size: 10px; /* 기본 점 크기 */
+      color: #bbb; /* 비활성 색상 */
+      opacity: 1; /* 투명도 초기화 */
     }
     .slick-active button:before {
-      color: #A37EF2;            /* 활성 점 색상 */
+      color: #a37ef2; /* 활성 점 색상 */
     }
   }
 `;
@@ -68,10 +68,9 @@ const StyledSlider = styled(Slider)`
 const Card = styled.div`
   background: #1a1a1a;
   border-radius: 20px;
-  box-shadow: 6px 6px 12px rgba(0, 0, 0, 0.08),
-              -6px -6px 12px #1F1F1F;
+  box-shadow: 6px 6px 12px rgba(0, 0, 0, 0.08), -6px -6px 12px #1f1f1f;
   height: 500px;
-  width:100%;
+  width: 100%;
 
   display: flex;
   align-items: center;
@@ -81,52 +80,51 @@ const Card = styled.div`
 const InfoRow = styled.div`
   margin: 28px auto 0;
   display: flex;
-  gap: 24px;          /* 두 박스 사이 간격 */
+  gap: 24px; /* 두 박스 사이 간격 */
   justify-content: center;
-  flex-wrap: wrap;    /* 화면이 좁아지면 아래로 내려가도록 */
+  flex-wrap: wrap; /* 화면이 좁아지면 아래로 내려가도록 */
 `;
 
 /* 모든 작은 카드(좌우 박스)에 공통으로 쓸 스타일 */
 const BaseCard = styled.div`
-  flex: 0 0 ${CARD_WIDTH / 2}px;  /* 고정 너비 */
+  flex: 0 0 ${CARD_WIDTH / 2}px; /* 고정 너비 */
   background: #1a1a1a;
   border-radius: 20px;
-  box-shadow: 6px 6px 12px rgba(0, 0, 0, 0.08),
-              -6px -6px 12px #1f1f1f;
+  box-shadow: 6px 6px 12px rgba(0, 0, 0, 0.08), -6px -6px 12px #1f1f1f;
   padding: 20px 28px;
   display: flex;
 `;
 
 const UserBar = styled(BaseCard)`
-  align-items:center;
-  gap:16px;
+  align-items: center;
+  gap: 16px;
 `;
-const Profile=styled.img `
-  width:60px;
-  height:60px;
-  border-radius:50%;
-  object-fit:cover;
-  border:2px solid #F0E8FF
+const Profile = styled.img`
+  width: 60px;
+  height: 60px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 2px solid #f0e8ff;
 `;
-const NameColumn=styled.div`
-  display:flex;
-  flex-direction:column;
+const NameColumn = styled.div`
+  display: flex;
+  flex-direction: column;
 `;
-const UserName=styled.span`
-  font-size:20px;
-  font-weight:600;
-  color:#ffffff;
+const UserName = styled.span`
+  font-size: 20px;
+  font-weight: 600;
+  color: #ffffff;
 `;
 
-const Meta=styled.span`
-  margin-top:2px;
-  font-size:14px;
-  color:#A37EF2;
+const Meta = styled.span`
+  margin-top: 2px;
+  font-size: 14px;
+  color: #a37ef2;
 `;
 
 const LanguagesBar = styled(BaseCard)`
- flex-direction:column;
- gap:12px;
+  flex-direction: column;
+  gap: 12px;
 `;
 
 const LangTitle = styled.span`
@@ -136,11 +134,11 @@ const LangTitle = styled.span`
 
   /* ‘Languages’만 보라색 강조 */
   & > span {
-    color: #A37EF2;
+    color: #a37ef2;
   }
 `;
 
-const ReactionBar=styled.div`
+const ReactionBar = styled.div`
   margin: 40px auto 0;
   max-width: 280px;
   background: #1a1a1a;
@@ -148,11 +146,11 @@ const ReactionBar=styled.div`
   box-shadow: 6px 6px 12px rgba(0, 0, 0, 0.08), -6px -6px 12px #1f1f1f;
   padding: 20px 28px;
   display: flex;
-  justify-content:center;
-  gap:70px;
+  justify-content: center;
+  gap: 70px;
 `;
 
-const ReactionImg=styled.img`
+const ReactionImg = styled.img`
   width:36px;
   height:36px;
   cursor:pointer;
@@ -167,30 +165,30 @@ const CommitText = styled.span`
   text-align: center;
   font-size: 20px;
   font-weight: 800;
-  color: #A37EF2;
+  color: #a37ef2;
 `;
 
 export const ExplorePanel: React.FC = () => {
   const settings = {
     dots: true,
-    arrows: false,        
+    arrows: false,
     infinite: true,
     speed: 500,
     slidesToShow: 1,
     slidesToScroll: 1,
-    centerMode:true,
-    variableWidth:true,
+    centerMode: true,
+    variableWidth: true,
   };
 
   return (
     <Wrapper>
       <StyledSlider {...settings}>
-        {[1, 2, 3, 4, 5].map((n) => (
+        {[1, 2, 3, 4, 5].map(n => (
           <Card key={n}></Card>
         ))}
       </StyledSlider>
       <InfoRow>
-      <UserBar>
+        <UserBar>
           <Profile src={currentUser.profileImage} alt={currentUser.name} />
           <NameColumn>
             <UserName>{currentUser.name}</UserName>
@@ -206,9 +204,9 @@ export const ExplorePanel: React.FC = () => {
         </LanguagesBar>
       </InfoRow>
       <ReactionBar>
-        <ReactionImg src={dislikeBtn} alt="Dislike"/>
-        <ReactionImg src={fireBtn} alt="Superlike"/>
-        <ReactionImg src={likeBtn} alt="Like"/>
+        <ReactionImg src={dislikeBtn} alt="Dislike" />
+        <ReactionImg src={fireBtn} alt="Superlike" />
+        <ReactionImg src={likeBtn} alt="Like" />
       </ReactionBar>
       <CommitText>Commit!</CommitText>
     </Wrapper>

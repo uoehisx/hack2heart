@@ -1,7 +1,7 @@
-import React, { useState, useEffect, useRef, FormEvent } from "react";
-import styled from "styled-components";
-import useSocketReceiver from "../../hooks/useSocketReceiver";
-import useSocketSender   from "../../hooks/useSocketSender";
+import React, { useState, useEffect, useRef, FormEvent } from 'react';
+import useSocketReceiver from '../../hooks/useSocketReceiver';
+import useSocketSender from '../../hooks/useSocketSender';
+import styled from '@emotion/styled';
 
 /* ─────────────── Types ─────────────── */
 interface ChatMessage {
@@ -45,9 +45,9 @@ const Bubble = styled.div<{ self?: boolean }>`
   background: #e0e0e0;
   box-shadow: ${({ self }) =>
     self
-      ? "inset 4px 4px 8px #bebebe, inset -4px -4px 8px #ffffff"
-      : "4px 4px 8px #bebebe, -4px -4px 8px #ffffff"};
-  align-self: ${({ self }) => (self ? "flex-end" : "flex-start")};
+      ? 'inset 4px 4px 8px #bebebe, inset -4px -4px 8px #ffffff'
+      : '4px 4px 8px #bebebe, -4px -4px 8px #ffffff'};
+  align-self: ${({ self }) => (self ? 'flex-end' : 'flex-start')};
 `;
 
 const InputArea = styled.form`
@@ -81,17 +81,17 @@ const SendButton = styled.button`
   }
 `;
 
-const EVENT = "chat-message";
+const EVENT = 'chat-message';
 
 /* ─────────────── Component ─────────────── */
 const ChatSidebar: React.FC = () => {
   const [messages, setMessages] = useState<ChatMessage[]>([]);
-  const [draft, setDraft]       = useState("");
-  const bottomRef               = useRef<HTMLDivElement>(null);
+  const [draft, setDraft] = useState('');
+  const bottomRef = useRef<HTMLDivElement>(null);
 
   /* 1️⃣  수신 */
-  useSocketReceiver(EVENT, (data:unknown) => {
-    const incoming=data as ChatMessage;
+  useSocketReceiver(EVENT, (data: unknown) => {
+    const incoming = data as ChatMessage;
     setMessages(prev => [...prev, incoming]);
   });
 
@@ -101,7 +101,7 @@ const ChatSidebar: React.FC = () => {
 
   /* 3️⃣  자동 스크롤 */
   useEffect(() => {
-    bottomRef.current?.scrollIntoView({ behavior: "smooth" });
+    bottomRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages]);
 
   /* 4️⃣  전송 */
@@ -112,22 +112,18 @@ const ChatSidebar: React.FC = () => {
 
     const optimistic: ChatMessage = {
       id: String(Date.now()),
-      user: "me",
+      user: 'me',
       text,
       self: true,
     };
 
     setMessages(prev => [...prev, optimistic]); // optimistic UI
-    emitMessage(optimistic);                    // 서버로 emit
-    setDraft("");
+    emitMessage(optimistic); // 서버로 emit
+    setDraft('');
   };
 
   /* 5️⃣  렌더 */
-  return (
-    <SidebarWrapper>
-      {/* …UI 생략… */}
-    </SidebarWrapper>
-  );
+  return <SidebarWrapper>{/* …UI 생략… */}</SidebarWrapper>;
 };
 
 export default ChatSidebar;

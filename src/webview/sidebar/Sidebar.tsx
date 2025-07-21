@@ -2,9 +2,9 @@ import React, { useState, useEffect } from 'react';
 import { WelcomeSidebar } from './WelcomeSidebar';
 import { ProfileSidebar } from './ProfileSidebar';
 import { HomeSidebar } from './HomeSidebar';
-import { ChatSidebar } from './ChatSidebar';
 import { TestSidebar } from './TestSidebar';
 import { SIDEBAR_TYPES } from '../../constants';
+import ChatSidebar from './ChatSidebar';
 
 interface VscodeApi {
   postMessage(message: any): void;

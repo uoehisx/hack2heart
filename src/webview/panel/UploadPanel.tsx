@@ -1,6 +1,6 @@
 // src/webview/panel/UploadPanel.tsx
+import styled from '@emotion/styled';
 import React from 'react';
-import styled from 'styled-components';
 
 /* ───────── 기본 레이아웃 ───────── */
 const Wrapper = styled.div`
@@ -12,7 +12,6 @@ const Wrapper = styled.div`
   flex-direction: column;
   align-items: center;
 `;
-
 
 /* ───────── 상단 버튼 영역 ───────── */
 const TopBar = styled.div`
@@ -31,30 +30,27 @@ const BlackButton = styled.button`
   color: #ffffff;
   font-size: 14px;
   cursor: pointer;
-  box-shadow: 6px 6px 12px rgba(0, 0, 0, 0.4),
-              -6px -6px 12px #1f1f1f;
+  box-shadow: 6px 6px 12px rgba(0, 0, 0, 0.4), -6px -6px 12px #1f1f1f;
   transition: box-shadow 0.15s;
 
   &:hover {
     box-shadow: inset 6px 6px 12px rgba(0, 0, 0, 0.4),
-                inset -6px -6px 12px #1f1f1f;
+      inset -6px -6px 12px #1f1f1f;
   }
 `;
 const WhiteButton = styled.button`
   padding: 8px 20px;
   border: none;
   border-radius: 20px;
-  background: #FFFFFF;
+  background: #ffffff;
   color: #000000;
   font-size: 14px;
   cursor: pointer;
   transition: box-shadow 0.15s;
-   box-shadow: 6px 6px 12px #000000,
-              -2px -2px 12px #000000;
+  box-shadow: 6px 6px 12px #000000, -2px -2px 12px #000000;
 
   &:hover {
-    box-shadow: inset 6px 6px 12px #ffffff,
-                inset -6px -6px 12px #ffffff;
+    box-shadow: inset 6px 6px 12px #ffffff, inset -6px -6px 12px #ffffff;
   }
 `;
 
@@ -63,12 +59,12 @@ const Label = styled.p`
   font-size: 20px;
   font-weight: 600;
   margin: 0 0 12px 10px;
-  align-self:flex-start;
-  color:#ffffff;
+  align-self: flex-start;
+  color: #ffffff;
 `;
-const PurpleLabel=styled(Label)`
-  color:#A37EF2
-  `;
+const PurpleLabel = styled(Label)`
+  color: #a37ef2;
+`;
 
 /* ───────── 코드 입력 영역 ───────── */
 const CodeBlockWrapper = styled.div`
@@ -78,8 +74,7 @@ const CodeBlockWrapper = styled.div`
   margin-bottom: 32px;
   background: #1a1a1a;
   border-radius: 20px;
-  box-shadow: 6px 6px 12px rgba(0, 0, 0, 0.4),
-              -6px -6px 12px #1f1f1f;
+  box-shadow: 6px 6px 12px rgba(0, 0, 0, 0.4), -6px -6px 12px #1f1f1f;
 `;
 
 const CodeTextarea = styled.textarea`
@@ -109,12 +104,10 @@ const AskButton = styled.button`
   color: #000000;
   cursor: pointer;
   transition: box-shadow 0.15s;
-  box-shadow: 6px 6px 12px #000000,
-              -2px -2px 12px #000000;
+  box-shadow: 6px 6px 12px #000000, -2px -2px 12px #000000;
 
   &:hover {
-    box-shadow: inset 6px 6px 12px #ffffff,
-                inset -6px -6px 12px #ffffff;
+    box-shadow: inset 6px 6px 12px #ffffff, inset -6px -6px 12px #ffffff;
   }
 `;
 
@@ -143,10 +136,9 @@ const SelectBox = styled.select`
   color: #ffffff;
   font-size: 14px;
   cursor: pointer;
-  box-shadow: 6px 6px 12px rgba(0, 0, 0, 0.4),
-              -6px -6px 12px #1f1f1f;
-  appearance: none;          /* 기본 화살표 제거 */
-  background-image: url("data:image/svg+xml,%3Csvg fill='%23fff' height='8' viewBox='0 0 24 24' width='8' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M7 10l5 5 5-5z'/%3E%3C/svg%3E"); 
+  box-shadow: 6px 6px 12px rgba(0, 0, 0, 0.4), -6px -6px 12px #1f1f1f;
+  appearance: none; /* 기본 화살표 제거 */
+  background-image: url("data:image/svg+xml,%3Csvg fill='%23fff' height='8' viewBox='0 0 24 24' width='8' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M7 10l5 5 5-5z'/%3E%3C/svg%3E");
   background-repeat: no-repeat;
   background-position: calc(100% - 16px) center;
 `;
@@ -157,8 +149,7 @@ const AiBlock = styled.div`
   height: 300px;
   background: #1a1a1a;
   border-radius: 20px;
-  box-shadow: 6px 6px 12px rgba(0, 0, 0, 0.4),
-              -6px -6px 12px #1f1f1f;
+  box-shadow: 6px 6px 12px rgba(0, 0, 0, 0.4), -6px -6px 12px #1f1f1f;
   padding: 24px;
   font-size: 14px;
   overflow-y: auto;
@@ -214,9 +205,7 @@ export const UploadPanel: React.FC = () => {
 
       {/* AI 결과 */}
       <PurpleLabel>AI Code Analysis</PurpleLabel>
-      <AiBlock>
-        {/* 추후 AI 분석 결과를 이곳에 렌더링 */}
-      </AiBlock>
+      <AiBlock>{/* 추후 AI 분석 결과를 이곳에 렌더링 */}</AiBlock>
     </Wrapper>
   );
 };
