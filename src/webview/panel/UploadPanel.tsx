@@ -13,6 +13,7 @@ const Wrapper = styled.div`
   align-items: center;
 `;
 
+
 /* ───────── 상단 버튼 영역 ───────── */
 const TopBar = styled.div`
   width: 830px;
@@ -82,8 +83,8 @@ const CodeBlockWrapper = styled.div`
 `;
 
 const CodeTextarea = styled.textarea`
-  width: 100%;
-  height: 100%;
+  width: 80%;
+  height: 80%;
   resize: none;
   background: transparent;
   border: none;
