@@ -41,7 +41,7 @@ const Wrapper = styled.div`
   flex-direction: column;
   min-height: 100vh;
   padding: 32px 24px;
-  background: #1b1b1b /* deep dark */
+  background: #1b1b1b; /* deep dark */
   font-family: "Inter", sans-serif;
   color: #ffffff;
 `;
@@ -175,7 +175,7 @@ const DraggableCard: React.FC<DraggableCardProps> = ({ code, compact = false, on
     opacity: isDragging ? 0.4 : 1,
     cursor: "grab",
   };
-
+  
 
   return (
     <CardWrapper
@@ -222,9 +222,11 @@ export const MycodePanel: React.FC = () => {
   const [codes, setCodes] = useState<CodeCard[]>(Object.values(CODE_LIBRARY));
   const [blanks, setBlanks] = useState<BlankSlot[]>([{ id: "blank-1", codeId: null }]);
   const [activeId, setActiveId] = useState<string | null>(null);
-
+  const isInCodes = (id: string) => codes.some(c => c.id === id);
+  const findBlankIndexByCode = (id: string) =>
+  blanks.findIndex(b => b.codeId === id);
   /* Sensors */
-const sensors=useSensors(
+  const sensors=useSensors(
     useSensor(PointerSensor,{
       activationConstraint:{distance:5},
     }),
@@ -268,35 +270,55 @@ const sensors=useSensors(
   };
 
   /* Drag End */
-  const handleDragEnd = (event: DragEndEvent) => {
-    const { over, active } = event;
-    if (!over) {
-      setActiveId(null);
-      return;
+ const handleDragEnd = (event: DragEndEvent) => {
+  const { over, active } = event;
+  if (!over) { setActiveId(null); return; }
+
+  const srcId  = active.id.toString();
+  const destId = over.id.toString();
+
+  /* ---------- 1. dropping onto a blank ---------- */
+  if (destId.startsWith("blank-")) {
+    const originIdx = findBlankIndexByCode(srcId);      // -1 if dragged from list
+
+    setBlanks(prev =>
+      prev.map((b, idx) => {
+        /* a) empty the source blank (if any) */
+        if (idx === originIdx) return { ...b, codeId: null };
+        /* b) replace the destination blank and remember what was there */        
+        if (b.id === destId) {
+          const previous = b.codeId;                    // the card we’re about to bump out
+
+          /* put the bumped‑out card back to the library */
+          if (previous && !codes.some(c => c.id === previous)) {
+            setCodes(c => [...c, CODE_LIBRARY[previous]]);
+          }
+          return { ...b, codeId: srcId };
+        }
+        return b;
+      })
+    );
+    /* c) if the src came from the library, remove it there */
+    if (isInCodes(srcId)) {
+      setCodes(prev => prev.filter(c => c.id !== srcId));
     }
-
-    const destId = over.id.toString();
-    const srcId = active.id.toString();
-
-    // From codes list → blank slot
-    if (destId.startsWith("blank-") && srcId.startsWith("code-")) {
-      setBlanks((prev) => prev.map((b) => (b.id === destId ? { ...b, codeId: srcId } : b)));
-      setCodes((prev) => prev.filter((c) => c.id !== srcId));
+  }
+  /* ---------- 2. dropping back on the library ---------- */
+  if (destId === "codes") {
+    const originIdx = findBlankIndexByCode(srcId);
+    if (originIdx !== -1) {
+      setBlanks(prev =>
+        prev.map((b, idx) => (idx === originIdx ? { ...b, codeId: null } : b))
+      );
+      setCodes(prev => [...prev, CODE_LIBRARY[srcId]]);
     }
+  }
 
-    // From blank → codes list
-    if (destId === "codes" && srcId.startsWith("code-")) {
-      const originBlank = blanks.find((b) => b.codeId === srcId);
-      if (originBlank) {
-        setBlanks((prev) =>
-          prev.map((b) => (b.id === originBlank.id ? { ...b, codeId: null } : b))
-        );
-        setCodes((prev) => [...prev, CODE_LIBRARY[srcId]]);
-      }
-    }
+  setActiveId(null);
+};
 
-    setActiveId(null);
-  };
+
+
 
   /* ─────────────── Render ─────────────── */
   return (
