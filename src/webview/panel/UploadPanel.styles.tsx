@@ -69,12 +69,11 @@ export const CodeBlockWrapper = styled.div`
   width: 830px;
   height: 300px;
   margin-bottom: 32px;
-  background: #1a1a1a;
-  border-radius: 20px;
-  box-shadow: 6px 6px 12px rgba(0, 0, 0, 0.4), -6px -6px 12px #1f1f1f;
+  display:flex;
 `;
 
 export const CodeTextarea = styled.textarea`
+  flex:1;
   width: 80%;
   height: 80%;
   resize: none;
@@ -86,6 +85,13 @@ export const CodeTextarea = styled.textarea`
   font-size: 14px;
   font-family: 'Fira Code', monospace;
   line-height: 1.4;
+  background: #1a1a1a;
+  border-radius: 20px;
+  box-shadow: 6px 6px 12px rgba(0, 0, 0, 0.4), -6px -6px 12px #1f1f1f;
+`;
+
+export const PreviewWrapper = styled.div`
+  flex: 1;
 `;
 
 /* ‑‑ 코드 블록 내부의 "Ask to AI" 버튼 ‑‑ */
