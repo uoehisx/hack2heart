@@ -25,7 +25,7 @@ export const Sidebar = ({
     // VS Code에서 메시지를 받는 리스너
     const handleMessage = (event: MessageEvent) => {
       const message = event.data;
-      if (message.command === 'updateContent') {
+      if (message.type === 'updateContent') {
         console.log('Received updateContent message:', message.viewId);
         setCurrentViewId(message.viewId as SIDEBAR_TYPES);
       }

@@ -1,6 +1,7 @@
 import path from 'path';
 import * as vscode from 'vscode';
 import { SIDEBAR_TYPES } from './constants';
+import { PanelProvider } from './panelProvider';
 
 export class SidebarProvider implements vscode.WebviewViewProvider {
   /**
@@ -13,7 +14,7 @@ export class SidebarProvider implements vscode.WebviewViewProvider {
   }
 
   private _view?: vscode.WebviewView;
-  private _panelProvider?: any; // PanelProvider 참조
+  _panelProvider?: PanelProvider; // PanelProvider 참조
 
   constructor(
     private readonly _context: vscode.ExtensionContext,
@@ -62,7 +63,7 @@ export class SidebarProvider implements vscode.WebviewViewProvider {
 
     // 사이드바에서 메시지를 받을 때의 이벤트 핸들러
     webviewView.webview.onDidReceiveMessage(message => {
-      switch (message.command) {
+      switch (message.type) {
         case 'alert':
           vscode.window.showInformationMessage(message.text);
           return;
@@ -96,7 +97,7 @@ export class SidebarProvider implements vscode.WebviewViewProvider {
     if (this._view) {
       // 새로운 내용 타입을 webview에 전달
       this._view.webview.postMessage({
-        command: 'updateContent',
+        type: 'updateContent',
         viewId,
       });
     }

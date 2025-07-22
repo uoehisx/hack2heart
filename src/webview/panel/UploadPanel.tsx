@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import {
   AiBlock,
   AskButton,
@@ -14,9 +14,17 @@ import {
   Wrapper,
 } from './UploadPanel.styles';
 import { useAuthContext } from '../../contexts/AuthContext';
+import { postVsCodeMessage } from '../../utils/vscodeApi';
 
 export const UploadPanel: React.FC = () => {
   const { session } = useAuthContext();
+
+  useEffect(() => {
+    if (!session) {
+      console.log('Requesting session info from VS Code...');
+      postVsCodeMessage({ type: 'requestSessionInfo' });
+    }
+  }, [session]);
 
   console.log('UploadPanel session:', session);
 

@@ -31,6 +31,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     // VS Code Webview에서 sessionInfo 메시지 수신
     const handler = (event: MessageEvent) => {
       if (event.data?.type === 'sessionInfo') {
+        console.log('Received message from VS Code:', event.data);
         setSession(event.data.session);
       }
     };

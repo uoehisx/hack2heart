@@ -24,7 +24,7 @@ export const WelcomeSidebar = () => {
     // openSidebar(SIDEBAR_TYPES.PROFILE);
     try {
       postVsCodeMessage({
-        command: 'authenticate',
+        type: 'authenticate',
       });
     } catch (error) {
       console.error('GitHub login failed:', error);

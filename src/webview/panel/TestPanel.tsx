@@ -9,7 +9,7 @@ import { postVsCodeMessage } from '../../utils/vscodeApi';
 
 export const openPanel = (viewId: PANEL_TYPES, title?: string) => {
   postVsCodeMessage({
-    command: 'openPanel',
+    type: 'openPanel',
     viewId,
     title: title || DEFAULT_PANEL_TITLES[viewId],
   });
@@ -17,7 +17,7 @@ export const openPanel = (viewId: PANEL_TYPES, title?: string) => {
 
 export const openSidebar = (viewId: SIDEBAR_TYPES, title?: string) => {
   postVsCodeMessage({
-    command: 'changeSidebar',
+    type: 'changeSidebar',
     viewId,
     title: title || DEFAULT_SIDEBAR_TITLES[viewId],
   });

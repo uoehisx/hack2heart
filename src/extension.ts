@@ -1,4 +1,8 @@
 import * as vscode from 'vscode';
+
+// 인증 세션 정보를 extension 전체에서 참조할 수 있도록 전역 변수 선언
+export let globalSessionInfo: any = null;
+
 import { SidebarProvider } from './sidebarProvider';
 import { PanelProvider } from './panelProvider';
 import { PANEL_TYPES, SIDEBAR_TYPES } from './constants';
@@ -65,6 +69,8 @@ export function activate(context: vscode.ExtensionContext) {
             accessToken: session.accessToken,
             serviceToken: res.access_token,
           };
+          // 전역 변수에도 저장
+          globalSessionInfo = sessionInfo;
           await setSessionInfo(context, sessionInfo);
 
           // webview에도 sessionInfo 전달
@@ -82,6 +88,8 @@ export function activate(context: vscode.ExtensionContext) {
               github_name: session.account.label,
               accessToken: session.accessToken,
             };
+            // 전역 변수에도 저장
+            globalSessionInfo = sessionInfo;
             await setSessionInfo(context, sessionInfo);
 
             // webview에도 sessionInfo 전달

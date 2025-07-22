@@ -2,8 +2,11 @@ import * as vscode from 'vscode';
 import * as path from 'path';
 import { SidebarProvider } from './sidebarProvider';
 import { DEFAULT_PANEL_TITLES, PANEL_TYPES } from './constants';
+import { globalSessionInfo } from './extension';
 
 export class PanelProvider {
+  // 단일 패널 관리
+  private _panel: vscode.WebviewPanel | null = null;
   constructor(
     private readonly _context: vscode.ExtensionContext,
     private _sidebarProvider?: SidebarProvider
@@ -51,14 +54,18 @@ export class PanelProvider {
 
     console.log(`Panel created successfully: ${viewId}`);
 
+    // 생성된 panel을 저장
+    this._panel = panel;
+
     // 패널이 닫힐 때의 이벤트 핸들러
     panel.onDidDispose(() => {
       console.log('Welcome panel disposed');
+      this._panel = null;
     });
 
     // 패널에서 메시지를 받을 때의 이벤트 핸들러
     panel.webview.onDidReceiveMessage(message => {
-      switch (message.command) {
+      switch (message.type) {
         case 'alert':
           vscode.window.showInformationMessage(message.text);
           return;
@@ -89,10 +96,27 @@ export class PanelProvider {
             }, 100);
           }
           return;
+        case 'requestSessionInfo':
+          // 세션 정보 요청
+          if (this._sidebarProvider) {
+            this.postMessageToPanel({
+              type: 'sessionInfo',
+              session: globalSessionInfo,
+            });
+          }
+          return;
       }
     });
   }
 
+  /**
+   * 현재 열린 패널에 메시지 전달
+   */
+  public postMessageToPanel(message: any) {
+    if (this._panel && this._panel.webview) {
+      this._panel.webview.postMessage(message);
+    }
+  }
   private getPanelWebviewContent(
     scriptUri: string,
     styleUri: string,
