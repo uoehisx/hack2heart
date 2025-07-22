@@ -46,7 +46,7 @@ export const WelcomeSidebar = () => {
       >
         <img
           style={{
-            maxWidth: '140px',
+            maxWidth: '160px',
             height: 'auto',
           }}
           src={logo}
@@ -57,9 +57,15 @@ export const WelcomeSidebar = () => {
       <section>
         <DescriptionText>
           <p>Find your</p>
-          <p>Love</p>
-          <p>Friend</p>
-          <p>Co-worker</p>
+          <p style={{ color: 'white' }}>Love</p>
+          <p style={{ color: 'white' }}>Friend</p>
+          <p style={{ color: 'white' }}>Co-worker</p>
+          <p>
+            At{' '}
+            <span style={{ color: 'var(--accent-color, #6a4bff)' }}>
+              Hack2Heart
+            </span>
+          </p>
         </DescriptionText>
       </section>
 

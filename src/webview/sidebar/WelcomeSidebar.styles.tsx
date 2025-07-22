@@ -15,7 +15,7 @@ export const WelcomeTitle = styled.h2`
 `;
 
 export const DescriptionText = styled.h3`
-  font-size: 16px;
+  font-size: 18px;
   font-weight: 400;
   line-height: 1.4;
   white-space: normal;
@@ -23,6 +23,7 @@ export const DescriptionText = styled.h3`
 `;
 
 export const SignInButton = styled.button`
+  margin: 20px auto;
   border: none;
   padding: 10px 14px;
   font-size: 14px;
@@ -31,6 +32,8 @@ export const SignInButton = styled.button`
   color: #fff;
   border-radius: 6px;
   cursor: pointer;
+  width: 100%;
+  max-width: 240px;
 
   :hover {
     background: var(--accent-color-hover, #5a3bff);

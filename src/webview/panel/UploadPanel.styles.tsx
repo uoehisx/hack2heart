@@ -4,7 +4,6 @@ import styled from '@emotion/styled';
 export const Wrapper = styled.div`
   min-height: 100vh;
   padding: 48px 0;
-  background: #1a1a1a;
   color: #ffffff;
   display: flex;
   flex-direction: column;
