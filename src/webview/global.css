@@ -68,3 +68,19 @@ h6 {
   margin: 0;
   padding: 0;
 }
+/* ─── Scrollbar 숨기기 ─── */
+/* Chrome, Safari, Opera */
+*::-webkit-scrollbar {
+  display: none;
+}
+
+/* IE, Edge */
+* {
+  -ms-overflow-style: none; /* IE and Edge */
+}
+
+/* Firefox */
+* {
+  scrollbar-width: none; /* Firefox */
+}
+

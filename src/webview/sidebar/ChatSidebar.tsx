@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef, FormEvent } from 'react';
+import React, { useState, useEffect, useRef, FormEvent, ChangeEvent } from 'react';
 import useSocketReceiver from '../../hooks/useSocketReceiver';
 import useSocketSender from '../../hooks/useSocketSender';
 import styled from '@emotion/styled';
@@ -11,27 +11,31 @@ interface ChatMessage {
   self?: boolean;
 }
 
-/* ─────────────── Neumorphism Styled Components ─────────────── */
+/* ─────────────── Dark Neumorphism Styled Components ─────────────── */
 const SidebarWrapper = styled.div`
   width: 320px;
   height: 100vh;
   display: flex;
   flex-direction: column;
   padding: 24px;
-  background: #e0e0e0;
-  box-shadow: 9px 9px 16px #bebebe, -9px -9px 16px #ffffff;
+  background: #1f1f1f;
+  box-shadow: 
+    8px 8px 16px #1a1a1a,
+    -8px -8px 16px #262626;
 `;
 
 const Header = styled.h3`
   margin: 0 0 16px 0;
   font-size: 20px;
-  color: #333;
+  color: #e0e0e0;
 `;
 
 const MessagesContainer = styled.div`
   flex: 1;
   overflow-y: auto;
   padding-right: 4px;
+  display: flex;
+  flex-direction: column;
 `;
 
 const Bubble = styled.div<{ self?: boolean }>`
@@ -41,12 +45,12 @@ const Bubble = styled.div<{ self?: boolean }>`
   border-radius: 20px;
   font-size: 14px;
   line-height: 1.4;
-  color: #333;
-  background: #e0e0e0;
+  color: #e0e0e0;
+  background: #3a3a3a;
   box-shadow: ${({ self }) =>
     self
-      ? 'inset 4px 4px 8px #bebebe, inset -4px -4px 8px #ffffff'
-      : '4px 4px 8px #bebebe, -4px -4px 8px #ffffff'};
+      ? 'inset 4px 4px 8px #2e2e2e, inset -4px -4px 8px #424242'
+      : '4px 4px 8px #2e2e2e, -4px -4px 8px #424242'};
   align-self: ${({ self }) => (self ? 'flex-end' : 'flex-start')};
 `;
 
@@ -62,22 +66,25 @@ const TextField = styled.input`
   border: none;
   border-radius: 24px;
   font-size: 14px;
-  background: #e0e0e0;
-  box-shadow: inset 4px 4px 8px #bebebe, inset -4px -4px 8px #ffffff;
+  background: #2e2e2e;
+  box-shadow: inset 4px 4px 8px #262626, inset -4px -4px 8px #363636;
+  color: #e0e0e0;
   outline: none;
 `;
 
 const SendButton = styled.button`
-  padding: 0 20px;
+  padding: 12px 20px;
   border: none;
   border-radius: 24px;
   font-size: 14px;
   cursor: pointer;
-  background: #e0e0e0;
-  box-shadow: 4px 4px 8px #bebebe, -4px -4px 8px #ffffff;
-  transition: all 0.15s ease;
+  background: #1f1f1f;
+  box-shadow: 6px 6px 12px #171717, -6px -6px 12px #262626;
+  color: #e0e0e0;
+  transition: box-shadow 0.15s ease;
+
   &:active {
-    box-shadow: inset 4px 4px 8px #bebebe, inset -4px -4px 8px #ffffff;
+    box-shadow: inset 6px 6px 12px #171717, inset -6px -6px 12px #262626;
   }
 `;
 
@@ -96,7 +103,6 @@ const ChatSidebar: React.FC = () => {
   });
 
   /* 2️⃣  발신 */
-  // 반환 타입을 명시적으로 캐스팅해서 타입 안전 확보
   const emitMessage = useSocketSender(EVENT) as (msg: ChatMessage) => void;
 
   /* 3️⃣  자동 스크롤 */
@@ -117,13 +123,39 @@ const ChatSidebar: React.FC = () => {
       self: true,
     };
 
-    setMessages(prev => [...prev, optimistic]); // optimistic UI
-    emitMessage(optimistic); // 서버로 emit
+    setMessages(prev => [...prev, optimistic]);
+    emitMessage(optimistic);
     setDraft('');
   };
 
+  const handleChange = (e: ChangeEvent<HTMLInputElement>) => {
+    setDraft(e.target.value);
+  };
+
   /* 5️⃣  렌더 */
-  return <SidebarWrapper>{/* …UI 생략… */}</SidebarWrapper>;
+  return (
+    <SidebarWrapper>
+      <Header>Chat</Header>
+
+      <MessagesContainer>
+        {messages.map(msg => (
+          <Bubble key={msg.id} self={msg.self}>
+            {msg.text}
+          </Bubble>
+        ))}
+        <div ref={bottomRef} />
+      </MessagesContainer>
+
+      <InputArea onSubmit={handleSubmit}>
+        <TextField
+          value={draft}
+          onChange={handleChange}
+          placeholder="Type a message..."
+        />
+        <SendButton type="submit">Send</SendButton>
+      </InputArea>
+    </SidebarWrapper>
+  );
 };
 
 export default ChatSidebar;
