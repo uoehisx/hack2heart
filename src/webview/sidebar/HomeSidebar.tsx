@@ -27,6 +27,8 @@ import {
 } from './HomeSidebar.styles';
 import { useAuthContext } from '../../contexts/AuthContext';
 import {
+  AVATAR_IMG_SRC,
+  DEFAULT_AVATAR_IMG_ID,
   GENDER_TYPES,
   PANEL_TYPES,
   SIDEBAR_TYPES,
@@ -40,50 +42,69 @@ interface ChatItemType {
   name: string;
   gender: string;
   age: number;
-  lastMessage: string;
-  avatarUrl: string;
+  lastMessage: string | null;
+  avatarId: number | null;
 }
-
-const mockChats: ChatItemType[] = [
-  {
-    id: '1',
-    name: 'John4321',
-    gender: 'Male',
-    age: 26,
-    lastMessage: 'Your code looks good to me. Hello ...',
-    avatarUrl: '/assets/profileImage/gopher.png',
-  },
-];
 
 export const HomeSidebar: React.FC = () => {
   const { session } = useAuthContext();
   const [currentUser, setCurrentUser] = useState<User | null>(null);
+  const [chatrooms, setChatrooms] = useState<ChatItemType[]>([]);
   const [openChats, setOpenChats] = useState(false);
+
+  if (!session) {
+    return <p>Loading...</p>;
+  }
 
   useEffect(() => {
     // 최초 진입 시 사용자 정보 요청
     const fetchUserProfile = async () => {
-      console.log('serviceToken:', session?.serviceToken);
-      if (session) {
-        try {
-          const response = await axiosRequest({
-            method: 'GET',
-            url: '/users/me',
-            headers: {
-              Authorization: `Bearer ${session.serviceToken}`,
-            },
-          });
+      try {
+        const response = await axiosRequest({
+          method: 'GET',
+          url: '/users/me',
+          headers: {
+            Authorization: `Bearer ${session.serviceToken}`,
+          },
+        });
 
-          setCurrentUser(response.data);
-        } catch (error) {
-          console.error('Failed to fetch user profile:', error);
-        }
+        setCurrentUser(response.data);
+      } catch (error) {
+        console.error('Failed to fetch user profile:', error);
       }
     };
     fetchUserProfile();
-  }, [session]);
 
-  if (!session || !currentUser) {
+    const fetchChatrooms = async () => {
+      try {
+        const chatrooms = (
+          await axiosRequest({
+            method: 'GET',
+            url: '/users/me/chatrooms',
+            headers: {
+              Authorization: `Bearer ${session.serviceToken}`,
+            },
+          })
+        ).data.chatrooms;
+        console.log('Fetched chatrooms:', chatrooms);
+        setChatrooms(
+          chatrooms.map((chatroom: any) => ({
+            id: chatroom.id,
+            name: chatroom.name,
+            gender: chatroom.gender,
+            age: getAge(chatroom.birth_date),
+            lastMessage: chatroom.last_message,
+            avatarId: chatroom.avatar_id,
+          }))
+        );
+      } catch (error) {
+        console.error('Failed to fetch chatrooms:', error);
+      }
+    };
+    fetchChatrooms();
+  }, []);
+
+  if (!currentUser) {
     return <p>Loading...</p>;
   }
 
@@ -141,12 +162,27 @@ export const HomeSidebar: React.FC = () => {
 
           {openChats && (
             <ChatList>
-              {mockChats.map(chat => (
-                <ChatItem key={chat.id}>
-                  <ChatAvatar src={chat.avatarUrl} />
+              {chatrooms.map(chat => (
+                <ChatItem
+                  key={chat.id}
+                  onClick={() => {
+                    openSidebar(SIDEBAR_TYPES.CHAT, undefined, {
+                      chatroomId: chat.id,
+                    });
+                  }}
+                >
+                  <ChatAvatar
+                    src={AVATAR_IMG_SRC[chat.avatarId || DEFAULT_AVATAR_IMG_ID]}
+                  />
                   <ChatInfo>
                     <ChatName>
-                      {chat.name} ({chat.gender}, {chat.age})
+                      {chat.name} (
+                      {chat.gender === GENDER_TYPES.MALE
+                        ? 'Male'
+                        : GENDER_TYPES.FEMALE
+                        ? 'Female'
+                        : 'Other'}
+                      , {chat.age})
                     </ChatName>
                     <ChatPreview>{chat.lastMessage}</ChatPreview>
                   </ChatInfo>
