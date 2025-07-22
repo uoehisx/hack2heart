@@ -1,4 +1,4 @@
-import React, { useState, useEffect, ChangeEvent } from 'react';
+import React, { useState, useEffect, ChangeEvent, FocusEvent, useRef } from 'react';
 import { axiosRequest, useAxios } from '../../hooks/useAxios';
 import { GENDER_TYPES } from '../../types';
 import { openSidebar } from '../panel/TestPanel';
@@ -82,35 +82,25 @@ const AVATAR_IMG_SRC = [
   require('../../assets/profileImage/scratchcat.png'),
   require('../../assets/profileImage/tux.jpeg'),
 ];
-const languages = [
-  'JavaScript',
-  'TypeScript',
-  'Python',
-  'Ruby',
-  'Go',
-  'Kotlin',
-];
-const packages = [
-  'React',
-  'Vue',
-  'Angular',
-  'Express',
-  'PyTorch',
-  'TensorFlow',
-];
-const likeToOptions = [
-  'Code Together',
-  'Code Alone',
-  'TDD',
-  'Early-bird',
-  'Night-owl',
-  'Code Golf',
-  'AI repeater',
-  'Enjoy Smokeoding',
-  'Fxck testing',
-];
+
+interface LanguageInfo {
+  id: number;
+  name: string;
+}
+
+interface PackageInfo{
+  id:number;
+  name:string;
+}
+
+interface TmiInfo{
+  id:number;
+  name:string;
+}
 
 export const ProfileSidebar = () => {
+  const debounceTimer = useRef<NodeJS.Timeout | null>(null);
+
   const [avatarId, setAvatarId] = useState(0);
   const [name, setName] = useState('');
   const [birth, setBirth] = useState('');
@@ -118,20 +108,110 @@ export const ProfileSidebar = () => {
   const [lookingForLove, setLookingForLove] = useState<boolean>(true);
   const [lookingForFriend, setLookingForFriend] = useState<boolean>(false);
   const [lookingForCoWorker, setLookingForCoWorker] = useState<boolean>(false);
-  const [preferredLanguage, setPreferredLanguage] = useState('');
   const [preferredPackage, setPreferredPackage] = useState('');
   const [likeTo, setLikeTo] = useState<string[]>([]);
+
+
+  const [languageInput, setLanguageInput] = useState('');
+  const [languageList, setLanguageList] = useState<LanguageInfo[]>([]);
+  const [selectedLanguage, setSelectedLanguage] = useState<LanguageInfo | null>(null);
+
+  const[packageInput,setpackageInput]=useState('');
+  const [packagelist,setPackageList]=useState<PackageInfo[]>([]);
+  const[selectedPackage,setSelectedPackage]=useState<PackageInfo| null>(null);
+
+  const [tmiList,setTmiList]=useState<TmiInfo[]>([]);
+  const[selectedTmi,setSelectedTmi]=useState<TmiInfo[]>([]);
+
 
   useEffect(() => {
     // Pick a random profile image on first mount
     const idx = Math.floor(Math.random() * AVATAR_IMG_SRC.length);
     setAvatarId(idx);
+
+    const fetchTmis=async()=>{
+      try{
+        const res=await axiosRequest<{tmis:TmiInfo[]}>({
+          method:'GET',
+          url:'/tmis',
+        });
+        setTmiList(res.data.tmis);
+      }catch(err){
+        console.error('failed to fetch TMIs',err);
+      }
+    };
+    fetchTmis();
   }, []);
+
+  const onLanguageInputChangeHandler = async (input: string) => {
+    if (debounceTimer.current) clearTimeout(debounceTimer.current);
+
+
+    if(!input) {
+      setLanguageList([]);
+      return;
+    }
+
+    // 마지막 입력 후 300ms 동안 추가 입력이 없으면 실제 요청 실행
+    debounceTimer.current = setTimeout(async () => {
+      try {
+        const res = await axiosRequest({
+          method: 'GET',
+          url: `/languages?query=${encodeURIComponent(input)}`,
+        });
+        setLanguageList(res.data.languages);
+      } catch (err) {
+        console.error(err);
+      }
+    }, 300);
+  }
+
+  // 삭제 버튼 클릭 시 빈 값으로 저장
+  const handleLanguageRemove=()=>{
+    setSelectedLanguage(null);
+  };
 
   const toggleLikeTo = (opt: string) =>
     setLikeTo(prev =>
       prev.includes(opt) ? prev.filter(x => x !== opt) : [...prev, opt]
     );
+const onPackageInputChangeHandler = async (input: string) => {
+    if (debounceTimer.current) clearTimeout(debounceTimer.current);
+
+
+    if(!input) {
+      setPackageList([]);
+      return;
+    }
+
+    // 마지막 입력 후 300ms 동안 추가 입력이 없으면 실제 요청 실행
+    debounceTimer.current = setTimeout(async () => {
+      try {
+        const res = await axiosRequest({
+          method: 'GET',
+          url: `/packages?query=${encodeURIComponent(input)}`,
+        });
+        setPackageList(res.data.packages);
+      } catch (err) {
+        console.error(err);
+      }
+    }, 300);
+  }
+
+  // 삭제 버튼 클릭 시 빈 값으로 저장
+  const handlePackageRemove=()=>{
+    setSelectedPackage(null);
+  };
+  const handleTmiToggle = (tmi: TmiInfo) => {
+    setSelectedTmi(prev =>
+      prev.find(x => x.id === tmi.id)
+        ? prev.filter(x => x.id !== tmi.id)  // 이미 있으면 제거
+        : [...prev, tmi]                     // 없으면 추가
+  );
+};
+  
+  
+  
 
   const onContinueButtonHandler = async () => {
     // const session = await getVsCodeSession();
@@ -334,11 +414,11 @@ export const ProfileSidebar = () => {
         <Field>
           <FieldLabel>Most Preferred Language</FieldLabel>
           <BadgeRow>
-            {languages.includes(preferredLanguage) ? (
+            {selectedLanguage ? (
               <RemovableBadge>
-                <Badge text={preferredLanguage} />
+                <Badge text={selectedLanguage.name} />
                 <RemoveButton
-                  onClick={() => setPreferredLanguage('')}
+                  onClick={handleLanguageRemove}
                   aria-label="Remove language"
                 >
                   ×
@@ -348,10 +428,7 @@ export const ProfileSidebar = () => {
               <>
                 <input
                   list="language-options"
-                  value={preferredLanguage}
-                  onChange={(e: ChangeEvent<HTMLInputElement>) =>
-                    setPreferredLanguage(e.target.value)
-                  }
+                  value={languageInput}
                   placeholder="Search..."
                   style={{
                     width: '100%',
@@ -360,10 +437,22 @@ export const ProfileSidebar = () => {
                     border: '1px solid #ccc',
                     marginBottom: 0,
                   }}
+                  onChange={e=>{
+                    const v=e.target.value;
+                    setLanguageInput(v);
+                    onLanguageInputChangeHandler(v);
+                    const match=languageList.find(lang=>lang.name===v);
+                    if(match){
+                      setSelectedLanguage(match);
+                      setLanguageInput('');
+                      setLanguageList([]);
+                      }
+                    }
+                  }
                 />
                 <datalist id="language-options">
-                  {languages.map(lang => (
-                    <option key={lang} value={lang} />
+                  {languageList.map(lang => (
+                    <option key={lang.id} value={lang.name}/>
                   ))}
                 </datalist>
               </>
@@ -371,15 +460,15 @@ export const ProfileSidebar = () => {
           </BadgeRow>
         </Field>
 
-        {/* Most Preferred Package */}
+        {/*Most Preferred Package */}
         <Field>
           <FieldLabel>Most Preferred Package</FieldLabel>
           <BadgeRow>
-            {packages.includes(preferredPackage) ? (
+            {selectedPackage ? (
               <RemovableBadge>
-                <Badge text={preferredPackage} />
+                <Badge text={selectedPackage.name} />
                 <RemoveButton
-                  onClick={() => setPreferredPackage('')}
+                  onClick={handlePackageRemove}
                   aria-label="Remove package"
                 >
                   ×
@@ -389,10 +478,7 @@ export const ProfileSidebar = () => {
               <>
                 <input
                   list="package-options"
-                  value={preferredPackage}
-                  onChange={(e: ChangeEvent<HTMLInputElement>) =>
-                    setPreferredPackage(e.target.value)
-                  }
+                  value={packageInput}
                   placeholder="Search..."
                   style={{
                     width: '100%',
@@ -401,10 +487,23 @@ export const ProfileSidebar = () => {
                     border: '1px solid #ccc',
                     marginBottom: 0,
                   }}
+                  onChange={e=>{
+                    const v=e.target.value;
+                    setpackageInput(v);
+                    onPackageInputChangeHandler(v);
+                    const match=packagelist.find(pkg=>pkg.name===v);
+                    if(match){
+                      setSelectedPackage(match);
+                      setpackageInput('');
+                      setPackageList([]);
+                      }
+                    }
+                  }
                 />
                 <datalist id="package-options">
-                  {packages.map(pkg => (
-                    <option key={pkg} value={pkg} />
+                  {packagelist.map(pkg => (
+                    <option key={pkg.id} value={pkg.name} 
+                    />
                   ))}
                 </datalist>
               </>
@@ -412,25 +511,26 @@ export const ProfileSidebar = () => {
           </BadgeRow>
         </Field>
 
+
         {/* I like to… */}
-        <Field>
-          <FieldLabel>I like to…</FieldLabel>
-          <BadgeRow>
-            {likeToOptions.map(opt => {
-              const selected = likeTo.includes(opt);
-              return (
-                <ToggleBadge
-                  key={opt}
-                  selected={selected}
-                  onClick={() => toggleLikeTo(opt)}
-                  aria-pressed={selected}
-                >
-                  <Badge text={opt} />
-                </ToggleBadge>
-              );
-            })}
-          </BadgeRow>
-        </Field>
+       <Field>
+  <FieldLabel>나를 더 잘 알 수 있는 TMI</FieldLabel>
+  <BadgeRow>
+    {tmiList.map(tmi => {
+      const isSelected = selectedTmi.some(x => x.id === tmi.id);
+      return (
+        <ToggleBadge
+          key={tmi.id}
+          selected={isSelected}
+          onClick={() => handleTmiToggle(tmi)}
+        >
+          <Badge text={tmi.name} />
+        </ToggleBadge>
+      );
+    })}
+  </BadgeRow>
+</Field>
+
 
         {/* Continue Button */}
         <button

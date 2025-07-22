@@ -1,5 +1,5 @@
 import axios, { AxiosRequestConfig, AxiosResponse } from 'axios';
-import * as dotenv from 'dotenv';
+import * as dotenv from  'dotenv';
 import path from 'path';
 
 dotenv.config({ path: path.join(__dirname, '..', '.env') });
