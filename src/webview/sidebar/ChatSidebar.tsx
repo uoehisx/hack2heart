@@ -18,10 +18,10 @@ const SidebarWrapper = styled.div`
   display: flex;
   flex-direction: column;
   padding: 24px;
-  background: #1f1f1f;
+  background: #1f1f1f; /* 어두운 그레이 */
   box-shadow: 
-    8px 8px 16px #1a1a1a,
-    -8px -8px 16px #262626;
+    8px 8px 16px #1f1f1f,   /* 아래 오른쪽 그림자 */
+    -8px -8px 16px #1f1f1f; /* 위 왼쪽 하이라이트 */
 `;
 
 const Header = styled.h3`
@@ -46,13 +46,14 @@ const Bubble = styled.div<{ self?: boolean }>`
   font-size: 14px;
   line-height: 1.4;
   color: #e0e0e0;
-  background: #3a3a3a;
+  background: #3a3a3a;   /* 연한 그레이로 변경 */
   box-shadow: ${({ self }) =>
     self
       ? 'inset 4px 4px 8px #2e2e2e, inset -4px -4px 8px #424242'
       : '4px 4px 8px #2e2e2e, -4px -4px 8px #424242'};
   align-self: ${({ self }) => (self ? 'flex-end' : 'flex-start')};
 `;
+
 
 const InputArea = styled.form`
   display: flex;
@@ -73,18 +74,17 @@ const TextField = styled.input`
 `;
 
 const SendButton = styled.button`
-  padding: 12px 20px;
+  padding: 0 20px;
   border: none;
   border-radius: 24px;
   font-size: 14px;
   cursor: pointer;
-  background: #1f1f1f;
-  box-shadow: 6px 6px 12px #171717, -6px -6px 12px #262626;
-  color: #e0e0e0;
-  transition: box-shadow 0.15s ease;
-
+  background: #2e2e2e;
+  box-shadow: 4px 4px 8px #262626, -4px -4px 8px #363636;
+  color: #000000;
+  transition: all 0.15s ease;
   &:active {
-    box-shadow: inset 6px 6px 12px #171717, inset -6px -6px 12px #262626;
+    box-shadow: inset 4px 4px 8px #ffffff, inset -4px -4px 8px #ffffff;
   }
 `;
 

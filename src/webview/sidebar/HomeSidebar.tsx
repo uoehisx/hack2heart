@@ -2,12 +2,13 @@
 import React, { useState } from 'react';
 import styled from 'styled-components';
 import gopher from '../../assets/profileImage/gopher.png';
+import { Badge } from '../components/badge';
 
 // — styled components — //
 
 const Container = styled.div`
   width: 100vw;
-  height:100vh;
+  margin-top:30px;
   padding: 24px;
   background: #181818;
   display: flex;
@@ -50,7 +51,7 @@ const SubInfo = styled.p`
   font-size: 14px;
 `;
 
-const Badges = styled.div`
+const BadgesContainer = styled.div`
   display: flex;
   justify-content: center;
   gap: 8px;
@@ -58,19 +59,20 @@ const Badges = styled.div`
   margin-bottom: 16px;
 `;
 
-const Badge = styled.span`
-  padding: 4px 8px;
-  background: #1f1f1f;
-  border-radius: 12px;
-  font-size: 12px;
-  color: #ffffff;
-  box-shadow: 2px 2px 4px #000000, -2px -2px 4px #1f1f1f;
-`;
+// const Badge = styled.span`
+//   padding: 4px 8px;
+//   background: #1f1f1f;
+//   border-radius: 12px;
+//   font-size: 12px;
+//   color: #ffffff;
+//   box-shadow: 2px 2px 4px #000000, -2px -2px 4px #1f1f1f;
+// `;
 
 const Buttons = styled.div`
   display: flex;
   flex-direction: column;
   gap: 12px;
+  width: 280px;                       
 `;
 
 const PrimaryButton = styled.button`
@@ -100,7 +102,7 @@ const SecondaryButton = styled(PrimaryButton)`
 `;
 
 const ChatsSection = styled.div`
-  margin-top: -12px;
+  margin-top:20px;
 `;
 
 const ChatToggle = styled.div`
@@ -199,16 +201,15 @@ export const HomeSidebar: React.FC = () => {
         <ProfileImage src={gopher} />
         <Name>John1234</Name>
         <SubInfo>Male, 26</SubInfo>
-        <Badges>
-          <Badge>Python</Badge>
-          <Badge>PyTorch</Badge>
-          <Badge>Enjoy Alcoding</Badge>
-        </Badges>
-        <Buttons>
+        <BadgesContainer>
+          <Badge text='Python' />
+        </BadgesContainer>
+      </ProfileSection>
+
+      <Buttons>
           <PrimaryButton>Edit Profile</PrimaryButton>
           <SecondaryButton>My Codes</SecondaryButton>
-        </Buttons>
-      </ProfileSection>
+      </Buttons>
 
       <ChatsSection>
         <ChatToggle onClick={() => setOpenChats(!openChats)}>

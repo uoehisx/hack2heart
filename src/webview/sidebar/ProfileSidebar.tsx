@@ -1,7 +1,79 @@
-import React, { useState, useEffect } from 'react';
-import { openPanel, openSidebar } from '../panel/TestPanel';
+// src/webview/sidebar/ProfileSidebar.tsx
+import React, { useState, useEffect, ChangeEvent } from 'react';
+import styled from 'styled-components';
+import { openPanel } from '../panel/TestPanel';
 import { PANEL_TYPES } from '../../constants';
+import { Badge } from '../components/badge';
 
+// --- styled helpers ---
+const Container = styled.div`
+  margin-top: 30px;
+  width: 100vw;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: Inter, sans-serif;
+`;
+
+const Form = styled.form`
+  width: 320px;
+  border-radius: 16px;
+  padding: 24px;
+  box-shadow: 0 2px 8px #0001;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 24px;
+`;
+
+const Field = styled.div`
+  width: 100%;
+`;
+
+const FieldLabel = styled.label`
+  display: block;
+  margin-bottom: 4px;
+  font-weight: 600;
+`;
+
+const BadgeRow = styled.div`
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 8px;
+`;
+
+const RemovableBadge = styled.div`
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+`;
+
+const RemoveButton = styled.button`
+  background: transparent;
+  border: none;
+  font-size: 14px;
+  line-height: 1;
+  cursor: pointer;
+  padding: 0;
+  color: #ffffff;
+`;
+
+// ToggleBadge for “I like to…” options
+const ToggleBadge = styled.div<{ selected: boolean }>`
+  display: inline-flex;
+  align-items: center;
+  padding: 4px 8px;
+  margin: 4px;
+  border-radius: 12px;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+
+  background-color: ${({ selected }) =>
+    selected ? '#556cd6' : 'transparent'};
+`;
+
+// --- constants & assets ---
 const profileImages = [
   require('../../assets/profileImage/gopher.png'),
   require('../../assets/profileImage/kodee.png'),
@@ -11,53 +83,43 @@ const profileImages = [
   require('../../assets/profileImage/tux.jpeg'),
 ];
 
-const genders = ['Male', 'Female', 'Other'];
-const lookingFor = ['Love', 'Friend', 'Co-worker'];
+const genders      = ['Male', 'Female', 'Other'];
+const lookingFor   = ['Love', 'Friend', 'Co-worker'];
+const languages    = ['JavaScript', 'TypeScript', 'Python', 'Ruby', 'Go', 'Kotlin'];
+const packages     = ['React', 'Vue', 'Angular', 'Express', 'PyTorch', 'TensorFlow'];
+const likeToOptions = [
+  'Code Together','Code Alone','TDD',
+  'Early-bird','Night-owl','Code Golf',
+  'AI repeater','Enjoy Smokeoding','Fxck testing'
+];
 
-export const ProfileSidebar = () => {
-  const [profileImg, setProfileImg] = useState(profileImages[0]);
-  const [name, setName] = useState('');
-  const [birth, setBirth] = useState('');
-  const [gender, setGender] = useState('');
-  const [looking, setLooking] = useState<string[]>([]);
+// --- component ---
+export const ProfileSidebar: React.FC = () => {
+  const [profileImg, setProfileImg]       = useState(profileImages[0]);
+  const [name, setName]                   = useState('');
+  const [birth, setBirth]                 = useState('');
+  const [gender, setGender]               = useState('');
+  const [looking, setLooking]             = useState<string[]>([]);
+  const [preferredLanguage, setPreferredLanguage] = useState('');
+  const [preferredPackage, setPreferredPackage]   = useState('');
+  const [likeTo, setLikeTo]               = useState<string[]>([]);
 
   useEffect(() => {
-    // Pick a random profile image on first mount
     const idx = Math.floor(Math.random() * profileImages.length);
     setProfileImg(profileImages[idx]);
   }, []);
 
-  const onContinueButtonHandler = () => {
-    openPanel(PANEL_TYPES.EXPLORE);
-  };
+  const toggleLikeTo = (opt: string) =>
+    setLikeTo(prev =>
+      prev.includes(opt) ? prev.filter(x => x !== opt) : [...prev, opt]
+    );
+
+  const onContinue = () => openPanel(PANEL_TYPES.EXPLORE);
 
   return (
-    <div
-      lang="en"
-      style={{
-        minHeight: '100vh',
-        width: '100vw',
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-        background: 'transparent',
-        fontFamily: 'Inter, sans-serif',
-      }}
-    >
-      <form
-        style={{
-          width: 320,
-          background: 'transparent',
-          borderRadius: 16,
-          padding: 24,
-          boxShadow: '0 2px 8px #0001',
-          display: 'flex',
-          flexDirection: 'column',
-          alignItems: 'center',
-        }}
-        acceptCharset="UTF-8"
-        lang="en"
-      >
+    <Container>
+      <Form lang="en">
+        {/* Profile Image & Name */}
         <img
           src={profileImg}
           alt="profile"
@@ -67,7 +129,6 @@ export const ProfileSidebar = () => {
             borderRadius: '50%',
             objectFit: 'cover',
             border: '2px solid #eee',
-            marginBottom: 20,
           }}
         />
         <input
@@ -80,15 +141,14 @@ export const ProfileSidebar = () => {
             padding: 8,
             borderRadius: 6,
             border: '1px solid #ccc',
-            marginBottom: 24,
             fontSize: 16,
             textAlign: 'center',
           }}
         />
-        <div style={{ width: '100%', marginBottom: 16 }}>
-          <div style={{ fontWeight: 600, fontSize: 16, marginBottom: 4 }}>
-            Date of Birth
-          </div>
+
+        {/* Date of Birth */}
+        <Field>
+          <FieldLabel>Date of Birth</FieldLabel>
           <input
             type="date"
             value={birth}
@@ -100,72 +160,152 @@ export const ProfileSidebar = () => {
               border: '1px solid #ccc',
             }}
             lang="en-CA"
-            placeholder="YYYY-MM-DD"
-            autoComplete="off"
           />
-        </div>
-        <div style={{ width: '100%', marginBottom: 16 }}>
-          <div style={{ fontWeight: 600, fontSize: 16, marginBottom: 4 }}>
-            Gender
-          </div>
+        </Field>
+
+        {/* Gender */}
+        <Field>
+          <FieldLabel>Gender</FieldLabel>
           <div style={{ display: 'flex', gap: 12, justifyContent: 'center' }}>
             {genders.map(g => (
-              <label
-                key={g}
-                style={{
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: 4,
-                  fontFamily: 'Inter, sans-serif',
-                }}
-              >
+              <label key={g} style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
                 <input
                   type="checkbox"
-                  name="gender"
                   value={g}
                   checked={gender === g}
                   onChange={() => setGender(g)}
-                  lang="en"
                 />
                 {g}
               </label>
             ))}
           </div>
-        </div>
-        <div style={{ width: '100%', marginBottom: 24 }}>
-          <div style={{ fontWeight: 600, fontSize: 16, marginBottom: 4 }}>
-            Looking For
-          </div>
+        </Field>
+
+        {/* Looking For */}
+        <Field>
+          <FieldLabel>Looking For</FieldLabel>
           <div style={{ display: 'flex', gap: 12, justifyContent: 'center' }}>
             {lookingFor.map(l => (
-              <label
-                key={l}
-                style={{
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: 4,
-                  fontFamily: 'Inter, sans-serif',
-                }}
-              >
+              <label key={l} style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
                 <input
                   type="checkbox"
-                  name="looking"
                   value={l}
                   checked={looking.includes(l)}
-                  onChange={() => {
+                  onChange={() =>
                     setLooking(prev =>
-                      prev.includes(l)
-                        ? prev.filter(item => item !== l)
-                        : [...prev, l]
-                    );
-                  }}
-                  lang="en"
+                      prev.includes(l) ? prev.filter(x => x !== l) : [...prev, l]
+                    )
+                  }
                 />
                 {l}
               </label>
             ))}
           </div>
-        </div>
+        </Field>
+
+        {/* Most Preferred Language */}
+        <Field>
+          <FieldLabel>Most Preferred Language</FieldLabel>
+          <BadgeRow>
+            {languages.includes(preferredLanguage) ? (
+              <RemovableBadge>
+                <Badge text={preferredLanguage} />
+                <RemoveButton
+                  onClick={() => setPreferredLanguage('')}
+                  aria-label="Remove language"
+                >
+                  ×
+                </RemoveButton>
+              </RemovableBadge>
+            ) : (
+              <>
+                <input
+                  list="language-options"
+                  value={preferredLanguage}
+                  onChange={(e: ChangeEvent<HTMLInputElement>) =>
+                    setPreferredLanguage(e.target.value)
+                  }
+                  placeholder="Search..."
+                  style={{
+                    width: '100%',
+                    padding: 8,
+                    borderRadius: 6,
+                    border: '1px solid #ccc',
+                    marginBottom: 0,
+                  }}
+                />
+                <datalist id="language-options">
+                  {languages.map(lang => (
+                    <option key={lang} value={lang} />
+                  ))}
+                </datalist>
+              </>
+            )}
+          </BadgeRow>
+        </Field>
+
+        {/* Most Preferred Package */}
+        <Field>
+          <FieldLabel>Most Preferred Package</FieldLabel>
+          <BadgeRow>
+            {packages.includes(preferredPackage) ? (
+              <RemovableBadge>
+                <Badge text={preferredPackage} />
+                <RemoveButton
+                  onClick={() => setPreferredPackage('')}
+                  aria-label="Remove package"
+                >
+                  ×
+                </RemoveButton>
+              </RemovableBadge>
+            ) : (
+              <>
+                <input
+                  list="package-options"
+                  value={preferredPackage}
+                  onChange={(e: ChangeEvent<HTMLInputElement>) =>
+                    setPreferredPackage(e.target.value)
+                  }
+                  placeholder="Search..."
+                  style={{
+                    width: '100%',
+                    padding: 8,
+                    borderRadius: 6,
+                    border: '1px solid #ccc',
+                    marginBottom: 0,
+                  }}
+                />
+                <datalist id="package-options">
+                  {packages.map(pkg => (
+                    <option key={pkg} value={pkg} />
+                  ))}
+                </datalist>
+              </>
+            )}
+          </BadgeRow>
+        </Field>
+
+        {/* I like to… */}
+        <Field>
+          <FieldLabel>I like to…</FieldLabel>
+          <BadgeRow>
+            {likeToOptions.map(opt => {
+              const selected = likeTo.includes(opt);
+              return (
+                <ToggleBadge
+                  key={opt}
+                  selected={selected}
+                  onClick={() => toggleLikeTo(opt)}
+                  aria-pressed={selected}
+                >
+                  <Badge text={opt} />
+                </ToggleBadge>
+              );
+            })}
+          </BadgeRow>
+        </Field>
+
+        {/* Continue Button */}
         <button
           type="button"
           style={{
@@ -179,11 +319,11 @@ export const ProfileSidebar = () => {
             border: 'none',
             cursor: 'pointer',
           }}
-          onClick={onContinueButtonHandler}
+          onClick={onContinue}
         >
           Continue
         </button>
-      </form>
-    </div>
+      </Form>
+    </Container>
   );
 };
