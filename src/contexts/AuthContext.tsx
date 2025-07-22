@@ -14,9 +14,7 @@ export interface AuthSession {
   accessToken?: string;
 
   // 서비스 자체 세션 정보
-  userId?: string;
   serviceToken?: string;
-  [key: string]: any;
 }
 
 interface AuthContextType {

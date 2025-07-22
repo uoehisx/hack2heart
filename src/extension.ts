@@ -35,27 +35,41 @@ export function activate(context: vscode.ExtensionContext) {
           `Hello, ${session.account.label}!`
         );
 
-        // 인증 성공 시 webview에 sessionInfo 메시지 전달
-        sidebarProvider.postMessageToWebview({
-          type: 'sessionInfo',
-          session: {
-            github_oauth_id: session.account.id,
-            github_name: session.account.label,
-            accessToken: session.accessToken,
-          },
-        });
-
         try {
-          const res = await axiosRequestServer({
-            method: 'POST',
-            url: '/auth/github',
-            data: {
-              access_token: session.accessToken,
+          const res = (
+            await axiosRequestServer({
+              method: 'POST',
+              url: '/auth/github',
+              data: {
+                access_token: session.accessToken,
+              },
+            })
+          ).data;
+
+          // 인증 성공 시 webview에 sessionInfo 메시지 전달
+          sidebarProvider.postMessageToWebview({
+            type: 'sessionInfo',
+            session: {
+              github_oauth_id: session.account.id,
+              github_name: session.account.label,
+              accessToken: session.accessToken,
+              serviceToken: res.access_token,
             },
           });
-          console.log('Authentication successful:', res.data);
+
+          sidebarProvider.changeSidebarContent(SIDEBAR_TYPES.HOME);
         } catch (err: any) {
           if (err?.response?.status === 404) {
+            // 인증 성공 시 webview에 sessionInfo 메시지 전달
+            sidebarProvider.postMessageToWebview({
+              type: 'sessionInfo',
+              session: {
+                github_oauth_id: session.account.id,
+                github_name: session.account.label,
+                accessToken: session.accessToken,
+              },
+            });
+
             sidebarProvider.changeSidebarContent(SIDEBAR_TYPES.PROFILE);
           } else {
             vscode.window.showErrorMessage(

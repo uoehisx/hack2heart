@@ -1,6 +1,6 @@
 import React, { useState, useEffect, ChangeEvent } from 'react';
 import { axiosRequest, useAxios } from '../../hooks/useAxios';
-import { GENDER_TYPES } from '../../types';
+import { GENDER_TYPES } from '../../constants';
 import { openSidebar } from '../panel/TestPanel';
 import { SIDEBAR_TYPES } from '../../constants';
 import styled from '@emotion/styled';
@@ -176,7 +176,6 @@ export const ProfileSidebar = () => {
 
       setSession({
         ...session,
-        userId: user.id,
         serviceToken: res.access_token,
       });
 
