@@ -161,7 +161,6 @@ export const UploadPanel: React.FC = () => {
     <Wrapper>
       {/* 상단 버튼 */}
       <TopBar>
-        <BlackButton>Back</BlackButton>
         <WhiteButton>Upload</WhiteButton>
       </TopBar>
 
