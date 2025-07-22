@@ -449,6 +449,41 @@ export const ProfileSidebar = () => {
         >
           Continue
         </button>
+
+        <button
+          type="button"
+          style={{
+            width: '100%',
+            padding: '12px 0',
+            borderRadius: 8,
+            background: '#444',
+            color: '#fff',
+            fontWeight: 600,
+            fontSize: 16,
+            border: 'none',
+            cursor: 'pointer',
+          }}
+          onClick={() => {}}
+        >
+          Save
+        </button>
+        <button
+          type="button"
+          style={{
+            width: '100%',
+            padding: '12px 0',
+            borderRadius: 8,
+            background: '#444',
+            color: '#000',
+            fontWeight: 600,
+            fontSize: 16,
+            border: 'none',
+            cursor: 'pointer',
+          }}
+          onClick={() => {}}
+        >
+          Cancel
+        </button>
       </Form>
     </Container>
   );

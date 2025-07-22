@@ -2,7 +2,6 @@ import React, { useState, useEffect } from 'react';
 import { WelcomeSidebar } from './WelcomeSidebar';
 import { ProfileSidebar } from './ProfileSidebar';
 import { HomeSidebar } from './HomeSidebar';
-import {ProfileEditSidebar} from './ProfileEditSidebar';
 import { TestSidebar } from './TestSidebar';
 import { SIDEBAR_TYPES } from '../../constants';
 import ChatSidebar from './ChatSidebar';
@@ -51,8 +50,6 @@ export const Sidebar = ({
             return <HomeSidebar />;
           case SIDEBAR_TYPES.CHAT:
             return <ChatSidebar />;
-          case SIDEBAR_TYPES.CHAT:
-            return <ProfileEditSidebar/>;
           default:
             return <TestSidebar />;
         }
