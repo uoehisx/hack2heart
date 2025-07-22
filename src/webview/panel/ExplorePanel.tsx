@@ -3,7 +3,6 @@ import 'slick-carousel/slick/slick-theme.css';
 
 import React, { useState, useEffect } from 'react';
 import { axiosRequest } from '../../hooks/useAxios';
-import { Badge } from '../components/badge';
 import { useAuthContext } from '../../contexts/AuthContext';
 import {
   AVATAR_IMG_SRC,
@@ -20,159 +19,53 @@ import styled from '@emotion/styled';
 import { getAge } from '../../utils/ageUtil';
 import { postVsCodeMessage } from '../../utils/vscodeApi';
 
-const CARD_WIDTH = 580;
+import{
+  StyledSlider,
+  Wrapper,
+  Card,
+  InfoRow,
+  BaseCard,
+  UserBar,
+  Profile,
+  NameColumn,
+  UserName,
+  Meta,
+  LanguagesBar,
+  LangTitle,
+  ReactionBar,
+  ReactionImg,
+  CommitText
+} from './ExplorePanel.styles';
 
-/* ───────── 레이아웃 컨테이너 ───────── */
-/* → 전체 ExplorePanel 을 원하는 만큼 아래로 이동 */
-const Wrapper = styled.div`
-  margin-top: 40px;
-  background: #1f1f1f;
-  padding: 32px 0; /* 카드 묶음을 아래로 내림 */
-`;
+interface RecUser {
+  id: number;
+  name: string;
+  gender: 'MALE' | 'FEMALE' | 'OTHER';
+  birth_date: string;
+  avatar_id?: number;
+  most_preferred_language: string;
+  most_preferred_package: string;
+  looking_for_love: boolean;
+  looking_for_friend: boolean;
+  looking_for_coworker: boolean;
+  tmis: { id: number; name: string }[];
+  previous_reaction_type: 'SUPER_LIKE' | 'LIKE' | 'DISLIKE' | null;
+}
 
-/* ───────── Slider 커스텀 ───────── */
-const StyledSlider = styled(Slider)`
-  /* 좌·우 화살표 숨기기 */
-  .slick-prev,
-  .slick-next {
-    display: none !important;
-  }
-
-  /* slide 간 여백 */
-  .slick-slide {
-    width: ${CARD_WIDTH}px !important;
-    padding: 0 12px;
-    box-sizing: border-box;
-  }
-
-  /* dots 위치 & 간격 조정 */
-  .slick-dots {
-    position: absolute;
-    top: -24px;
-    left: 0;
-    right: 0;
-    display: flex !important;
-    justify-content: center;
-    /* 슬라이더 아래 여백 */
-    li {
-      margin: 0 4px;
-    }
-    button:before {
-      font-size: 10px; /* 기본 점 크기 */
-      color: #bbb; /* 비활성 색상 */
-      opacity: 1; /* 투명도 초기화 */
-    }
-    .slick-active button:before {
-      color: #a37ef2; /* 활성 점 색상 */
-    }
-  }
-`;
-
-/* ───────── 카드 항목 ───────── */
-const Card = styled.div`
-  background: #1a1a1a;
-  border-radius: 20px;
-  box-shadow: 6px 6px 12px rgba(0, 0, 0, 0.08), -6px -6px 12px #1f1f1f;
-  height: 500px;
-  width: 100%;
-
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 2rem;
-`;
-const InfoRow = styled.div`
-  margin: 28px auto 0;
-  display: flex;
-  gap: 24px; /* 두 박스 사이 간격 */
-  justify-content: center;
-  flex-wrap: wrap; /* 화면이 좁아지면 아래로 내려가도록 */
-`;
-
-/* 모든 작은 카드(좌우 박스)에 공통으로 쓸 스타일 */
-const BaseCard = styled.div`
-  flex: 0 0 ${CARD_WIDTH / 2}px; /* 고정 너비 */
-  background: #1a1a1a;
-  border-radius: 20px;
-  box-shadow: 6px 6px 12px rgba(0, 0, 0, 0.08), -6px -6px 12px #1f1f1f;
-  padding: 20px 28px;
-  display: flex;
-`;
-
-const UserBar = styled(BaseCard)`
-  align-items: center;
-  gap: 16px;
-`;
-const Profile = styled.img`
-  width: 60px;
-  height: 60px;
-  border-radius: 50%;
-  object-fit: cover;
-  border: 2px solid #f0e8ff;
-`;
-const NameColumn = styled.div`
-  display: flex;
-  flex-direction: column;
-`;
-const UserName = styled.span`
-  font-size: 20px;
-  font-weight: 600;
-  color: #ffffff;
-`;
-
-const Meta = styled.span`
-  margin-top: 2px;
-  font-size: 14px;
-  color: #a37ef2;
-`;
-
-const LanguagesBar = styled(BaseCard)`
-  flex-direction: column;
-  gap: 12px;
-`;
-
-const LangTitle = styled.span`
-  font-size: 18px;
-  font-weight: 600;
-  color: #ffffff;
-
-  /* ‘Languages’만 보라색 강조 */
-  & > span {
-    color: #a37ef2;
-  }
-`;
-
-const ReactionBar = styled.div`
-  margin: 40px auto 0;
-  max-width: 280px;
-  background: #1a1a1a;
-  border-radius: 999px;
-  box-shadow: 6px 6px 12px rgba(0, 0, 0, 0.08), -6px -6px 12px #1f1f1f;
-  padding: 20px 28px;
-  display: flex;
-  justify-content: center;
-  gap: 70px;
-`;
-
-const ReactionImg = styled.img`
-  width:36px;
-  height:36px;
-  cursor:pointer;
-  transition:transform:0.15s;
-  &:hover{
-    transform:scale(1.2);}
-`;
-
-const CommitText = styled.span`
-  display: block;
-  margin: 24px auto 0;
-  text-align: center;
-  font-size: 20px;
-  font-weight: 800;
-  color: #a37ef2;
-`;
+interface UserCode {
+  id: number;
+  content: string;
+  index: number | null;
+  created_at: string;
+}
 
 export const ExplorePanel: React.FC = () => {
+  const { session } = useAuthContext();
+  const [recs, setRecs] = useState<RecUser[]>([]);
+  const [displayedUser, setDisplayedUser] = useState<RecUser | null>(null);
+  // ① userCodes 상태 추가
+  const [userCodes, setUserCodes] = useState<UserCode[]>([]);
+
   const settings = {
     dots: true,
     arrows: false,
@@ -183,57 +76,101 @@ export const ExplorePanel: React.FC = () => {
     centerMode: true,
     variableWidth: true,
   };
-  const { session } = useAuthContext();
-  const [currentUser, setCurrentUser] = useState<User | null>(null);
-  const [openChats, setOpenChats] = useState(false);
 
   useEffect(() => {
     console.log('Requesting session info from VS Code...');
     postVsCodeMessage({ type: 'requestSessionInfo' });
+  }, []);
 
-    // 최초 진입 시 사용자 정보 요청
-    const fetchUserProfile = async () => {
-      console.log('serviceToken:', session?.serviceToken);
-      if (session) {
-        try {
-          const response = await axiosRequest({
-            method: 'GET',
-            url: '/users/me',
-            headers: {
-              Authorization: `Bearer ${session.serviceToken}`,
-            },
-          });
-
-          setCurrentUser(response.data);
-        } catch (error) {
-          console.error('Failed to fetch user profile:', error);
-        }
-      }
-    };
-    fetchUserProfile();
-  }, [session]);
-
-  if (!session || !currentUser) {
+if (!session || !displayedUser) {
     return <p>Loading...</p>;
   }
 
+  // 추천 사용자 불러오기
+  useEffect(() => {
+    const fetchRecommendations = async () => {
+      try {
+        const res = (await axiosRequest({
+          method: 'GET',
+          url: '/users/recommendations',
+          headers: { Authorization: `Bearer ${session.serviceToken}` },
+        })).data;
+
+        const users: RecUser[] = res.users;
+        setRecs(users);
+        if (users.length > 0) {
+          setDisplayedUser(users[0]);
+        }
+      } catch (err) {
+        console.error(err);
+      }
+    }
+    fetchRecommendations();
+  }, [session]);
+
+  // ② displayedUser가 바뀔 때마다 해당 사용자의 코드를 가져와서 상태에 저장
+  useEffect(() => {
+    axiosRequest({
+      method: 'GET',
+      url: `/users/${displayedUser.id}/codes`,
+      headers: { Authorization: `Bearer ${session.serviceToken}` },
+      params: {
+        user_id: displayedUser.id,
+        pinned: false,
+      },
+    })
+    .then(res => {
+      setUserCodes(res.data.userCodes);
+    })
+    .catch(console.error);
+  }, [displayedUser]);
+
+  const handleReaction = async (reactionType: 'SUPER_LIKE' | 'LIKE' | 'DISLIKE') => {
+    try {
+      await axiosRequest({
+        method: 'POST',
+        url: '/create_user_reaction',
+        headers: { Authorization: `Bearer ${session.serviceToken}` },
+        data: {
+          to_user_id: displayedUser.id,
+          reaction_type: reactionType,
+        },
+      });
+      console.log('Reaction sent:', reactionType);
+    } catch (error) {
+      console.error('Failed to send reaction', error);
+    }
+  };
+
   return (
     <Wrapper>
+      {/* ③ 코드 슬라이더 */}
       <StyledSlider {...settings}>
-        {[1, 2, 3, 4, 5].map(n => (
-          <Card key={n}></Card>
-        ))}
+        {userCodes.length > 0 ? (
+          userCodes.map(code => (
+            <Card key={code.id}>
+              <pre style={{ whiteSpace: 'pre-wrap', wordBreak: 'break-all' }}>
+                {code.content}
+              </pre>
+            </Card>
+          ))
+        ) : (
+          <Card>
+            <p>No code snippets available.</p>
+          </Card>
+        )}
       </StyledSlider>
+
       <InfoRow>
         <UserBar>
           <Profile
-            src={AVATAR_IMG_SRC[currentUser.avatar_id || DEFAULT_AVATAR_IMG_ID]}
-            alt={currentUser.name}
+            src={AVATAR_IMG_SRC[displayedUser.avatar_id || DEFAULT_AVATAR_IMG_ID]}
+            alt={displayedUser.name}
           />
           <NameColumn>
-            <UserName>{currentUser.name}</UserName>
+            <UserName>{displayedUser.name}</UserName>
             <Meta>
-              {currentUser.gender}, {getAge(currentUser.birth_date)}
+              {displayedUser.gender}, {getAge(new Date(displayedUser.birth_date))}
             </Meta>
           </NameColumn>
         </UserBar>
@@ -241,16 +178,30 @@ export const ExplorePanel: React.FC = () => {
           <LangTitle>
             Preferred <span>Languages</span>
           </LangTitle>
-          <UserName>
-            {currentUser.most_preferred_language}
-            {currentUser.most_preferred_package}
-          </UserName>
+          <UserName>{displayedUser.most_preferred_language}</UserName>
+          <UserName>{displayedUser.most_preferred_package}</UserName>
         </LanguagesBar>
       </InfoRow>
+
       <ReactionBar>
-        <ReactionImg src={dislikeBtn} alt="Dislike" />
-        <ReactionImg src={fireBtn} alt="Superlike" />
-        <ReactionImg src={likeBtn} alt="Like" />
+        <ReactionImg
+          src={dislikeBtn}
+          alt="Dislike"
+          onClick={() => handleReaction('DISLIKE')}
+          style={{ cursor: 'pointer' }}
+        />
+        <ReactionImg
+          src={fireBtn}
+          alt="Superlike"
+          onClick={() => handleReaction('SUPER_LIKE')}
+          style={{ cursor: 'pointer' }}
+        />
+        <ReactionImg
+          src={likeBtn}
+          alt="Like"
+          onClick={() => handleReaction('LIKE')}
+          style={{ cursor: 'pointer' }}
+        />
       </ReactionBar>
       <CommitText>Commit!</CommitText>
     </Wrapper>
