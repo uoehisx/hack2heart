@@ -1,7 +1,6 @@
 import styled from '@emotion/styled';
 
 export const Container = styled.div`
-  width: 100vw;
   margin-top: 30px;
   padding: 24px;
   background: #181818;
@@ -78,6 +77,7 @@ export const PrimaryButton = styled.button`
   color: #ffffff;
   font-size: 14px;
   cursor: pointer;
+  margin-bottom: 5px;
   box-shadow: 4px 4px 8px #000000, -4px -4px 8px #1f1f1f;
 
   &:active {
@@ -85,13 +85,19 @@ export const PrimaryButton = styled.button`
     transform: translateY(2px);
 `;
 
-export const SecondaryButton = styled(PrimaryButton)`
-  background: transparent;
-  border: 1px solid #333333;
-  color: #bbbbbb;
+export const SecondaryButton = styled.button`
+  padding: 10px;
+  border: none;
+  border-radius: 20px;
+  background: #6a4bff;
+  color: #ffffff;
+  font-size: 14px;
+  cursor: pointer;
+  margin-bottom: 5px;
+  box-shadow: 4px 4px 8px #000000, -4px -4px 8px #1f1f1f;
+
   &:active {
-    /* same inset shadow, but keep the border visible */
-    box-shadow: inset 4px 4px 8px #000000, inset -4px -4px 8px #1f1f1f;
+    box-shadow: inset 4px 4px 8px #5a40d9, inset -4px -4px 8px #7a56ff;
     transform: translateY(2px);
   }
 `;

@@ -1,130 +1,116 @@
-import React, { useState, useEffect, useRef, FormEvent, ChangeEvent } from 'react';
-import useSocketReceiver from '../../hooks/useSocketReceiver';
-import useSocketSender from '../../hooks/useSocketSender';
-import styled from '@emotion/styled';
+import React, {
+  useState,
+  useEffect,
+  useRef,
+  FormEvent,
+  ChangeEvent,
+} from 'react';
+import {
+  BackButton,
+  Bubble,
+  Header,
+  InputArea,
+  MessagesContainer,
+  SendButton,
+  SidebarWrapper,
+  TextField,
+} from './ChatSidebar.styles';
+import { useSocketReceiver, useSocketSender } from '../../hooks/useSocket';
+import { axiosRequest } from '../../hooks/useAxios';
+import { useAuthContext } from '../../contexts/AuthContext';
+import { SIDEBAR_TYPES, User } from '../../constants';
+import { openSidebar } from '../panel/TestPanel';
 
-/* ─────────────── Types ─────────────── */
 interface ChatMessage {
-  id: string;
-  user: string;
-  text: string;
-  self?: boolean;
+  chatroom_id: string;
+  user_id: number;
+  content: string;
+  created_at: string;
 }
 
-/* ─────────────── Dark Neumorphism Styled Components ─────────────── */
-const SidebarWrapper = styled.div`
-  width: 320px;
-  height: 100vh;
-  display: flex;
-  flex-direction: column;
-  padding: 24px;
-  background: #1f1f1f; /* 어두운 그레이 */
-  box-shadow: 
-    8px 8px 16px #1f1f1f,   /* 아래 오른쪽 그림자 */
-    -8px -8px 16px #1f1f1f; /* 위 왼쪽 하이라이트 */
-`;
+interface ChatSidebarProps {
+  chatroomId: string;
+}
 
-const Header = styled.h3`
-  margin: 0 0 16px 0;
-  font-size: 20px;
-  color: #e0e0e0;
-`;
+const ChatSidebar = ({ chatroomId = 'test' }: ChatSidebarProps) => {
+  const { session } = useAuthContext();
+  const [currentUser, setCurrentUser] = useState<User | null>(null);
 
-const MessagesContainer = styled.div`
-  flex: 1;
-  overflow-y: auto;
-  padding-right: 4px;
-  display: flex;
-  flex-direction: column;
-`;
-
-const Bubble = styled.div<{ self?: boolean }>`
-  max-width: 220px;
-  margin-bottom: 12px;
-  padding: 12px 16px;
-  border-radius: 20px;
-  font-size: 14px;
-  line-height: 1.4;
-  color: #e0e0e0;
-  background: #3a3a3a;   /* 연한 그레이로 변경 */
-  box-shadow: ${({ self }) =>
-    self
-      ? 'inset 4px 4px 8px #2e2e2e, inset -4px -4px 8px #424242'
-      : '4px 4px 8px #2e2e2e, -4px -4px 8px #424242'};
-  align-self: ${({ self }) => (self ? 'flex-end' : 'flex-start')};
-`;
-
-
-const InputArea = styled.form`
-  display: flex;
-  gap: 8px;
-  margin-top: 8px;
-`;
-
-const TextField = styled.input`
-  flex: 1;
-  padding: 12px 16px;
-  border: none;
-  border-radius: 24px;
-  font-size: 14px;
-  background: #2e2e2e;
-  box-shadow: inset 4px 4px 8px #262626, inset -4px -4px 8px #363636;
-  color: #e0e0e0;
-  outline: none;
-`;
-
-const SendButton = styled.button`
-  padding: 0 20px;
-  border: none;
-  border-radius: 24px;
-  font-size: 14px;
-  cursor: pointer;
-  background: #2e2e2e;
-  box-shadow: 4px 4px 8px #262626, -4px -4px 8px #363636;
-  color: #000000;
-  transition: all 0.15s ease;
-  &:active {
-    box-shadow: inset 4px 4px 8px #ffffff, inset -4px -4px 8px #ffffff;
-  }
-`;
-
-const EVENT = 'chat-message';
-
-/* ─────────────── Component ─────────────── */
-const ChatSidebar: React.FC = () => {
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [draft, setDraft] = useState('');
   const bottomRef = useRef<HTMLDivElement>(null);
 
-  /* 1️⃣  수신 */
-  useSocketReceiver(EVENT, (data: unknown) => {
+  useSocketReceiver('sent_message', (data: unknown) => {
     const incoming = data as ChatMessage;
+    console.log('Received message:', incoming);
     setMessages(prev => [...prev, incoming]);
   });
 
-  /* 2️⃣  발신 */
-  const emitMessage = useSocketSender(EVENT) as (msg: ChatMessage) => void;
-
-  /* 3️⃣  자동 스크롤 */
+  // 자동 스크롤
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages]);
 
-  /* 4️⃣  전송 */
-  const handleSubmit = (e: FormEvent) => {
+  useEffect(() => {
+    // 최초 진입 시 사용자 정보 및 메시지 목록 요청
+    const fetchUserProfileAndMessages = async () => {
+      console.log('serviceToken:', session?.serviceToken);
+      if (session) {
+        try {
+          // 사용자 정보 요청
+          const userRes = await axiosRequest({
+            method: 'GET',
+            url: '/users/me',
+            headers: {
+              Authorization: `Bearer ${session.serviceToken}`,
+            },
+          });
+          setCurrentUser(userRes.data);
+
+          // 메시지 목록 요청
+          const msgRes = await axiosRequest({
+            method: 'GET',
+            url: `/chatrooms/${chatroomId}/messages`,
+            headers: {
+              Authorization: `Bearer ${session.serviceToken}`,
+            },
+          });
+          console.log('Fetched messages:', msgRes.data);
+          setMessages(msgRes.data.messages);
+        } catch (err) {
+          console.error('Failed to fetch data:', err);
+        }
+      }
+    };
+    fetchUserProfileAndMessages();
+  }, [session, chatroomId]);
+
+  if (!session || !currentUser) {
+    return <p>Loading...</p>;
+  }
+
+  const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
     const text = draft.trim();
     if (!text) return;
 
     const optimistic: ChatMessage = {
-      id: String(Date.now()),
-      user: 'me',
-      text,
-      self: true,
+      chatroom_id: chatroomId,
+      user_id: currentUser.id,
+      content: text,
+      created_at: new Date().toISOString(),
     };
 
+    await axiosRequest({
+      method: 'POST',
+      url: `/chatrooms/${chatroomId}/messages`,
+      headers: {
+        Authorization: `Bearer ${session.serviceToken}`,
+      },
+      data: { content: text },
+    });
+
     setMessages(prev => [...prev, optimistic]);
-    emitMessage(optimistic);
     setDraft('');
   };
 
@@ -132,15 +118,32 @@ const ChatSidebar: React.FC = () => {
     setDraft(e.target.value);
   };
 
-  /* 5️⃣  렌더 */
   return (
     <SidebarWrapper>
-      <Header>Chat</Header>
+      <div
+        style={{
+          width: '100%',
+          display: 'flex',
+          flexDirection: 'row',
+          justifyContent: 'space-between',
+          alignItems: 'center',
+          marginBottom: '16px',
+        }}
+      >
+        <Header>Chat</Header>
+        <BackButton
+          onClick={() => {
+            openSidebar(SIDEBAR_TYPES.HOME);
+          }}
+        >
+          ← back
+        </BackButton>
+      </div>
 
       <MessagesContainer>
         {messages.map(msg => (
-          <Bubble key={msg.id} self={msg.self}>
-            {msg.text}
+          <Bubble key={msg.created_at} self={msg.user_id === currentUser.id}>
+            {msg.content}
           </Bubble>
         ))}
         <div ref={bottomRef} />

@@ -10,6 +10,7 @@ import { postVsCodeMessage } from '../../utils/vscodeApi';
 import { useAuthContext } from '../../contexts/AuthContext';
 import { openSidebar } from '../panel/TestPanel';
 import { SIDEBAR_TYPES } from '../../constants';
+import githubIconWhite from '../../assets/images/github-logo-white.png';
 
 export const WelcomeSidebar = () => {
   const { session } = useAuthContext();
@@ -61,16 +62,21 @@ export const WelcomeSidebar = () => {
           <p style={{ color: 'white' }}>Friend</p>
           <p style={{ color: 'white' }}>Co-worker</p>
           <p>
-            At{' '}
-            <span style={{ color: 'var(--accent-color, #6a4bff)' }}>
-              Hack2Heart
-            </span>
+            At <span style={{ color: '#6a4bff' }}>Hack2Heart</span>
           </p>
         </DescriptionText>
       </section>
 
       <SignInButton type="button" onClick={onGithubLogin}>
-        Continue With GitHub
+        <img
+          src={githubIconWhite}
+          style={{
+            width: '16px',
+            height: '16px',
+            marginRight: '8px',
+          }}
+        ></img>
+        <span>Continue With GitHub</span>
       </SignInButton>
     </WelcomeContainer>
   );
