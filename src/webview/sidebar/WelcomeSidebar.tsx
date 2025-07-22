@@ -34,9 +34,7 @@ export const WelcomeSidebar = () => {
 
   return (
     <WelcomeContainer>
-      <section>
-        <WelcomeTitle>Welcome!</WelcomeTitle>
-      </section>
+      <WelcomeTitle>Welcome!</WelcomeTitle>
 
       <section
         style={{
@@ -55,17 +53,18 @@ export const WelcomeSidebar = () => {
         />
       </section>
 
-      <section>
-        <DescriptionText>
-          <p>Find your</p>
-          <p style={{ color: 'white' }}>Love</p>
-          <p style={{ color: 'white' }}>Friend</p>
-          <p style={{ color: 'white' }}>Co-worker</p>
-          <p>
-            At <span style={{ color: '#6a4bff' }}>Hack2Heart</span>
-          </p>
-        </DescriptionText>
-      </section>
+      <DescriptionText>
+        <p>Find your</p>
+        <p style={{ color: 'white' }}>Love</p>
+        <p style={{ color: 'white' }}>Friend</p>
+        <p style={{ color: 'white' }}>Co-worker</p>
+        <p>
+          At{' '}
+          <span style={{ color: '#6a4bff', fontWeight: '600' }}>
+            Hack2Heart
+          </span>
+        </p>
+      </DescriptionText>
 
       <SignInButton type="button" onClick={onGithubLogin}>
         <img

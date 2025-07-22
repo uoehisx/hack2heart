@@ -1,6 +1,8 @@
 import styled from '@emotion/styled';
 
 export const WelcomeContainer = styled.div`
+  width: 250px;
+  margin: 0 auto;
   padding: 16px;
   display: flex;
   flex-direction: column;
@@ -8,7 +10,6 @@ export const WelcomeContainer = styled.div`
 `;
 
 export const WelcomeTitle = styled.h2`
-  margin: 0;
   font-size: 24px;
   font-weight: 600;
   color: #6a4bff;
@@ -39,7 +40,8 @@ export const SignInButton = styled.button`
   width: 100%;
   width: 220px;
 
-  :hover {
-    background: #5a3bff;
+  &:active {
+    box-shadow: inset 4px 4px 8px #5a40d9, inset -4px -4px 8px #7a56ff;
+    transform: translateY(2px);
   }
 `;
