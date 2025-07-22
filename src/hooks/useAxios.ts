@@ -8,12 +8,13 @@ export interface UseAxiosResult<T = any> {
   request: (config: AxiosRequestConfig) => Promise<void>;
 }
 
-const baseURL = process.env.REACT_APP_API_URL || '';
+const baseURL = 'http://api.hack2heart.minsung.kr';
 const axiosInstance = axios.create({ baseURL });
 
 export function axiosRequest<T = any>(
   config: AxiosRequestConfig
 ): Promise<AxiosResponse<T>> {
+  console.log('API URL:', baseURL);
   return axiosInstance(config);
 }
 

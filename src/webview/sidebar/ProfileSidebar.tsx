@@ -136,20 +136,21 @@ export const ProfileSidebar = () => {
   const onContinueButtonHandler = async () => {
     // const session = await getVsCodeSession();
     // console.log('Session:', session);
-    // await axiosRequest({
-    //   method: 'POST',
-    //   url: '/users',
-    //   data: {
-    //     github_oauth_id: 'test',
-    //     name,
-    //     gender,
-    //     birth_date: birth,
-    //     avatar_id: avatarId,
-    //     looking_for_love: lookingForLove,
-    //     looking_for_friend: lookingForFriend,
-    //     looking_for_coworker: lookingForCoWorker,
-    //   },
-    // });
+    const result = await axiosRequest({
+      method: 'POST',
+      url: '/users',
+      data: {
+        // github_oauth_id: 'test',
+        name,
+        gender,
+        birth_date: birth,
+        avatar_id: avatarId,
+        looking_for_love: lookingForLove,
+        looking_for_friend: lookingForFriend,
+        looking_for_coworker: lookingForCoWorker,
+      },
+    });
+    console.log('Profile created:', result.data);
     // openSidebar(SIDEBAR_TYPES.HOME);
   };
 
