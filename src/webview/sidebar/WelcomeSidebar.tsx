@@ -11,6 +11,7 @@ import { useAuthContext } from '../../contexts/AuthContext';
 import { openSidebar } from '../panel/TestPanel';
 import { SIDEBAR_TYPES } from '../../constants';
 import githubIconWhite from '../../assets/images/github-logo-white.png';
+import { Loading } from '../components/loading';
 
 export const WelcomeSidebar = () => {
   const { session } = useAuthContext();

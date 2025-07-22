@@ -23,6 +23,7 @@ import {
 import { Wrapper } from './UploadPanel.styles';
 import { postVsCodeMessage } from '../../utils/vscodeApi';
 import { useAuthContext } from '../../contexts/AuthContext';
+import { Loading } from '../components/loading';
 
 /* ─────────────── Types ─────────────── */
 interface CodeCard {
@@ -241,7 +242,7 @@ export const MycodePanel: React.FC = () => {
   };
 
   if (!session) {
-    return <p>Loading...</p>;
+    return <Loading />;
   }
 
   /* ─────────────── Render ─────────────── */

@@ -36,6 +36,7 @@ import {
 } from '../../constants';
 import { getAge } from '../../utils/ageUtil';
 import { openPanel, openSidebar } from '../panel/TestPanel';
+import { Loading } from '../components/loading';
 
 interface ChatItemType {
   id: string;
@@ -53,7 +54,7 @@ export const HomeSidebar: React.FC = () => {
   const [openChats, setOpenChats] = useState(false);
 
   if (!session) {
-    return <p>Loading...</p>;
+    return <Loading />;
   }
 
   useEffect(() => {
@@ -105,7 +106,7 @@ export const HomeSidebar: React.FC = () => {
   }, []);
 
   if (!currentUser) {
-    return <p>Loading...</p>;
+    return <Loading />;
   }
 
   return (

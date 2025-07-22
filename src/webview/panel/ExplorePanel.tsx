@@ -19,7 +19,7 @@ import styled from '@emotion/styled';
 import { getAge } from '../../utils/ageUtil';
 import { postVsCodeMessage } from '../../utils/vscodeApi';
 
-import{
+import {
   StyledSlider,
   Wrapper,
   Card,
@@ -34,8 +34,9 @@ import{
   LangTitle,
   ReactionBar,
   ReactionImg,
-  CommitText
+  CommitText,
 } from './ExplorePanel.styles';
+import { Loading } from '../components/loading';
 
 interface RecUser {
   id: number;
@@ -82,19 +83,21 @@ export const ExplorePanel: React.FC = () => {
     postVsCodeMessage({ type: 'requestSessionInfo' });
   }, []);
 
-if (!session || !displayedUser) {
-    return <p>Loading...</p>;
+  if (!session || !displayedUser) {
+    return <Loading />;
   }
 
   // 추천 사용자 불러오기
   useEffect(() => {
     const fetchRecommendations = async () => {
       try {
-        const res = (await axiosRequest({
-          method: 'GET',
-          url: '/users/recommendations',
-          headers: { Authorization: `Bearer ${session.serviceToken}` },
-        })).data;
+        const res = (
+          await axiosRequest({
+            method: 'GET',
+            url: '/users/recommendations',
+            headers: { Authorization: `Bearer ${session.serviceToken}` },
+          })
+        ).data;
 
         const users: RecUser[] = res.users;
         setRecs(users);
@@ -104,7 +107,7 @@ if (!session || !displayedUser) {
       } catch (err) {
         console.error(err);
       }
-    }
+    };
     fetchRecommendations();
   }, [session]);
 
@@ -119,13 +122,15 @@ if (!session || !displayedUser) {
         pinned: false,
       },
     })
-    .then(res => {
-      setUserCodes(res.data.userCodes);
-    })
-    .catch(console.error);
+      .then(res => {
+        setUserCodes(res.data.userCodes);
+      })
+      .catch(console.error);
   }, [displayedUser]);
 
-  const handleReaction = async (reactionType: 'SUPER_LIKE' | 'LIKE' | 'DISLIKE') => {
+  const handleReaction = async (
+    reactionType: 'SUPER_LIKE' | 'LIKE' | 'DISLIKE'
+  ) => {
     try {
       await axiosRequest({
         method: 'POST',
@@ -164,13 +169,16 @@ if (!session || !displayedUser) {
       <InfoRow>
         <UserBar>
           <Profile
-            src={AVATAR_IMG_SRC[displayedUser.avatar_id || DEFAULT_AVATAR_IMG_ID]}
+            src={
+              AVATAR_IMG_SRC[displayedUser.avatar_id || DEFAULT_AVATAR_IMG_ID]
+            }
             alt={displayedUser.name}
           />
           <NameColumn>
             <UserName>{displayedUser.name}</UserName>
             <Meta>
-              {displayedUser.gender}, {getAge(new Date(displayedUser.birth_date))}
+              {displayedUser.gender},{' '}
+              {getAge(new Date(displayedUser.birth_date))}
             </Meta>
           </NameColumn>
         </UserBar>

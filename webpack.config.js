@@ -101,11 +101,16 @@ const webviewConfig = {
         use: [MiniCssExtractPlugin.loader, 'css-loader'],
       },
       {
-        test: /\.(png|jpe?g|gif|svg)$/i, // 이미지 파일 처리
+        test: /\.(png|jpe?g|gif)$/i, // 이미지 파일 처리
         type: 'asset/resource',
         generator: {
           filename: 'assets/[name].[hash][ext][query]',
         },
+      },
+      {
+        test: /\.svg$/i,
+        issuer: /\.[jt]sx?$/,
+        use: ['@svgr/webpack'],
       },
     ],
   },

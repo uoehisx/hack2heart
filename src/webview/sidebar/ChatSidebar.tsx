@@ -20,6 +20,7 @@ import { axiosRequest } from '../../hooks/useAxios';
 import { useAuthContext } from '../../contexts/AuthContext';
 import { SIDEBAR_TYPES, User } from '../../constants';
 import { openSidebar } from '../panel/TestPanel';
+import { Loading } from '../components/loading';
 
 interface ChatMessage {
   chatroom_id: string;
@@ -86,7 +87,7 @@ const ChatSidebar = ({ chatroomId = 'test' }: ChatSidebarProps) => {
   }, []);
 
   if (!session || !currentUser) {
-    return <p>Loading...</p>;
+    return <Loading />;
   }
 
   const handleSubmit = async (e: FormEvent) => {

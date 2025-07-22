@@ -28,6 +28,7 @@ import {
   okaidia,
   materialLight,
 } from 'react-syntax-highlighter/dist/esm/styles/prism';
+import { Loading } from '../components/loading';
 
 const themes = {
   Darcula: darcula,
@@ -63,7 +64,10 @@ interface Props {
   language?: string;
 }
 
-export const UploadPanel: React.FC<Props> = ({ code: initialCode = '', language: initialLanguage = 'python' }) => {
+export const UploadPanel: React.FC<Props> = ({
+  code: initialCode = '',
+  language: initialLanguage = 'python',
+}) => {
   const { session } = useAuthContext();
   const [currentUser, setCurrentUser] = useState<User | null>(null);
 
@@ -99,7 +103,7 @@ export const UploadPanel: React.FC<Props> = ({ code: initialCode = '', language:
   }, [session]);
 
   if (!session) {
-    return <p>Loading...</p>;
+    return <Loading />;
   }
 
   const handleCodeChange = (e: ChangeEvent<HTMLTextAreaElement>) => {
@@ -131,7 +135,9 @@ export const UploadPanel: React.FC<Props> = ({ code: initialCode = '', language:
         <WhiteButton>Upload</WhiteButton>
       </TopBar>
 
-      <CodeBlockWrapper style={{ display: 'flex', gap: '16px', alignItems: 'flex-start' }}>
+      <CodeBlockWrapper
+        style={{ display: 'flex', gap: '16px', alignItems: 'flex-start' }}
+      >
         {/* Code input section */}
         <div style={{ flex: 1, display: 'flex', flexDirection: 'column' }}>
           <Label>Code</Label>
@@ -140,7 +146,11 @@ export const UploadPanel: React.FC<Props> = ({ code: initialCode = '', language:
             value={code}
             onChange={handleCodeChange}
           />
-          <AskButton onClick={handleAnalyze} disabled={loadingAnalysis} style={{ marginTop: '8px', alignSelf: 'flex-end' }}>
+          <AskButton
+            onClick={handleAnalyze}
+            disabled={loadingAnalysis}
+            style={{ marginTop: '8px', alignSelf: 'flex-end' }}
+          >
             {loadingAnalysis ? 'Analyzing...' : 'Ask to AI'}
           </AskButton>
         </div>
@@ -167,7 +177,10 @@ export const UploadPanel: React.FC<Props> = ({ code: initialCode = '', language:
       <DescRow>
         <SelectGroup>
           <Label>Language</Label>
-          <SelectBox value={language} onChange={e => setLanguage(e.target.value)}>
+          <SelectBox
+            value={language}
+            onChange={e => setLanguage(e.target.value)}
+          >
             {languages.map(lang => (
               <option key={lang} value={lang}>
                 {lang.charAt(0).toUpperCase() + lang.slice(1)}
@@ -178,7 +191,10 @@ export const UploadPanel: React.FC<Props> = ({ code: initialCode = '', language:
 
         <SelectGroup>
           <Label>Font Family</Label>
-          <SelectBox value={fontFamily} onChange={e => setFontFamily(e.target.value)}>
+          <SelectBox
+            value={fontFamily}
+            onChange={e => setFontFamily(e.target.value)}
+          >
             {fonts.map(f => (
               <option key={f} value={f}>
                 {f}
@@ -189,7 +205,10 @@ export const UploadPanel: React.FC<Props> = ({ code: initialCode = '', language:
 
         <SelectGroup>
           <Label>Theme</Label>
-          <SelectBox value={themeName} onChange={e => setThemeName(e.target.value as any)}>
+          <SelectBox
+            value={themeName}
+            onChange={e => setThemeName(e.target.value as any)}
+          >
             {Object.keys(themes).map(name => (
               <option key={name} value={name}>
                 {name}
