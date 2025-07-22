@@ -3,7 +3,6 @@ import 'slick-carousel/slick/slick-theme.css';
 
 import React, { useState, useEffect } from 'react';
 import { axiosRequest } from '../../hooks/useAxios';
-import { Badge } from '../components/badge';
 import { useAuthContext } from '../../contexts/AuthContext';
 import {
   AVATAR_IMG_SRC,
@@ -36,10 +35,37 @@ import{
   ReactionBar,
   ReactionImg,
   CommitText
-
 } from './ExplorePanel.styles';
 
+interface RecUser {
+  id: number;
+  name: string;
+  gender: 'MALE' | 'FEMALE' | 'OTHER';
+  birth_date: string;
+  avatar_id?: number;
+  most_preferred_language: string;
+  most_preferred_package: string;
+  looking_for_love: boolean;
+  looking_for_friend: boolean;
+  looking_for_coworker: boolean;
+  tmis: { id: number; name: string }[];
+  previous_reaction_type: 'SUPER_LIKE' | 'LIKE' | 'DISLIKE' | null;
+}
+
+interface UserCode {
+  id: number;
+  content: string;
+  index: number | null;
+  created_at: string;
+}
+
 export const ExplorePanel: React.FC = () => {
+  const { session } = useAuthContext();
+  const [recs, setRecs] = useState<RecUser[]>([]);
+  const [displayedUser, setDisplayedUser] = useState<RecUser | null>(null);
+  // ① userCodes 상태 추가
+  const [userCodes, setUserCodes] = useState<UserCode[]>([]);
+
   const settings = {
     dots: true,
     arrows: false,
@@ -50,57 +76,101 @@ export const ExplorePanel: React.FC = () => {
     centerMode: true,
     variableWidth: true,
   };
-  const { session } = useAuthContext();
-  const [currentUser, setCurrentUser] = useState<User | null>(null);
-  const [openChats, setOpenChats] = useState(false);
 
   useEffect(() => {
     console.log('Requesting session info from VS Code...');
     postVsCodeMessage({ type: 'requestSessionInfo' });
+  }, []);
 
-    // 최초 진입 시 사용자 정보 요청
-    const fetchUserProfile = async () => {
-      console.log('serviceToken:', session?.serviceToken);
-      if (session) {
-        try {
-          const response = await axiosRequest({
-            method: 'GET',
-            url: '/users/me',
-            headers: {
-              Authorization: `Bearer ${session.serviceToken}`,
-            },
-          });
-
-          setCurrentUser(response.data);
-        } catch (error) {
-          console.error('Failed to fetch user profile:', error);
-        }
-      }
-    };
-    fetchUserProfile();
-  }, [session]);
-
-  if (!session || !currentUser) {
+if (!session || !displayedUser) {
     return <p>Loading...</p>;
   }
 
+  // 추천 사용자 불러오기
+  useEffect(() => {
+    const fetchRecommendations = async () => {
+      try {
+        const res = (await axiosRequest({
+          method: 'GET',
+          url: '/users/recommendations',
+          headers: { Authorization: `Bearer ${session.serviceToken}` },
+        })).data;
+
+        const users: RecUser[] = res.users;
+        setRecs(users);
+        if (users.length > 0) {
+          setDisplayedUser(users[0]);
+        }
+      } catch (err) {
+        console.error(err);
+      }
+    }
+    fetchRecommendations();
+  }, [session]);
+
+  // ② displayedUser가 바뀔 때마다 해당 사용자의 코드를 가져와서 상태에 저장
+  useEffect(() => {
+    axiosRequest({
+      method: 'GET',
+      url: `/users/${displayedUser.id}/codes`,
+      headers: { Authorization: `Bearer ${session.serviceToken}` },
+      params: {
+        user_id: displayedUser.id,
+        pinned: false,
+      },
+    })
+    .then(res => {
+      setUserCodes(res.data.userCodes);
+    })
+    .catch(console.error);
+  }, [displayedUser]);
+
+  const handleReaction = async (reactionType: 'SUPER_LIKE' | 'LIKE' | 'DISLIKE') => {
+    try {
+      await axiosRequest({
+        method: 'POST',
+        url: '/create_user_reaction',
+        headers: { Authorization: `Bearer ${session.serviceToken}` },
+        data: {
+          to_user_id: displayedUser.id,
+          reaction_type: reactionType,
+        },
+      });
+      console.log('Reaction sent:', reactionType);
+    } catch (error) {
+      console.error('Failed to send reaction', error);
+    }
+  };
+
   return (
     <Wrapper>
+      {/* ③ 코드 슬라이더 */}
       <StyledSlider {...settings}>
-        {[1, 2, 3, 4, 5].map(n => (
-          <Card key={n}></Card>
-        ))}
+        {userCodes.length > 0 ? (
+          userCodes.map(code => (
+            <Card key={code.id}>
+              <pre style={{ whiteSpace: 'pre-wrap', wordBreak: 'break-all' }}>
+                {code.content}
+              </pre>
+            </Card>
+          ))
+        ) : (
+          <Card>
+            <p>No code snippets available.</p>
+          </Card>
+        )}
       </StyledSlider>
+
       <InfoRow>
         <UserBar>
           <Profile
-            src={AVATAR_IMG_SRC[currentUser.avatar_id || DEFAULT_AVATAR_IMG_ID]}
-            alt={currentUser.name}
+            src={AVATAR_IMG_SRC[displayedUser.avatar_id || DEFAULT_AVATAR_IMG_ID]}
+            alt={displayedUser.name}
           />
           <NameColumn>
-            <UserName>{currentUser.name}</UserName>
+            <UserName>{displayedUser.name}</UserName>
             <Meta>
-              {currentUser.gender}, {getAge(currentUser.birth_date)}
+              {displayedUser.gender}, {getAge(new Date(displayedUser.birth_date))}
             </Meta>
           </NameColumn>
         </UserBar>
@@ -108,18 +178,30 @@ export const ExplorePanel: React.FC = () => {
           <LangTitle>
             Preferred <span>Languages</span>
           </LangTitle>
-          <UserName>
-            {currentUser.most_preferred_language}
-          </UserName>
-          <UserName>
-            {currentUser.most_preferred_package}
-          </UserName>
+          <UserName>{displayedUser.most_preferred_language}</UserName>
+          <UserName>{displayedUser.most_preferred_package}</UserName>
         </LanguagesBar>
       </InfoRow>
+
       <ReactionBar>
-        <ReactionImg src={dislikeBtn} alt="Dislike" />
-        <ReactionImg src={fireBtn} alt="Superlike" />
-        <ReactionImg src={likeBtn} alt="Like" />
+        <ReactionImg
+          src={dislikeBtn}
+          alt="Dislike"
+          onClick={() => handleReaction('DISLIKE')}
+          style={{ cursor: 'pointer' }}
+        />
+        <ReactionImg
+          src={fireBtn}
+          alt="Superlike"
+          onClick={() => handleReaction('SUPER_LIKE')}
+          style={{ cursor: 'pointer' }}
+        />
+        <ReactionImg
+          src={likeBtn}
+          alt="Like"
+          onClick={() => handleReaction('LIKE')}
+          style={{ cursor: 'pointer' }}
+        />
       </ReactionBar>
       <CommitText>Commit!</CommitText>
     </Wrapper>
