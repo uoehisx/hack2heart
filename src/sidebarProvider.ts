@@ -75,6 +75,10 @@ export class SidebarProvider implements vscode.WebviewViewProvider {
           console.log(`Changing sidebar content to: ${viewId}`);
           this.updateSidebarContent(viewId);
           break;
+        case 'authenticate':
+          // 인증 명령 처리
+          vscode.commands.executeCommand('hack2heart.authenticate');
+          return;
       }
     });
   }

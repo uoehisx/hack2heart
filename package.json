@@ -10,6 +10,11 @@
         "Other"
     ],
     "main": "./dist/extension.js",
+    "capabilities": {
+        "untrustedWorkspaces": {
+            "supported": true
+        }
+    },
     "contributes": {
         "viewsContainers": {
             "activitybar": [
@@ -63,6 +68,10 @@
             {
                 "command": "hack2heart.test-command",
                 "title": "Hack2Heart: 테스트 화면 열기"
+            },
+            {
+                "command": "hack2heart.authenticate",
+                "title": "Hack2Heart: Authenticate with GitHub"
             }
         ]
     },
@@ -103,6 +112,8 @@
         "@emotion/react": "^11.14.0",
         "@emotion/styled": "^11.14.1",
         "@types/react": "^19.1.8",
+        "axios": "^1.10.0",
+        "dotenv": "^17.2.0",
         "react": "^19.1.0",
         "react-dom": "^19.1.0",
         "react-slick": "^0.30.3",

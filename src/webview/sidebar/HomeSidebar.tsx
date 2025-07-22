@@ -1,19 +1,21 @@
 // ProfileSidebar.tsx
 import React, { useState } from 'react';
-import styled from 'styled-components';
 import gopher from '../../assets/profileImage/gopher.png';
+import styled from '@emotion/styled';
+import { useAuth } from '../../hooks/useAuth';
 
 // — styled components — //
 
 const Container = styled.div`
   width: 100vw;
-  height:100vh;
+  height: 100vh;
   padding: 24px;
   background: #181818;
   display: flex;
   flex-direction: column;
-  align-items:center;
-  justify-content:center;`;
+  align-items: center;
+  justify-content: center;
+`;
 const ProfileWrapper = styled.div`
   flex: 1;
   display: flex;
@@ -25,8 +27,8 @@ const ProfileWrapper = styled.div`
 const ProfileSection = styled.div`
   text-align: center;
   margin-bottom: 32px;
-  align-items:center;
-  justify-content:center;
+  align-items: center;
+  justify-content: center;
 `;
 
 const ProfileImage = styled.img`
@@ -191,47 +193,48 @@ const mockChats: ChatItemType[] = [
 
 export const HomeSidebar: React.FC = () => {
   const [openChats, setOpenChats] = useState(false);
+  const {} = useAuth();
 
   return (
     <Container>
       <ProfileWrapper>
-      <ProfileSection>
-        <ProfileImage src={gopher} />
-        <Name>John1234</Name>
-        <SubInfo>Male, 26</SubInfo>
-        <Badges>
-          <Badge>Python</Badge>
-          <Badge>PyTorch</Badge>
-          <Badge>Enjoy Alcoding</Badge>
-        </Badges>
-        <Buttons>
-          <PrimaryButton>Edit Profile</PrimaryButton>
-          <SecondaryButton>My Codes</SecondaryButton>
-        </Buttons>
-      </ProfileSection>
+        <ProfileSection>
+          <ProfileImage src={gopher} />
+          <Name>John1234</Name>
+          <SubInfo>Male, 26</SubInfo>
+          <Badges>
+            <Badge>Python</Badge>
+            <Badge>PyTorch</Badge>
+            <Badge>Enjoy Alcoding</Badge>
+          </Badges>
+          <Buttons>
+            <PrimaryButton>Edit Profile</PrimaryButton>
+            <SecondaryButton>My Codes</SecondaryButton>
+          </Buttons>
+        </ProfileSection>
 
-      <ChatsSection>
-        <ChatToggle onClick={() => setOpenChats(!openChats)}>
-          <ToggleIcon>💬</ToggleIcon>
-          <ToggleLabel>Chats</ToggleLabel>
-        </ChatToggle>
+        <ChatsSection>
+          <ChatToggle onClick={() => setOpenChats(!openChats)}>
+            <ToggleIcon>💬</ToggleIcon>
+            <ToggleLabel>Chats</ToggleLabel>
+          </ChatToggle>
 
-        {openChats && (
-          <ChatList>
-            {mockChats.map(chat => (
-              <ChatItem key={chat.id}>
-                <ChatAvatar src={chat.avatarUrl} />
-                <ChatInfo>
-                  <ChatName>
-                    {chat.name} ({chat.gender}, {chat.age})
-                  </ChatName>
-                  <ChatPreview>{chat.lastMessage}</ChatPreview>
-                </ChatInfo>
-              </ChatItem>
-            ))}
-          </ChatList>
-        )}
-      </ChatsSection>
+          {openChats && (
+            <ChatList>
+              {mockChats.map(chat => (
+                <ChatItem key={chat.id}>
+                  <ChatAvatar src={chat.avatarUrl} />
+                  <ChatInfo>
+                    <ChatName>
+                      {chat.name} ({chat.gender}, {chat.age})
+                    </ChatName>
+                    <ChatPreview>{chat.lastMessage}</ChatPreview>
+                  </ChatInfo>
+                </ChatItem>
+              ))}
+            </ChatList>
+          )}
+        </ChatsSection>
       </ProfileWrapper>
     </Container>
   );

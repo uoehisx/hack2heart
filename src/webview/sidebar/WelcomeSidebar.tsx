@@ -6,12 +6,18 @@ import {
   WelcomeContainer,
   WelcomeTitle,
 } from './WelcomeSidebar.styles';
-import { openSidebar } from '../panel/TestPanel';
-import { SIDEBAR_TYPES } from '../../constants';
+import { postVsCodeMessage } from '../../utils/vscodeApi';
 
 export const WelcomeSidebar = () => {
-  const onGithubLogin = () => {
-    openSidebar(SIDEBAR_TYPES.PROFILE);
+  const onGithubLogin = async () => {
+    // openSidebar(SIDEBAR_TYPES.PROFILE);
+    try {
+      postVsCodeMessage({
+        command: 'authenticate',
+      });
+    } catch (error) {
+      console.error('GitHub login failed:', error);
+    }
   };
 
   return (

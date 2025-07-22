@@ -5,31 +5,22 @@ import {
   PANEL_TYPES,
   SIDEBAR_TYPES,
 } from '../../constants';
+import { postVsCodeMessage } from '../../utils/vscodeApi';
 
 export const openPanel = (viewId: PANEL_TYPES, title?: string) => {
-  // VS Code API를 통해 메시지 전송
-  if ((window as any).vscode) {
-    (window as any).vscode.postMessage({
-      command: 'openPanel',
-      viewId: viewId,
-      title: title || DEFAULT_PANEL_TITLES[viewId],
-    });
-  } else {
-    console.log(`Would open panel: ${viewId} - ${title}`);
-  }
+  postVsCodeMessage({
+    command: 'openPanel',
+    viewId,
+    title: title || DEFAULT_PANEL_TITLES[viewId],
+  });
 };
 
 export const openSidebar = (viewId: SIDEBAR_TYPES, title?: string) => {
-  // VS Code API를 통해 사이드바 변경 메시지 전송
-  if ((window as any).vscode) {
-    (window as any).vscode.postMessage({
-      command: 'changeSidebar',
-      viewId,
-      title: title || DEFAULT_SIDEBAR_TITLES[viewId],
-    });
-  } else {
-    console.log(`Would change to sidebar: ${viewId} - ${title}`);
-  }
+  postVsCodeMessage({
+    command: 'changeSidebar',
+    viewId,
+    title: title || DEFAULT_SIDEBAR_TITLES[viewId],
+  });
 };
 
 export const TestPanel = () => {

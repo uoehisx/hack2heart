@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from 'react';
-import { openPanel, openSidebar } from '../panel/TestPanel';
-import { PANEL_TYPES } from '../../constants';
+import { useAxios } from '../../hooks/useAxios';
+import { GENDER_TYPES } from '../../types';
 
-const profileImages = [
+const AVATAR_IMG_SRC = [
   require('../../assets/profileImage/gopher.png'),
   require('../../assets/profileImage/kodee.png'),
   require('../../assets/profileImage/octocat.png'),
@@ -11,24 +11,38 @@ const profileImages = [
   require('../../assets/profileImage/tux.jpeg'),
 ];
 
-const genders = ['Male', 'Female', 'Other'];
-const lookingFor = ['Love', 'Friend', 'Co-worker'];
-
 export const ProfileSidebar = () => {
-  const [profileImg, setProfileImg] = useState(profileImages[0]);
+  const [avatarId, setAvatarId] = useState(0);
   const [name, setName] = useState('');
   const [birth, setBirth] = useState('');
-  const [gender, setGender] = useState('');
-  const [looking, setLooking] = useState<string[]>([]);
+  const [gender, setGender] = useState(GENDER_TYPES.MALE);
+  const [lookingForLove, setLookingForLove] = useState<boolean>(true);
+  const [lookingForFriend, setLookingForFriend] = useState<boolean>(false);
+  const [lookingForCoWorker, setLookingForCoWorker] = useState<boolean>(false);
 
   useEffect(() => {
     // Pick a random profile image on first mount
-    const idx = Math.floor(Math.random() * profileImages.length);
-    setProfileImg(profileImages[idx]);
+    const idx = Math.floor(Math.random() * AVATAR_IMG_SRC.length);
+    setAvatarId(idx);
   }, []);
 
-  const onContinueButtonHandler = () => {
-    openPanel(PANEL_TYPES.EXPLORE);
+  const { request, loading, error, data } = useAxios();
+
+  const onContinueButtonHandler = async () => {
+    await request({
+      method: 'POST',
+      url: '/users',
+      data: {
+        github_oauth_id: 'test',
+        name,
+        gender,
+        birth_date: birth,
+        avatar_id: avatarId,
+        looking_for_love: lookingForLove,
+        looking_for_friend: lookingForFriend,
+        looking_for_coworker: lookingForCoWorker,
+      },
+    });
   };
 
   return (
@@ -59,7 +73,7 @@ export const ProfileSidebar = () => {
         lang="en"
       >
         <img
-          src={profileImg}
+          src={AVATAR_IMG_SRC[avatarId]}
           alt="profile"
           style={{
             width: 96,
@@ -109,27 +123,62 @@ export const ProfileSidebar = () => {
             Gender
           </div>
           <div style={{ display: 'flex', gap: 12, justifyContent: 'center' }}>
-            {genders.map(g => (
-              <label
-                key={g}
-                style={{
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: 4,
-                  fontFamily: 'Inter, sans-serif',
-                }}
-              >
-                <input
-                  type="checkbox"
-                  name="gender"
-                  value={g}
-                  checked={gender === g}
-                  onChange={() => setGender(g)}
-                  lang="en"
-                />
-                {g}
-              </label>
-            ))}
+            <label
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                gap: 4,
+                fontFamily: 'Inter, sans-serif',
+              }}
+            >
+              <input
+                type="checkbox"
+                name="gender"
+                value={GENDER_TYPES.MALE}
+                checked={gender === GENDER_TYPES.MALE}
+                onChange={() => setGender(GENDER_TYPES.MALE)}
+                lang="en"
+              />
+              Male
+            </label>
+
+            <label
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                gap: 4,
+                fontFamily: 'Inter, sans-serif',
+              }}
+            >
+              <input
+                type="checkbox"
+                name="gender"
+                value={GENDER_TYPES.FEMALE}
+                checked={gender === GENDER_TYPES.FEMALE}
+                onChange={() => setGender(GENDER_TYPES.FEMALE)}
+                lang="en"
+              />
+              Female
+            </label>
+
+            <label
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                gap: 4,
+                fontFamily: 'Inter, sans-serif',
+              }}
+            >
+              <input
+                type="checkbox"
+                name="gender"
+                value={GENDER_TYPES.OTHER}
+                checked={gender === GENDER_TYPES.OTHER}
+                onChange={() => setGender(GENDER_TYPES.OTHER)}
+                lang="en"
+              />
+              Other
+            </label>
           </div>
         </div>
         <div style={{ width: '100%', marginBottom: 24 }}>
@@ -137,33 +186,65 @@ export const ProfileSidebar = () => {
             Looking For
           </div>
           <div style={{ display: 'flex', gap: 12, justifyContent: 'center' }}>
-            {lookingFor.map(l => (
-              <label
-                key={l}
-                style={{
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: 4,
-                  fontFamily: 'Inter, sans-serif',
+            <label
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                gap: 4,
+                fontFamily: 'Inter, sans-serif',
+              }}
+            >
+              <input
+                type="checkbox"
+                name="looking"
+                checked={lookingForLove}
+                onChange={() => {
+                  setLookingForLove(!lookingForLove);
                 }}
-              >
-                <input
-                  type="checkbox"
-                  name="looking"
-                  value={l}
-                  checked={looking.includes(l)}
-                  onChange={() => {
-                    setLooking(prev =>
-                      prev.includes(l)
-                        ? prev.filter(item => item !== l)
-                        : [...prev, l]
-                    );
-                  }}
-                  lang="en"
-                />
-                {l}
-              </label>
-            ))}
+                lang="en"
+              />
+              Love
+            </label>
+
+            <label
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                gap: 4,
+                fontFamily: 'Inter, sans-serif',
+              }}
+            >
+              <input
+                type="checkbox"
+                name="looking"
+                checked={lookingForFriend}
+                onChange={() => {
+                  setLookingForFriend(!lookingForFriend);
+                }}
+                lang="en"
+              />
+              Friend
+            </label>
+
+            <label
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                gap: 4,
+                fontFamily: 'Inter, sans-serif',
+              }}
+            >
+              <input
+                type="checkbox"
+                name="looking"
+                checked={lookingForCoWorker}
+                onChange={() => {
+                  setLookingForCoWorker(!lookingForCoWorker);
+                }}
+                lang="en"
+              />
+              Co-workder
+            </label>
           </div>
         </div>
         <button

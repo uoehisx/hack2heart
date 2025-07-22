@@ -2,6 +2,7 @@ import * as vscode from 'vscode';
 import { SidebarProvider } from './sidebarProvider';
 import { PanelProvider } from './panelProvider';
 import { PANEL_TYPES, SIDEBAR_TYPES } from './constants';
+import { axiosRequest } from './utils/axiosUtil';
 
 export function activate(context: vscode.ExtensionContext) {
   // PanelProvider 인스턴스 생성
@@ -14,14 +15,51 @@ export function activate(context: vscode.ExtensionContext) {
   panelProvider.setSidebarProvider(sidebarProvider);
 
   // Welcome 화면을 여는 명령을 등록합니다.
-  let disposable = vscode.commands.registerCommand(
-    'hack2heart.test-command',
-    () => {
+  context.subscriptions.push(
+    vscode.commands.registerCommand('hack2heart.test-command', () => {
       panelProvider.createPanel(PANEL_TYPES.TEST);
-    }
+    })
   );
 
-  context.subscriptions.push(disposable);
+  // 인증 명령 등록
+  context.subscriptions.push(
+    vscode.commands.registerCommand('hack2heart.authenticate', async () => {
+      try {
+        const session = await vscode.authentication.getSession(
+          'github', // 인증 제공자 ID
+          ['read:user'], // GitHub OAuth 권한 범위
+          { createIfNone: true } // 없으면 로그인 창 표시
+        );
+
+        vscode.window.showInformationMessage(
+          `Hello, ${session.account.label}!`
+        );
+
+        try {
+          const res = await axiosRequest({
+            method: 'POST',
+            url: '/auth/github',
+            data: {
+              access_token: session.accessToken,
+            },
+          });
+          console.log('Authentication successful:', res.data);
+        } catch (err: any) {
+          if (err?.response?.status === 404) {
+            sidebarProvider.changeSidebarContent(SIDEBAR_TYPES.PROFILE);
+          } else {
+            vscode.window.showErrorMessage(
+              'Failed to send auth info to backend.'
+            );
+            console.error(err);
+          }
+        }
+      } catch (error) {
+        vscode.window.showErrorMessage('Authentication failed.');
+        console.error(error);
+      }
+    })
+  );
 
   // 사이드바 변경 명령들 등록
   Object.values(SIDEBAR_TYPES).forEach(viewId => {
