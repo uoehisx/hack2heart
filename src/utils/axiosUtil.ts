@@ -7,7 +7,7 @@ dotenv.config({ path: path.join(__dirname, '..', '.env') });
 const baseURL = process.env.REACT_APP_API_URL || '';
 const axiosInstance = axios.create({ baseURL });
 
-export async function axiosRequest<T = any>(
+export async function axiosRequestServer<T = any>(
   config: AxiosRequestConfig
 ): Promise<AxiosResponse<T>> {
   try {

@@ -13,17 +13,6 @@ export function postVsCodeMessage(message: any) {
 }
 
 /**
- * VS Code API에서 현재 활성화된 세션 정보 반환
- */
-export function getVsCodeSession() {
-  const vscode = (window as any).vscode;
-  if (vscode && vscode.getSession) {
-    return vscode.getSession();
-  }
-  return null;
-}
-
-/**
  * VS Code API가 활성화되어 있는지 여부 반환
  */
 export function isVsCodeApiEnabled(): boolean {

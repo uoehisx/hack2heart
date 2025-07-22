@@ -2,7 +2,7 @@ import * as vscode from 'vscode';
 import { SidebarProvider } from './sidebarProvider';
 import { PanelProvider } from './panelProvider';
 import { PANEL_TYPES, SIDEBAR_TYPES } from './constants';
-import { axiosRequest } from './utils/axiosUtil';
+import { axiosRequestServer } from './utils/axiosUtil';
 
 export function activate(context: vscode.ExtensionContext) {
   // PanelProvider 인스턴스 생성
@@ -36,7 +36,7 @@ export function activate(context: vscode.ExtensionContext) {
         );
 
         try {
-          const res = await axiosRequest({
+          const res = await axiosRequestServer({
             method: 'POST',
             url: '/auth/github',
             data: {

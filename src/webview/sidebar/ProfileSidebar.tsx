@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from 'react';
-import { useAxios } from '../../hooks/useAxios';
+import { axiosRequest, useAxios } from '../../hooks/useAxios';
 import { GENDER_TYPES } from '../../types';
+import { openSidebar } from '../panel/TestPanel';
+import { SIDEBAR_TYPES } from '../../constants';
 
 const AVATAR_IMG_SRC = [
   require('../../assets/profileImage/gopher.png'),
@@ -26,23 +28,24 @@ export const ProfileSidebar = () => {
     setAvatarId(idx);
   }, []);
 
-  const { request, loading, error, data } = useAxios();
-
   const onContinueButtonHandler = async () => {
-    await request({
-      method: 'POST',
-      url: '/users',
-      data: {
-        github_oauth_id: 'test',
-        name,
-        gender,
-        birth_date: birth,
-        avatar_id: avatarId,
-        looking_for_love: lookingForLove,
-        looking_for_friend: lookingForFriend,
-        looking_for_coworker: lookingForCoWorker,
-      },
-    });
+    // const session = await getVsCodeSession();
+    // console.log('Session:', session);
+    // await axiosRequest({
+    //   method: 'POST',
+    //   url: '/users',
+    //   data: {
+    //     github_oauth_id: 'test',
+    //     name,
+    //     gender,
+    //     birth_date: birth,
+    //     avatar_id: avatarId,
+    //     looking_for_love: lookingForLove,
+    //     looking_for_friend: lookingForFriend,
+    //     looking_for_coworker: lookingForCoWorker,
+    //   },
+    // });
+    // openSidebar(SIDEBAR_TYPES.HOME);
   };
 
   return (
