@@ -1,25 +1,5 @@
 import styled from '@emotion/styled';
 
-export const BackButton = styled.button`
-  position: fixed;
-  top: 16px;
-  right: 16px;
-  padding: 8px 20px;
-  border: none;
-  border-radius: 20px;
-  background: #1a1a1a;
-  color: #ffffff;
-  font-size: 14px;
-  cursor: pointer;
-  box-shadow: 6px 6px 12px rgba(0, 0, 0, 0.4), -6px -6px 12px #1f1f1f;
-  transition: box-shadow 0.15s;
-
-  &:hover {
-    box-shadow: inset 6px 6px 12px rgba(0, 0, 0, 0.4),
-      inset -6px -6px 12px #1f1f1f;
-  }
-`;
-
 // --- styled helpers ---
 export const Container = styled.div`
   margin-top: 30px;
@@ -30,7 +10,7 @@ export const Container = styled.div`
   font-family: Inter, sans-serif;
 `;
 
-export const Form = styled.form`
+export const Form = styled.div`
   width: 320px;
   border-radius: 16px;
   padding: 24px;
@@ -54,6 +34,7 @@ export const FieldLabel = styled.label`
 export const BadgeRow = styled.div`
   display: flex;
   flex-wrap: wrap;
+  align-items: stretch;
   gap: 8px;
   margin-top: 8px;
 `;
@@ -79,7 +60,6 @@ export const ToggleBadge = styled.div<{ selected: boolean }>`
   display: inline-flex;
   align-items: center;
   padding: 4px 8px;
-  margin: 4px;
   border-radius: 12px;
   cursor: pointer;
   transition: background-color 0.2s ease;

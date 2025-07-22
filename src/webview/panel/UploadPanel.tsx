@@ -11,7 +11,6 @@ import {
   PurpleLabel,
   SelectBox,
   SelectGroup,
-  Toast,
   TopBar,
   WhiteButton,
   Wrapper,
@@ -32,6 +31,7 @@ import {
 } from 'react-syntax-highlighter/dist/esm/styles/prism';
 import { Loading } from '../components/loading';
 import { renderToStaticMarkup } from 'react-dom/server';
+import { Toast } from '../components/toast';
 
 const themes = {
   Darcula: darcula,

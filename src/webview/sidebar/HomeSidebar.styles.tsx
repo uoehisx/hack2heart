@@ -53,53 +53,11 @@ export const BadgesContainer = styled.div`
   margin-bottom: 16px;
 `;
 
-// export const Badge = styled.span`
-//   padding: 4px 8px;
-//   background: #1f1f1f;
-//   border-radius: 12px;
-//   font-size: 12px;
-//   color: #ffffff;
-//   box-shadow: 2px 2px 4px #000000, -2px -2px 4px #1f1f1f;
-// `;
-
 export const Buttons = styled.div`
   display: flex;
   flex-direction: column;
   gap: 12px;
   width: 280px;
-`;
-
-export const PrimaryButton = styled.button`
-  padding: 10px;
-  border: none;
-  border-radius: 20px;
-  background: #1f1f1f;
-  color: #ffffff;
-  font-size: 14px;
-  cursor: pointer;
-  margin-bottom: 5px;
-  box-shadow: 4px 4px 8px #000000, -4px -4px 8px #1f1f1f;
-
-  &:active {
-    box-shadow: inset 4px 4px 8px #000000, inset -4px -4px 8px #1f1f1f;
-    transform: translateY(2px);
-`;
-
-export const SecondaryButton = styled.button`
-  padding: 10px;
-  border: none;
-  border-radius: 20px;
-  background: #6a4bff;
-  color: #ffffff;
-  font-size: 14px;
-  cursor: pointer;
-  margin-bottom: 5px;
-  box-shadow: 4px 4px 8px #000000, -4px -4px 8px #1f1f1f;
-
-  &:active {
-    box-shadow: inset 4px 4px 8px #5a40d9, inset -4px -4px 8px #7a56ff;
-    transform: translateY(2px);
-  }
 `;
 
 export const ChatsSection = styled.div`

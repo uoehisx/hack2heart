@@ -1,6 +1,5 @@
 // ProfileSidebar.tsx
 import React, { useState, useEffect } from 'react';
-import gopher from '../../assets/profileImage/gopher.png';
 import { axiosRequest } from '../../hooks/useAxios';
 import { Badge } from '../components/badge';
 import {
@@ -16,11 +15,9 @@ import {
   ChatToggle,
   Container,
   Name,
-  PrimaryButton,
   ProfileImage,
   ProfileSection,
   ProfileWrapper,
-  SecondaryButton,
   SubInfo,
   ToggleIcon,
   ToggleLabel,
@@ -37,6 +34,7 @@ import {
 import { getAge } from '../../utils/ageUtil';
 import { openPanel, openSidebar } from '../panel/TestPanel';
 import { Loading } from '../components/loading';
+import { PrimaryButton, SecondaryButton } from '../components/buttons';
 
 interface ChatItemType {
   id: string;
@@ -113,7 +111,9 @@ export const HomeSidebar: React.FC = () => {
     <Container>
       <ProfileWrapper>
         <ProfileSection>
-          <ProfileImage src={gopher} />
+          <ProfileImage
+            src={AVATAR_IMG_SRC[currentUser.avatar_id || DEFAULT_AVATAR_IMG_ID]}
+          />
           <Name>{currentUser.name || '(No Data)'}</Name>
           <SubInfo>
             {currentUser
@@ -127,7 +127,11 @@ export const HomeSidebar: React.FC = () => {
               : '(No Data)'}
           </SubInfo>
           <BadgesContainer>
-            <Badge text="Python" />
+            <Badge text={currentUser.most_preferred_language.name} />
+            <Badge text={currentUser.most_preferred_package.name} />
+            {currentUser.tmis.map((badge, index) => (
+              <Badge key={index} text={badge.name} />
+            ))}
           </BadgesContainer>
         </ProfileSection>
 

@@ -6,7 +6,6 @@ import React, {
   ChangeEvent,
 } from 'react';
 import {
-  BackButton,
   Bubble,
   Header,
   InputArea,
@@ -21,6 +20,7 @@ import { useAuthContext } from '../../contexts/AuthContext';
 import { SIDEBAR_TYPES, User } from '../../constants';
 import { openSidebar } from '../panel/TestPanel';
 import { Loading } from '../components/loading';
+import { BackButton } from '../components/buttons';
 
 interface ChatMessage {
   chatroom_id: string;

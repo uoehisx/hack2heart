@@ -43,7 +43,7 @@ export enum GENDER_TYPES {
 }
 
 export interface Language {
-  id: string;
+  id: number;
   name: string;
 }
 export interface Package extends Language {}
@@ -61,8 +61,8 @@ export interface User {
   name: string;
   birth_date: Date;
   avatar_id: number | null;
-  most_preferred_language: string | null;
-  most_preferred_package: string | null;
+  most_preferred_language: Language;
+  most_preferred_package: Package;
   looking_for_love: boolean;
   looking_for_friend: boolean;
   looking_for_coworker: boolean;

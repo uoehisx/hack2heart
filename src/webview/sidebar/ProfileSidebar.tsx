@@ -1,12 +1,19 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { axiosRequest } from '../../hooks/useAxios';
-import { AVATAR_IMG_SRC, GENDER_TYPES, User } from '../../constants';
+import {
+  AVATAR_IMG_SRC,
+  DEFAULT_AVATAR_IMG_ID,
+  GENDER_TYPES,
+  Language,
+  Package,
+  Tmi,
+  User,
+} from '../../constants';
 import { openSidebar } from '../panel/TestPanel';
 import { SIDEBAR_TYPES } from '../../constants';
 import { Badge } from '../components/badge';
 import { useAuthContext } from '../../contexts/AuthContext';
 import {
-  BackButton,
   BadgeRow,
   Container,
   Field,
@@ -16,20 +23,21 @@ import {
   RemoveButton,
   ToggleBadge,
 } from './ProfileSidebar.styles';
-
-interface LanguageInfo {
-  id: number;
-  name: string;
-}
-interface PackageInfo extends LanguageInfo {}
-interface TmiInfo extends LanguageInfo {}
+import { Loading } from '../components/loading';
+import {
+  BackButton,
+  PrimaryButton,
+  SecondaryButton,
+} from '../components/buttons';
+import { formatDatetime } from '../../utils/ageUtil';
+import { Toast } from '../components/toast';
 
 export const ProfileSidebar = () => {
   const { session, setSession } = useAuthContext();
   const [currentUser, setCurrentUser] = useState<User | null>(null);
   const debounceTimer = useRef<NodeJS.Timeout | null>(null);
 
-  const [avatarId, setAvatarId] = useState(0);
+  const [avatarId, setAvatarId] = useState(DEFAULT_AVATAR_IMG_ID);
   const [name, setName] = useState('');
   const [birth, setBirth] = useState('');
   const [gender, setGender] = useState(GENDER_TYPES.MALE);
@@ -38,28 +46,33 @@ export const ProfileSidebar = () => {
   const [lookingForCoWorker, setLookingForCoWorker] = useState<boolean>(false);
 
   const [languageInput, setLanguageInput] = useState('');
-  const [languageList, setLanguageList] = useState<LanguageInfo[]>([]);
-  const [selectedLanguage, setSelectedLanguage] = useState<LanguageInfo | null>(
+  const [languageList, setLanguageList] = useState<Language[]>([]);
+  const [selectedLanguage, setSelectedLanguage] = useState<Language | null>(
     null
   );
 
   const [packageInput, setpackageInput] = useState('');
-  const [packagelist, setPackageList] = useState<PackageInfo[]>([]);
-  const [selectedPackage, setSelectedPackage] = useState<PackageInfo | null>(
-    null
-  );
+  const [packagelist, setPackageList] = useState<Package[]>([]);
+  const [selectedPackage, setSelectedPackage] = useState<Package | null>(null);
 
-  const [tmiList, setTmiList] = useState<TmiInfo[]>([]);
-  const [selectedTmi, setSelectedTmi] = useState<TmiInfo[]>([]);
+  const [tmiList, setTmiList] = useState<Tmi[]>([]);
+  const [selectedTmi, setSelectedTmi] = useState<Tmi[]>([]);
+
+  const [toastMessage, setToastMessage] = useState<string | null>(null);
+  useEffect(() => {
+    if (!toastMessage) return;
+    const t = setTimeout(() => setToastMessage(null), 2500);
+    return () => clearTimeout(t);
+  }, [toastMessage]);
+
+  if (!session) return <Loading />;
+
+  const isLogined = !!session.serviceToken;
 
   useEffect(() => {
-    // Pick a random profile image on first mount
-    const idx = Math.floor(Math.random() * AVATAR_IMG_SRC.length);
-    setAvatarId(idx);
-
     const fetchTmis = async () => {
       try {
-        const res = await axiosRequest<{ tmis: TmiInfo[] }>({
+        const res = await axiosRequest<{ tmis: Tmi[] }>({
           method: 'GET',
           url: '/tmis',
         });
@@ -69,6 +82,48 @@ export const ProfileSidebar = () => {
       }
     };
     fetchTmis();
+
+    // 로그인 상태일 때 사용자 정보 불러오기
+    if (isLogined) {
+      const fetchUser = async () => {
+        try {
+          const user = (
+            await axiosRequest({
+              method: 'GET',
+              url: '/users/me',
+              headers: {
+                Authorization: `Bearer ${session.serviceToken}`,
+              },
+            })
+          ).data;
+          console.log('Fetched user:', user);
+
+          setCurrentUser(user);
+          setName(user.name || '');
+          setBirth(formatDatetime(user.birth_date) || '');
+          setGender(user.gender || GENDER_TYPES.MALE);
+          setAvatarId(user.avatar_id ?? DEFAULT_AVATAR_IMG_ID);
+          setLookingForLove(!!user.looking_for_love);
+          setLookingForFriend(!!user.looking_for_friend);
+          setLookingForCoWorker(!!user.looking_for_coworker);
+
+          setSelectedLanguage({
+            id: user.most_preferred_language.id,
+            name: user.most_preferred_language.name,
+          });
+          setSelectedPackage({
+            id: user.most_preferred_package.id,
+            name: user.most_preferred_package.name,
+          });
+          setSelectedTmi(
+            user.tmis.map((tmi: Tmi) => ({ id: tmi.id, name: tmi.name }))
+          );
+        } catch (err) {
+          console.error('Failed to fetch user info:', err);
+        }
+      };
+      fetchUser();
+    }
   }, []);
 
   const onLanguageInputChangeHandler = async (input: string) => {
@@ -124,18 +179,74 @@ export const ProfileSidebar = () => {
   const handlePackageRemove = () => {
     setSelectedPackage(null);
   };
-  const handleTmiToggle = (tmi: TmiInfo) => {
-    setSelectedTmi(
-      prev =>
-        prev.find(x => x.id === tmi.id)
-          ? prev.filter(x => x.id !== tmi.id) // 이미 있으면 제거
-          : [...prev, tmi] // 없으면 추가
-    );
+  const handleTmiToggle = (tmi: Tmi) => {
+    setSelectedTmi(prev => {
+      if (prev.find(x => x.id === tmi.id)) {
+        // 이미 있으면 제거
+        return prev.filter(x => x.id !== tmi.id);
+      } else {
+        // 3개 이상 선택 불가
+        if (prev.length >= 3) return prev;
+        return [...prev, tmi];
+      }
+    });
+  };
+
+  const onSaveButtonHandler = async () => {
+    if (!session) {
+      console.error('No session found. Please log in first.');
+      return;
+    }
+    if (!selectedLanguage) {
+      setToastMessage('Please select a most preferred language.');
+      return;
+    }
+    if (!selectedPackage) {
+      setToastMessage('Please select a most preferred package.');
+      return;
+    }
+
+    try {
+      const user = (
+        await axiosRequest({
+          method: 'PUT',
+          url: '/users/me',
+          headers: {
+            Authorization: `Bearer ${session.serviceToken}`,
+          },
+          data: {
+            name,
+            gender,
+            birth_date: birth,
+            avatar_id: avatarId,
+            looking_for_love: lookingForLove,
+            looking_for_friend: lookingForFriend,
+            looking_for_coworker: lookingForCoWorker,
+            most_preferred_language_id: selectedLanguage.id,
+            most_preferred_package_id: selectedPackage.id,
+            tmi_ids: selectedTmi.map(tmi => tmi.id),
+          },
+        })
+      ).data;
+      setCurrentUser(user);
+      setToastMessage('Profile updated successfully!');
+    } catch (err) {
+      console.error('Failed to update profile:', err);
+    }
+    openSidebar(SIDEBAR_TYPES.HOME);
   };
 
   const onContinueButtonHandler = async () => {
     if (!session) {
       console.error('No session found. Please log in first.');
+      return;
+    }
+    if (!selectedLanguage) {
+      setToastMessage('Please select a most preferred language.');
+      return;
+    }
+    if (!selectedPackage) {
+      setToastMessage('Please select a most preferred package.');
       return;
     }
 
@@ -154,9 +265,9 @@ export const ProfileSidebar = () => {
             looking_for_love: lookingForLove,
             looking_for_friend: lookingForFriend,
             looking_for_coworker: lookingForCoWorker,
-            most_preferred_language_id: 1,
-            most_preferred_package_id: 1,
-            tmi_ids: [],
+            most_preferred_language_id: selectedLanguage.id,
+            most_preferred_package_id: selectedPackage.id,
+            tmi_ids: selectedTmi.map(tmi => tmi.id),
           },
         })
       ).data;
@@ -185,6 +296,7 @@ export const ProfileSidebar = () => {
 
   return (
     <>
+      {toastMessage !== null ? <Toast>{toastMessage}</Toast> : null}
       <BackButton
         onClick={() => {
           openSidebar(SIDEBAR_TYPES.HOME);
@@ -212,7 +324,8 @@ export const ProfileSidebar = () => {
             onChange={e => setName(e.target.value)}
             placeholder="Enter your name"
             style={{
-              width: '80%',
+              width: '200px',
+              marginTop: 8,
               padding: 8,
               borderRadius: 6,
               border: '1px solid #ccc',
@@ -229,7 +342,8 @@ export const ProfileSidebar = () => {
               value={birth}
               onChange={e => setBirth(e.target.value)}
               style={{
-                width: '100%',
+                width: '200px',
+                marginTop: 8,
                 padding: 8,
                 borderRadius: 6,
                 border: '1px solid #ccc',
@@ -241,7 +355,14 @@ export const ProfileSidebar = () => {
           {/* Gender */}
           <Field>
             <FieldLabel>Gender</FieldLabel>
-            <div style={{ display: 'flex', gap: 12, justifyContent: 'center' }}>
+            <div
+              style={{
+                display: 'flex',
+                gap: 12,
+                justifyContent: 'center',
+                marginTop: 8,
+              }}
+            >
               <label
                 style={{
                   display: 'flex',
@@ -304,7 +425,14 @@ export const ProfileSidebar = () => {
           {/* Looking For */}
           <Field>
             <FieldLabel>Looking For</FieldLabel>
-            <div style={{ display: 'flex', gap: 12, justifyContent: 'center' }}>
+            <div
+              style={{
+                display: 'flex',
+                gap: 12,
+                justifyContent: 'center',
+                marginTop: 8,
+              }}
+            >
               <label
                 style={{
                   display: 'flex',
@@ -388,7 +516,8 @@ export const ProfileSidebar = () => {
                     value={languageInput}
                     placeholder="Search..."
                     style={{
-                      width: '100%',
+                      width: '200px',
+                      marginTop: 8,
                       padding: 8,
                       borderRadius: 6,
                       border: '1px solid #ccc',
@@ -437,7 +566,8 @@ export const ProfileSidebar = () => {
                     value={packageInput}
                     placeholder="Search..."
                     style={{
-                      width: '100%',
+                      width: '200px',
+                      marginTop: 8,
                       padding: 8,
                       borderRadius: 6,
                       border: '1px solid #ccc',
@@ -467,76 +597,52 @@ export const ProfileSidebar = () => {
 
           {/* I like to… */}
           <Field>
-            <FieldLabel>나를 더 잘 알 수 있는 TMI</FieldLabel>
+            <FieldLabel>I Like to...</FieldLabel>
             <BadgeRow>
               {tmiList.map(tmi => {
                 const isSelected = selectedTmi.some(x => x.id === tmi.id);
                 return (
-                  <ToggleBadge
+                  <Badge
+                    text={tmi.name}
                     key={tmi.id}
                     selected={isSelected}
+                    selectable={true}
                     onClick={() => handleTmiToggle(tmi)}
-                  >
-                    <Badge text={tmi.name} />
-                  </ToggleBadge>
+                  />
                 );
               })}
             </BadgeRow>
           </Field>
 
-          {/* Continue Button */}
-          <button
-            type="button"
+          <div
             style={{
-              width: '100%',
-              padding: '12px 0',
-              borderRadius: 8,
-              background: '#444',
-              color: '#fff',
-              fontWeight: 600,
-              fontSize: 16,
-              border: 'none',
-              cursor: 'pointer',
+              display: 'flex',
+              gap: 8,
+              marginTop: 16,
+              flexDirection: 'column',
+              width: '280px',
             }}
-            onClick={onContinueButtonHandler}
           >
-            Continue
-          </button>
+            {isLogined ? (
+              <>
+                <SecondaryButton onClick={onSaveButtonHandler}>
+                  Save
+                </SecondaryButton>
 
-          <button
-            type="button"
-            style={{
-              width: '100%',
-              padding: '12px 0',
-              borderRadius: 8,
-              background: '#444',
-              color: '#fff',
-              fontWeight: 600,
-              fontSize: 16,
-              border: 'none',
-              cursor: 'pointer',
-            }}
-            onClick={() => {}}
-          >
-            Save
-          </button>
-          <button
-            type="button"
-            style={{
-              width: '100%',
-              padding: '12px 0',
-              borderRadius: 8,
-              background: '#444',
-              color: '#000',
-              fontWeight: 600,
-              fontSize: 16,
-              border: 'none',
-              cursor: 'pointer',
-            }}
-            onClick={() => {}}
-          >
-            Cancel
-          </button>
+                <PrimaryButton
+                  onClick={() => {
+                    openSidebar(SIDEBAR_TYPES.HOME);
+                  }}
+                >
+                  Cancel
+                </PrimaryButton>
+              </>
+            ) : (
+              <SecondaryButton onClick={onContinueButtonHandler}>
+                Continue
+              </SecondaryButton>
+            )}
+          </div>
         </Form>
       </Container>
     </>
