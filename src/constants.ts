@@ -76,8 +76,7 @@ export const AVATAR_IMG_SRC = [
   octocatImg,
   rustcrabImg,
   scratchcatImg,
-  tuxImg
-  
+  tuxImg,
 ];
 
 export const DEFAULT_AVATAR_IMG_ID = 4;
