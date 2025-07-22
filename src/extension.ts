@@ -3,6 +3,7 @@ import { SidebarProvider } from './sidebarProvider';
 import { PanelProvider } from './panelProvider';
 import { PANEL_TYPES, SIDEBAR_TYPES } from './constants';
 import { axiosRequestServer } from './utils/axiosUtil';
+import { setSessionInfo } from './utils/vscodeState';
 
 export function activate(context: vscode.ExtensionContext) {
   // PanelProvider 인스턴스 생성
@@ -13,6 +14,17 @@ export function activate(context: vscode.ExtensionContext) {
 
   // PanelProvider에 sidebarProvider 설정
   panelProvider.setSidebarProvider(sidebarProvider);
+
+  // 최초 실행 시 저장된 sessionInfo가 있으면 바로 HOME으로 이동
+  // const savedSession = getSessionInfo(context);
+  // if (savedSession) {
+  //   // webview에도 sessionInfo 전달
+  //   sidebarProvider.postMessageToWebview({
+  //     type: 'sessionInfo',
+  //     session: savedSession,
+  //   });
+  //   sidebarProvider.changeSidebarContent(SIDEBAR_TYPES.HOME);
+  // }
 
   // Welcome 화면을 여는 명령을 등록합니다.
   context.subscriptions.push(
@@ -46,28 +58,36 @@ export function activate(context: vscode.ExtensionContext) {
             })
           ).data;
 
-          // 인증 성공 시 webview에 sessionInfo 메시지 전달
+          // 인증 성공 시 session 정보를 globalState에 저장
+          const sessionInfo = {
+            github_oauth_id: session.account.id,
+            github_name: session.account.label,
+            accessToken: session.accessToken,
+            serviceToken: res.access_token,
+          };
+          await setSessionInfo(context, sessionInfo);
+
+          // webview에도 sessionInfo 전달
           sidebarProvider.postMessageToWebview({
             type: 'sessionInfo',
-            session: {
-              github_oauth_id: session.account.id,
-              github_name: session.account.label,
-              accessToken: session.accessToken,
-              serviceToken: res.access_token,
-            },
+            session: sessionInfo,
           });
 
           sidebarProvider.changeSidebarContent(SIDEBAR_TYPES.HOME);
         } catch (err: any) {
           if (err?.response?.status === 404) {
-            // 인증 성공 시 webview에 sessionInfo 메시지 전달
+            // 인증 성공 시 session 정보를 globalState에 저장
+            const sessionInfo = {
+              github_oauth_id: session.account.id,
+              github_name: session.account.label,
+              accessToken: session.accessToken,
+            };
+            await setSessionInfo(context, sessionInfo);
+
+            // webview에도 sessionInfo 전달
             sidebarProvider.postMessageToWebview({
               type: 'sessionInfo',
-              session: {
-                github_oauth_id: session.account.id,
-                github_name: session.account.label,
-                accessToken: session.accessToken,
-              },
+              session: sessionInfo,
             });
 
             sidebarProvider.changeSidebarContent(SIDEBAR_TYPES.PROFILE);
@@ -107,16 +127,6 @@ export function activate(context: vscode.ExtensionContext) {
       sidebarProvider
     )
   );
-
-  // 패널 WebviewViewProvider들 등록
-  Object.values(PANEL_TYPES).forEach(viewId => {
-    context.subscriptions.push(
-      vscode.window.registerWebviewViewProvider(
-        viewId,
-        new SidebarProvider(context, panelProvider)
-      )
-    );
-  });
 }
 
 // deactivate 함수는 확장이 비활성화될 때 호출됩니다.

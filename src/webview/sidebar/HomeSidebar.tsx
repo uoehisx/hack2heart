@@ -49,9 +49,9 @@ const mockChats: ChatItemType[] = [
 ];
 
 export const HomeSidebar: React.FC = () => {
+  const { session } = useAuthContext();
   const [currentUser, setCurrentUser] = useState<User | null>(null);
   const [openChats, setOpenChats] = useState(false);
-  const { session } = useAuthContext();
 
   useEffect(() => {
     // 최초 진입 시 사용자 정보 요청
@@ -97,7 +97,7 @@ export const HomeSidebar: React.FC = () => {
       <ProfileWrapper>
         <ProfileSection>
           <ProfileImage src={gopher} />
-          <Name>{session.github_name || '(No Data)'}</Name>
+          <Name>{currentUser.name || '(No Data)'}</Name>
           <SubInfo>
             {currentUser
               ? `${

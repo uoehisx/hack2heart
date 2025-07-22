@@ -15,8 +15,8 @@ export const WelcomeSidebar = () => {
   const { session } = useAuthContext();
 
   useEffect(() => {
-    if (session) {
-      openSidebar(SIDEBAR_TYPES.PROFILE);
+    if (session?.serviceToken) {
+      openSidebar(SIDEBAR_TYPES.HOME);
     }
   }, [session]);
 
