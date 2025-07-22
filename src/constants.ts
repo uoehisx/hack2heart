@@ -1,5 +1,12 @@
-// export const API_BASE_URL = 'http://api.hack2heart.minsung.kr';
-export const API_BASE_URL = 'http://localhost:8000';
+import gopherImg from './assets/profileImage/gopher.png';
+import kodeeImg from './assets/profileImage/kodee.png';
+import octocatImg from './assets/profileImage/rustcrab.png';
+import rustcrabImg from './assets/profileImage/rustcrab.png';
+import scratchcatImg from './assets/profileImage/scratchcat.png';
+import tuxImg from './assets/profileImage/tux.png';
+
+export const API_BASE_URL = 'http://api.hack2heart.minsung.kr';
+// export const API_BASE_URL = 'http://localhost:8000';
 
 export enum PANEL_TYPES {
   EXPLORE = 'hack2heart.panel-explore',
@@ -62,3 +69,15 @@ export interface User {
   tmis: Tmi[];
   created_at: Date;
 }
+
+export const AVATAR_IMG_SRC = [
+  gopherImg,
+  kodeeImg,
+  octocatImg,
+  rustcrabImg,
+  scratchcatImg,
+  tuxImg
+  
+];
+
+export const DEFAULT_AVATAR_IMG_ID = 4;

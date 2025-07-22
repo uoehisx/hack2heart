@@ -27,6 +27,7 @@ import {
 } from './HomeSidebar.styles';
 import { useAuthContext } from '../../contexts/AuthContext';
 import { GENDER_TYPES, User } from '../../constants';
+import { getAge } from '../../utils/ageUtil';
 
 interface ChatItemType {
   id: string;
@@ -76,17 +77,6 @@ export const HomeSidebar: React.FC = () => {
     fetchUserProfile();
   }, [session]);
 
-  // 나이 계산 함수
-  function getAge(birthDate: Date) {
-    const birth = new Date(birthDate);
-    const today = new Date();
-    let age = today.getFullYear() - birth.getFullYear();
-    const m = today.getMonth() - birth.getMonth();
-    if (m < 0 || (m === 0 && today.getDate() < birth.getDate())) {
-      age--;
-    }
-    return age;
-  }
 
   if (!session || !currentUser) {
     return <p>Loading...</p>;
