@@ -101,6 +101,7 @@ export const UploadPanel: React.FC<Props> = ({
 
     const fetchUserProfile = async () => {
       if (!session) return;
+
       try {
         const response = await axiosRequest({
           method: 'GET',
@@ -112,9 +113,8 @@ export const UploadPanel: React.FC<Props> = ({
         console.error('Failed to fetch user profile:', error);
       }
     };
-
     fetchUserProfile();
-  }, [session]);
+  }, []);
 
   if (!session) {
     return <Loading />;
@@ -199,7 +199,9 @@ export const UploadPanel: React.FC<Props> = ({
         </WhiteButton>
       </TopBar>
 
-      <CodeBlockWrapper style={{ display: 'flex', gap: '16px', alignItems: 'flex-start' }}>
+      <CodeBlockWrapper
+        style={{ display: 'flex', gap: '16px', alignItems: 'flex-start' }}
+      >
         {/* Code input */}
         <div style={{ flex: 1, display: 'flex', flexDirection: 'column' }}>
           <Label>Code</Label>
@@ -298,7 +300,9 @@ export const UploadPanel: React.FC<Props> = ({
         )}
       </AiBlock>
 
-      {uploadError && <p style={{ color: 'red', marginTop: 12 }}>{uploadError}</p>}
+      {uploadError && (
+        <p style={{ color: 'red', marginTop: 12 }}>{uploadError}</p>
+      )}
       {uploadSuccess && (
         <p style={{ color: '#6cf', marginTop: 12 }}>Upload success!</p>
       )}
