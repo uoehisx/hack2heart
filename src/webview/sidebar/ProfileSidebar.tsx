@@ -6,7 +6,7 @@ import React, {
   useRef,
 } from 'react';
 import { axiosRequest, useAxios } from '../../hooks/useAxios';
-import { GENDER_TYPES } from '../../constants';
+import { AVATAR_IMG_SRC, GENDER_TYPES } from '../../constants';
 import { openSidebar } from '../panel/TestPanel';
 import { SIDEBAR_TYPES } from '../../constants';
 import styled from '@emotion/styled';
@@ -81,14 +81,7 @@ const ToggleBadge = styled.div<{ selected: boolean }>`
 `;
 
 // --- constants & assets ---
-const AVATAR_IMG_SRC = [
-  require('../../assets/profileImage/gopher.png'),
-  require('../../assets/profileImage/kodee.png'),
-  require('../../assets/profileImage/octocat.png'),
-  require('../../assets/profileImage/rustcrab.png'),
-  require('../../assets/profileImage/scratchcat.png'),
-  require('../../assets/profileImage/tux.jpeg'),
-];
+
 
 interface LanguageInfo {
   id: number;

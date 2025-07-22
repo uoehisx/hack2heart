@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { useEffect,useState } from 'react';
 import {
   AiBlock,
   AskButton,
@@ -15,21 +15,41 @@ import {
 } from './UploadPanel.styles';
 import { useAuthContext } from '../../contexts/AuthContext';
 import { postVsCodeMessage } from '../../utils/vscodeApi';
+import {axiosRequest} from '../../hooks/useAxios';
+import { GENDER_TYPES, User } from '../../constants';
 
 export const UploadPanel: React.FC = () => {
   const { session } = useAuthContext();
+  const [currentUser,setCurrentUser]=useState<User|null>(null);
 
   useEffect(() => {
-    if (!session) {
-      console.log('Requesting session info from VS Code...');
-      postVsCodeMessage({ type: 'requestSessionInfo' });
-    }
-  }, [session]);
+      // 최초 진입 시 사용자 정보 요청
+      const fetchUserProfile = async () => {
+        console.log('serviceToken:', session?.serviceToken);
+        if (session) {
+          try {
+            const response = await axiosRequest({
+              method: 'GET',
+              url: '/users/me',
+              headers: {
+                Authorization: `Bearer ${session.serviceToken}`,
+              },
+            });
+  
+            setCurrentUser(response.data);
+          } catch (error) {
+            console.error('Failed to fetch user profile:', error);
+          }
+        }
+      };
+      fetchUserProfile();
+    }, [session]);
 
   console.log('UploadPanel session:', session);
-
+  //세션 정보 가져올때까지 로딩상태
   if (!session) {
     return <p>Loading...</p>;
+  
   }
 
   return (
