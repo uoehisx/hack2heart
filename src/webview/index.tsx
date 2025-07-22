@@ -8,6 +8,7 @@ import { ExplorePanel } from './panel/ExplorePanel';
 import { MycodePanel } from './panel/MycodePanel';
 import { Sidebar } from './sidebar/Sidebar';
 import { PANEL_TYPES, SIDEBAR_TYPES } from '../constants';
+import { AuthProvider } from '../contexts/AuthContext';
 
 // Webview ID와 타입을 추출하는 함수
 function getViewInfo(): { viewType: 'sidebar' | 'panel'; viewId: string } {
@@ -66,7 +67,9 @@ if (container) {
 
   root.render(
     <React.StrictMode>
-      {renderComponent(viewType, viewId as PANEL_TYPES)}
+      <AuthProvider>
+        {renderComponent(viewType, viewId as PANEL_TYPES)}
+      </AuthProvider>
     </React.StrictMode>
   );
 } else {

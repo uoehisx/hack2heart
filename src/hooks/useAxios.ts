@@ -1,5 +1,6 @@
 import { useState, useCallback } from 'react';
 import axios, { AxiosRequestConfig, AxiosResponse } from 'axios';
+import { API_BASE_URL } from '../constants';
 
 export interface UseAxiosResult<T = any> {
   data: T | null;
@@ -8,13 +9,11 @@ export interface UseAxiosResult<T = any> {
   request: (config: AxiosRequestConfig) => Promise<void>;
 }
 
-const baseURL = 'http://api.hack2heart.minsung.kr';
-const axiosInstance = axios.create({ baseURL });
+const axiosInstance = axios.create({ baseURL: API_BASE_URL });
 
 export function axiosRequest<T = any>(
   config: AxiosRequestConfig
 ): Promise<AxiosResponse<T>> {
-  console.log('API URL:', baseURL);
   return axiosInstance(config);
 }
 

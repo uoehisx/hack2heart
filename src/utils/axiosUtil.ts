@@ -1,11 +1,7 @@
 import axios, { AxiosRequestConfig, AxiosResponse } from 'axios';
-import * as dotenv from 'dotenv';
-import path from 'path';
+import { API_BASE_URL } from '../constants';
 
-dotenv.config({ path: path.join(__dirname, '..', '.env') });
-
-const baseURL = process.env.REACT_APP_API_URL || '';
-const axiosInstance = axios.create({ baseURL });
+const axiosInstance = axios.create({ baseURL: API_BASE_URL });
 
 export async function axiosRequestServer<T = any>(
   config: AxiosRequestConfig

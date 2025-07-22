@@ -35,6 +35,16 @@ export function activate(context: vscode.ExtensionContext) {
           `Hello, ${session.account.label}!`
         );
 
+        // 인증 성공 시 webview에 sessionInfo 메시지 전달
+        sidebarProvider.postMessageToWebview({
+          type: 'sessionInfo',
+          session: {
+            github_oauth_id: session.account.id,
+            github_name: session.account.label,
+            accessToken: session.accessToken,
+          },
+        });
+
         try {
           const res = await axiosRequestServer({
             method: 'POST',

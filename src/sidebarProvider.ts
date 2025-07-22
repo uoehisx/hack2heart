@@ -3,6 +3,15 @@ import * as vscode from 'vscode';
 import { SIDEBAR_TYPES } from './constants';
 
 export class SidebarProvider implements vscode.WebviewViewProvider {
+  /**
+   * 현재 Webview에 메시지 전송
+   */
+  public postMessageToWebview(message: any) {
+    if (this._view && this._view.webview) {
+      this._view.webview.postMessage(message);
+    }
+  }
+
   private _view?: vscode.WebviewView;
   private _panelProvider?: any; // PanelProvider 참조
 

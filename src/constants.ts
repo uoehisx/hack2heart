@@ -1,3 +1,6 @@
+// export const API_BASE_URL = 'http://api.hack2heart.minsung.kr';
+export const API_BASE_URL = 'http://localhost:8000';
+
 export enum PANEL_TYPES {
   EXPLORE = 'hack2heart.panel-explore',
   UPLOAD = 'hack2heart.panel-upload',

@@ -5,6 +5,7 @@ import { openSidebar } from '../panel/TestPanel';
 import { SIDEBAR_TYPES } from '../../constants';
 import styled from '@emotion/styled';
 import { Badge } from '../components/badge';
+import { useAuthContext } from '../../contexts/AuthContext';
 
 // --- styled helpers ---
 const Container = styled.div`
@@ -111,6 +112,8 @@ const likeToOptions = [
 ];
 
 export const ProfileSidebar = () => {
+  const { session, setSession } = useAuthContext();
+
   const [avatarId, setAvatarId] = useState(0);
   const [name, setName] = useState('');
   const [birth, setBirth] = useState('');
@@ -134,24 +137,54 @@ export const ProfileSidebar = () => {
     );
 
   const onContinueButtonHandler = async () => {
-    // const session = await getVsCodeSession();
-    // console.log('Session:', session);
-    const result = await axiosRequest({
-      method: 'POST',
-      url: '/users',
-      data: {
-        // github_oauth_id: 'test',
-        name,
-        gender,
-        birth_date: birth,
-        avatar_id: avatarId,
-        looking_for_love: lookingForLove,
-        looking_for_friend: lookingForFriend,
-        looking_for_coworker: lookingForCoWorker,
-      },
-    });
-    console.log('Profile created:', result.data);
-    // openSidebar(SIDEBAR_TYPES.HOME);
+    if (!session) {
+      console.error('No session found. Please log in first.');
+      return;
+    }
+
+    console.log('session:', session);
+    try {
+      const user = (
+        await axiosRequest({
+          method: 'POST',
+          url: '/users',
+          data: {
+            github_oauth_id: session.github_oauth_id,
+            name,
+            gender,
+            birth_date: birth,
+            avatar_id: avatarId,
+            looking_for_love: lookingForLove,
+            looking_for_friend: lookingForFriend,
+            looking_for_coworker: lookingForCoWorker,
+            most_preferred_language_id: 1,
+            most_preferred_package_id: 1,
+            tmi_ids: [],
+          },
+        })
+      ).data;
+
+      const res = (
+        await axiosRequest({
+          method: 'POST',
+          url: '/auth/github',
+          data: {
+            access_token: session.accessToken,
+          },
+        })
+      ).data;
+
+      setSession({
+        ...session,
+        userId: user.id,
+        serviceToken: res.access_token,
+      });
+
+      openSidebar(SIDEBAR_TYPES.HOME);
+    } catch (err) {
+      console.error('Failed to create profile:', err);
+      return;
+    }
   };
 
   return (
