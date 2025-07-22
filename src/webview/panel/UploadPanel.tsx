@@ -1,4 +1,5 @@
-import React, { useEffect, useState, ChangeEvent } from 'react';
+// UploadPanel.tsx
+import React, { useEffect, useState, ChangeEvent, useRef } from 'react';
 import {
   AiBlock,
   AskButton,
@@ -29,6 +30,7 @@ import {
   materialLight,
 } from 'react-syntax-highlighter/dist/esm/styles/prism';
 import { Loading } from '../components/loading';
+import { renderToStaticMarkup } from 'react-dom/server';
 
 const themes = {
   Darcula: darcula,
@@ -38,6 +40,7 @@ const themes = {
   Okaidia: okaidia,
   MaterialLight: materialLight,
 };
+
 const fonts = [
   'Fira Code',
   'Source Code Pro',
@@ -47,6 +50,7 @@ const fonts = [
   'Consolas',
   'Roboto Mono',
 ];
+
 const languages = [
   'python',
   'javascript',
@@ -64,6 +68,8 @@ interface Props {
   language?: string;
 }
 
+const CREATE_ENDPOINT = '/create_user_code'; // adjust if different
+
 export const UploadPanel: React.FC<Props> = ({
   code: initialCode = '',
   language: initialLanguage = 'python',
@@ -71,34 +77,42 @@ export const UploadPanel: React.FC<Props> = ({
   const { session } = useAuthContext();
   const [currentUser, setCurrentUser] = useState<User | null>(null);
 
-  // Editor state
-  const [code, setCode] = useState<string>(initialCode);
-  const [language, setLanguage] = useState<string>(initialLanguage);
+  // editor
+  const [code, setCode] = useState(initialCode);
+  const [codeLang, setCodeLang] = useState(initialLanguage);
   const [themeName, setThemeName] = useState<keyof typeof themes>('Darcula');
-  const [fontFamily, setFontFamily] = useState<string>(fonts[0]);
+  const [fontFamily, setFontFamily] = useState(fonts[0]);
 
-  // Analysis state
-  const [analysis, setAnalysis] = useState<string>('');
-  const [loadingAnalysis, setLoadingAnalysis] = useState<boolean>(false);
+  // analysis
+  const [analysis, setAnalysis] = useState('');
+  const [loadingAnalysis, setLoadingAnalysis] = useState(false);
   const [analysisError, setAnalysisError] = useState<string | null>(null);
+
+  // upload
+  const [uploading, setUploading] = useState(false);
+  const [uploadError, setUploadError] = useState<string | null>(null);
+  const [uploadSuccess, setUploadSuccess] = useState(false);
+
+  // preview ref
+  const previewRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     postVsCodeMessage({ type: 'requestSessionInfo' });
 
     const fetchUserProfile = async () => {
-      if (session) {
-        try {
-          const response = await axiosRequest({
-            method: 'GET',
-            url: '/users/me',
-            headers: { Authorization: `Bearer ${session.serviceToken}` },
-          });
-          setCurrentUser(response.data);
-        } catch (error) {
-          console.error('Failed to fetch user profile:', error);
-        }
+      if (!session) return;
+      try {
+        const response = await axiosRequest({
+          method: 'GET',
+          url: '/users/me',
+          headers: { Authorization: `Bearer ${session.serviceToken}` },
+        });
+        setCurrentUser(response.data);
+      } catch (error) {
+        console.error('Failed to fetch user profile:', error);
       }
     };
+
     fetchUserProfile();
   }, [session]);
 
@@ -129,16 +143,64 @@ export const UploadPanel: React.FC<Props> = ({
     }
   };
 
+  const handleUpload = async () => {
+    if (!session) return;
+
+    setUploading(true);
+    setUploadError(null);
+    setUploadSuccess(false);
+
+    try {
+      let htmlString = '';
+
+      // Prefer grabbing exactly what the user sees
+      if (previewRef.current) {
+        // include wrapper to ensure font style is preserved
+        htmlString = `<div style="font-family:${fontFamily};">${previewRef.current.innerHTML}</div>`;
+      } else {
+        // Fallback to static render (won’t include runtime CSS classes)
+        htmlString = renderToStaticMarkup(
+          <SyntaxHighlighter
+            language={codeLang}
+            style={themes[themeName]}
+            customStyle={{
+              fontFamily,
+              fontSize: 14,
+              borderRadius: 4,
+              overflow: 'auto',
+            }}
+          >
+            {code}
+          </SyntaxHighlighter>
+        );
+      }
+
+      const res = await axiosRequest({
+        method: 'POST',
+        url: CREATE_ENDPOINT,
+        headers: { Authorization: `Bearer ${session.serviceToken}` },
+        data: { content: htmlString },
+      });
+
+      if (res.status === 201) setUploadSuccess(true);
+    } catch (err: any) {
+      console.error(err);
+      setUploadError('Failed to upload code.');
+    } finally {
+      setUploading(false);
+    }
+  };
+
   return (
     <Wrapper>
       <TopBar>
-        <WhiteButton>Upload</WhiteButton>
+        <WhiteButton onClick={handleUpload} disabled={uploading}>
+          {uploading ? 'Uploading...' : 'Upload'}
+        </WhiteButton>
       </TopBar>
 
-      <CodeBlockWrapper
-        style={{ display: 'flex', gap: '16px', alignItems: 'flex-start' }}
-      >
-        {/* Code input section */}
+      <CodeBlockWrapper style={{ display: 'flex', gap: '16px', alignItems: 'flex-start' }}>
+        {/* Code input */}
         <div style={{ flex: 1, display: 'flex', flexDirection: 'column' }}>
           <Label>Code</Label>
           <CodeTextarea
@@ -155,22 +217,24 @@ export const UploadPanel: React.FC<Props> = ({
           </AskButton>
         </div>
 
-        {/* Preview section */}
+        {/* Preview */}
         <PreviewWrapper>
           <Label>Preview</Label>
-          <SyntaxHighlighter
-            language={language}
-            style={themes[themeName]}
-            fontFamily={fontFamily}
-            customStyle={{
-              fontSize: 14,
-              borderRadius: 4,
-              flex: 1,
-              overflow: 'auto',
-            }}
-          >
-            {code}
-          </SyntaxHighlighter>
+          <div ref={previewRef}>
+            <SyntaxHighlighter
+              language={codeLang}
+              style={themes[themeName]}
+              customStyle={{
+                fontFamily,
+                fontSize: 14,
+                borderRadius: 4,
+                flex: 1,
+                overflow: 'auto',
+              }}
+            >
+              {code}
+            </SyntaxHighlighter>
+          </div>
         </PreviewWrapper>
       </CodeBlockWrapper>
 
@@ -178,8 +242,8 @@ export const UploadPanel: React.FC<Props> = ({
         <SelectGroup>
           <Label>Language</Label>
           <SelectBox
-            value={language}
-            onChange={e => setLanguage(e.target.value)}
+            value={codeLang}
+            onChange={e => setCodeLang(e.target.value)}
           >
             {languages.map(lang => (
               <option key={lang} value={lang}>
@@ -222,11 +286,22 @@ export const UploadPanel: React.FC<Props> = ({
       <AiBlock>
         {analysisError && <p style={{ color: 'red' }}>{analysisError}</p>}
         {analysis && (
-          <div style={{ whiteSpace: 'pre-wrap', wordBreak: 'break-word' }}>
+          <div
+            style={{
+              whiteSpace: 'pre-wrap',
+              wordBreak: 'break-word',
+              overflowWrap: 'anywhere',
+            }}
+          >
             {analysis}
           </div>
         )}
       </AiBlock>
+
+      {uploadError && <p style={{ color: 'red', marginTop: 12 }}>{uploadError}</p>}
+      {uploadSuccess && (
+        <p style={{ color: '#6cf', marginTop: 12 }}>Upload success!</p>
+      )}
     </Wrapper>
   );
 };

@@ -76,6 +76,8 @@ export const CodeTextarea = styled.textarea`
 
 export const PreviewWrapper = styled.div`
   flex: 1;
+  display: flex;
+  flex-direction: column;
 `;
 
 /* ‑‑ 코드 블록 내부의 "Ask to AI" 버튼 ‑‑ */
