@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { use, useEffect, useState } from 'react';
 import {
   DndContext,
   DragEndEvent,
@@ -21,6 +21,8 @@ import {
   SectionTitle,
 } from './MycodePanel.styles';
 import { Wrapper } from './UploadPanel.styles';
+import { postVsCodeMessage } from '../../utils/vscodeApi';
+import { useAuthContext } from '../../contexts/AuthContext';
 
 /* ─────────────── Types ─────────────── */
 interface CodeCard {
@@ -128,11 +130,13 @@ const DroppableBlank: React.FC<{
 
 /* ─────────────── Main Component ─────────────── */
 export const MycodePanel: React.FC = () => {
+  const { session } = useAuthContext();
   const [codes, setCodes] = useState<CodeCard[]>(Object.values(CODE_LIBRARY));
   const [blanks, setBlanks] = useState<BlankSlot[]>([
     { id: 'blank-1', codeId: null },
   ]);
   const [activeId, setActiveId] = useState<string | null>(null);
+
   const isInCodes = (id: string) => codes.some(c => c.id === id);
   const findBlankIndexByCode = (id: string) =>
     blanks.findIndex(b => b.codeId === id);
@@ -143,6 +147,11 @@ export const MycodePanel: React.FC = () => {
     }),
     useSensor(KeyboardSensor)
   );
+
+  useEffect(() => {
+    console.log('Requesting session info from VS Code...');
+    postVsCodeMessage({ type: 'requestSessionInfo' });
+  }, [session]);
 
   /* Add new blank slot */
   const addBlank = () => {
@@ -230,6 +239,10 @@ export const MycodePanel: React.FC = () => {
 
     setActiveId(null);
   };
+
+  if (!session) {
+    return <p>Loading...</p>;
+  }
 
   /* ─────────────── Render ─────────────── */
   return (
