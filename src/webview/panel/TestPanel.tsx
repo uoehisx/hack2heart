@@ -15,11 +15,16 @@ export const openPanel = (viewId: PANEL_TYPES, title?: string) => {
   });
 };
 
-export const openSidebar = (viewId: SIDEBAR_TYPES, title?: string) => {
+export const openSidebar = (
+  viewId: SIDEBAR_TYPES,
+  title?: string,
+  option?: any
+) => {
   postVsCodeMessage({
     type: 'changeSidebar',
     viewId,
     title: title || DEFAULT_SIDEBAR_TITLES[viewId],
+    option,
   });
 };
 

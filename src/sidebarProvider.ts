@@ -82,8 +82,9 @@ export class SidebarProvider implements vscode.WebviewViewProvider {
         case 'changeSidebar':
           // 사이드바 내용 변경
           const viewId = message.viewId;
+          const option = message.option || {};
           console.log(`Changing sidebar content to: ${viewId}`);
-          this.updateSidebarContent(viewId);
+          this.updateSidebarContent(viewId, option);
           break;
         case 'authenticate':
           // 인증 명령 처리
@@ -93,12 +94,13 @@ export class SidebarProvider implements vscode.WebviewViewProvider {
     });
   }
 
-  private updateSidebarContent(viewId: SIDEBAR_TYPES) {
+  private updateSidebarContent(viewId: SIDEBAR_TYPES, option?: any) {
     if (this._view) {
       // 새로운 내용 타입을 webview에 전달
       this._view.webview.postMessage({
         type: 'updateContent',
         viewId,
+        option,
       });
     }
   }

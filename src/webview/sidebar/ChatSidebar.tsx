@@ -83,7 +83,7 @@ const ChatSidebar = ({ chatroomId = 'test' }: ChatSidebarProps) => {
       }
     };
     fetchUserProfileAndMessages();
-  }, [session, chatroomId]);
+  }, []);
 
   if (!session || !currentUser) {
     return <p>Loading...</p>;

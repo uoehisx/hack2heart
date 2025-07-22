@@ -138,9 +138,10 @@ export const ChatItem = styled.div`
   display: flex;
   align-items: center;
   background: #1f1f1f;
-  padding: 8px;
+  padding: 12px;
   border-radius: 8px;
   box-shadow: inset 2px 2px 4px #000000, inset -2px -2px 4px #1f1f1f;
+  cursor: pointer;
 `;
 
 export const ChatAvatar = styled.img`
@@ -163,6 +164,7 @@ export const ChatName = styled.div`
   font-weight: bold;
   font-size: 14px;
   color: #ffffff;
+  margin-bottom: 4px;
 `;
 
 export const ChatPreview = styled.div`
