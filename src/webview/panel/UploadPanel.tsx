@@ -16,7 +16,7 @@ import {
 import { useAuthContext } from '../../contexts/AuthContext';
 import { postVsCodeMessage } from '../../utils/vscodeApi';
 import { axiosRequest } from '../../hooks/useAxios';
-import { GENDER_TYPES, User } from '../../constants';
+import { User } from '../../constants';
 
 export const UploadPanel: React.FC = () => {
   const { session } = useAuthContext();

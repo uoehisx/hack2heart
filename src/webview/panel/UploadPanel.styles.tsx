@@ -19,22 +19,6 @@ export const TopBar = styled.div`
   margin-bottom: 24px;
 `;
 
-export const BlackButton = styled.button`
-  padding: 8px 20px;
-  border: none;
-  border-radius: 20px;
-  background: #1a1a1a;
-  color: #ffffff;
-  font-size: 14px;
-  cursor: pointer;
-  box-shadow: 6px 6px 12px rgba(0, 0, 0, 0.4), -6px -6px 12px #1f1f1f;
-  transition: box-shadow 0.15s;
-
-  &:hover {
-    box-shadow: inset 6px 6px 12px rgba(0, 0, 0, 0.4),
-      inset -6px -6px 12px #1f1f1f;
-  }
-`;
 export const WhiteButton = styled.button`
   padding: 8px 20px;
   border: none;

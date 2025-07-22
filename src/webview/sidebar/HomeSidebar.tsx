@@ -26,8 +26,14 @@ import {
   ToggleLabel,
 } from './HomeSidebar.styles';
 import { useAuthContext } from '../../contexts/AuthContext';
-import { GENDER_TYPES, User } from '../../constants';
+import {
+  GENDER_TYPES,
+  PANEL_TYPES,
+  SIDEBAR_TYPES,
+  User,
+} from '../../constants';
 import { getAge } from '../../utils/ageUtil';
+import { openPanel, openSidebar } from '../panel/TestPanel';
 
 interface ChatItemType {
   id: string;
@@ -77,7 +83,6 @@ export const HomeSidebar: React.FC = () => {
     fetchUserProfile();
   }, [session]);
 
-
   if (!session || !currentUser) {
     return <p>Loading...</p>;
   }
@@ -105,8 +110,27 @@ export const HomeSidebar: React.FC = () => {
         </ProfileSection>
 
         <Buttons>
-          <PrimaryButton>Edit Profile</PrimaryButton>
-          <SecondaryButton>My Codes</SecondaryButton>
+          <PrimaryButton
+            onClick={() => {
+              openSidebar(SIDEBAR_TYPES.PROFILE);
+            }}
+          >
+            Edit Profile
+          </PrimaryButton>
+          <PrimaryButton
+            onClick={() => {
+              openPanel(PANEL_TYPES.MYCODE);
+            }}
+          >
+            My Codes
+          </PrimaryButton>
+          <SecondaryButton
+            onClick={() => {
+              openPanel(PANEL_TYPES.UPLOAD);
+            }}
+          >
+            Upload
+          </SecondaryButton>
         </Buttons>
 
         <ChatsSection>

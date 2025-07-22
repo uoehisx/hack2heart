@@ -1,0 +1,91 @@
+import styled from '@emotion/styled';
+
+export const SidebarWrapper = styled.div`
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 10px;
+`;
+
+export const Header = styled.h3`
+  font-size: 20px;
+  color: #e0e0e0;
+`;
+
+export const MessagesContainer = styled.div`
+  width: 100%;
+  display: flex;
+  overflow-y: auto;
+  flex-direction: column;
+`;
+
+export const Bubble = styled.div<{ self: boolean }>`
+  max-width: 220px;
+  margin-bottom: 12px;
+  padding: 12px 16px;
+  border-radius: 20px;
+  font-size: 14px;
+  line-height: 1.4;
+  color: ${({ self }) => (self ? '#1f1f1f' : '#e0e0e0')};
+  background: ${({ self }) => (self ? '#f2f2f2' : '#3a3a3a')};
+  box-shadow: ${({ self }) =>
+    self ? '' : 'inset 4px 4px 8px #2e2e2e, inset -4px -4px 8px #424242'};
+  align-self: ${({ self }) => (self ? 'flex-end' : 'flex-start')};
+`;
+
+export const InputArea = styled.form`
+  position: fixed;
+  bottom: 30px;
+  display: flex;
+  gap: 8px;
+  margin-top: 8px;
+`;
+
+export const TextField = styled.input`
+  flex: 1;
+  padding: 12px 16px;
+  border: none;
+  border-radius: 24px;
+  font-size: 14px;
+  background: #2e2e2e;
+  box-shadow: inset 4px 4px 8px #262626, inset -4px -4px 8px #363636;
+  color: #e0e0e0;
+  outline: none;
+
+  &:focus {
+    outline: 2px solid #6a4bff;
+  }
+`;
+
+export const SendButton = styled.button`
+  padding: 0 20px;
+  border: none;
+  border-radius: 24px;
+  font-size: 14px;
+  cursor: pointer;
+  background: #2e2e2e;
+  color: #e0e0e0;
+  transition: all 0.05s ease;
+
+  &:active {
+    box-shadow: inset 2px 2px 4px #000000, inset -2px -2px 4px #1f1f1f;
+    transform: translateY(2px);
+  }
+`;
+
+export const BackButton = styled.button`
+  padding: 8px 20px;
+  border: none;
+  border-radius: 20px;
+  background: #1a1a1a;
+  color: #ffffff;
+  font-size: 14px;
+  cursor: pointer;
+  box-shadow: 6px 6px 12px rgba(0, 0, 0, 0.4), -6px -6px 12px #1f1f1f;
+  transition: box-shadow 0.15s;
+
+  &:hover {
+    box-shadow: inset 6px 6px 12px rgba(0, 0, 0, 0.4),
+      inset -6px -6px 12px #1f1f1f;
+  }
+`;

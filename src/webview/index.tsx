@@ -9,6 +9,7 @@ import { MycodePanel } from './panel/MycodePanel';
 import { Sidebar } from './sidebar/Sidebar';
 import { PANEL_TYPES, SIDEBAR_TYPES } from '../constants';
 import { AuthProvider } from '../contexts/AuthContext';
+import { SocketProvider } from '../contexts/SocketContext';
 
 // Webview ID와 타입을 추출하는 함수
 function getViewInfo(): { viewType: 'sidebar' | 'panel'; viewId: string } {
@@ -68,7 +69,9 @@ if (container) {
   root.render(
     <React.StrictMode>
       <AuthProvider>
-        {renderComponent(viewType, viewId as PANEL_TYPES)}
+        <SocketProvider>
+          {renderComponent(viewType, viewId as PANEL_TYPES)}
+        </SocketProvider>
       </AuthProvider>
     </React.StrictMode>
   );
