@@ -58,20 +58,25 @@ const languages = [
   'rust',
 ];
 
-type Props = {
+interface Props {
   code?: string;
   language?: string;
-};
+}
 
-export const UploadPanel: React.FC<Props> = () => {
+export const UploadPanel: React.FC<Props> = ({ code: initialCode = '', language: initialLanguage = 'python' }) => {
   const { session } = useAuthContext();
   const [currentUser, setCurrentUser] = useState<User | null>(null);
 
   // Editor state
-  const [code, setCode] = useState('');
-  const [language, setLanguage] = useState<string>('python');
+  const [code, setCode] = useState<string>(initialCode);
+  const [language, setLanguage] = useState<string>(initialLanguage);
   const [themeName, setThemeName] = useState<keyof typeof themes>('Darcula');
   const [fontFamily, setFontFamily] = useState<string>(fonts[0]);
+
+  // Analysis state
+  const [analysis, setAnalysis] = useState<string>('');
+  const [loadingAnalysis, setLoadingAnalysis] = useState<boolean>(false);
+  const [analysisError, setAnalysisError] = useState<string | null>(null);
 
   useEffect(() => {
     postVsCodeMessage({ type: 'requestSessionInfo' });
@@ -101,6 +106,25 @@ export const UploadPanel: React.FC<Props> = () => {
     setCode(e.target.value);
   };
 
+  const handleAnalyze = async () => {
+    setLoadingAnalysis(true);
+    setAnalysisError(null);
+    try {
+      const response = await axiosRequest({
+        method: 'POST',
+        url: '/codes/analyze',
+        headers: { Authorization: `Bearer ${session.serviceToken}` },
+        data: { content: code },
+      });
+      setAnalysis(response.data.content);
+    } catch (error: any) {
+      console.error('Analysis failed:', error);
+      setAnalysisError('Failed to analyze code.');
+    } finally {
+      setLoadingAnalysis(false);
+    }
+  };
+
   return (
     <Wrapper>
       <TopBar>
@@ -115,21 +139,20 @@ export const UploadPanel: React.FC<Props> = () => {
             placeholder="Paste or write your code here..."
             value={code}
             onChange={handleCodeChange}
-            style={{ fontFamily, flex: 1 }}
           />
-          <AskButton style={{ marginTop: '8px', alignSelf: 'flex-end' }}>
-            Ask to AI
+          <AskButton onClick={handleAnalyze} disabled={loadingAnalysis} style={{ marginTop: '8px', alignSelf: 'flex-end' }}>
+            {loadingAnalysis ? 'Analyzing...' : 'Ask to AI'}
           </AskButton>
         </div>
 
         {/* Preview section */}
-       <PreviewWrapper>
+        <PreviewWrapper>
           <Label>Preview</Label>
           <SyntaxHighlighter
             language={language}
             style={themes[themeName]}
+            fontFamily={fontFamily}
             customStyle={{
-              fontFamily,
               fontSize: 14,
               borderRadius: 4,
               flex: 1,
@@ -144,10 +167,7 @@ export const UploadPanel: React.FC<Props> = () => {
       <DescRow>
         <SelectGroup>
           <Label>Language</Label>
-          <SelectBox
-            value={language}
-            onChange={e => setLanguage(e.target.value)}
-          >
+          <SelectBox value={language} onChange={e => setLanguage(e.target.value)}>
             {languages.map(lang => (
               <option key={lang} value={lang}>
                 {lang.charAt(0).toUpperCase() + lang.slice(1)}
@@ -158,10 +178,7 @@ export const UploadPanel: React.FC<Props> = () => {
 
         <SelectGroup>
           <Label>Font Family</Label>
-          <SelectBox
-            value={fontFamily}
-            onChange={e => setFontFamily(e.target.value)}
-          >
+          <SelectBox value={fontFamily} onChange={e => setFontFamily(e.target.value)}>
             {fonts.map(f => (
               <option key={f} value={f}>
                 {f}
@@ -172,10 +189,7 @@ export const UploadPanel: React.FC<Props> = () => {
 
         <SelectGroup>
           <Label>Theme</Label>
-          <SelectBox
-            value={themeName}
-            onChange={e => setThemeName(e.target.value as any)}
-          >
+          <SelectBox value={themeName} onChange={e => setThemeName(e.target.value as any)}>
             {Object.keys(themes).map(name => (
               <option key={name} value={name}>
                 {name}
@@ -186,7 +200,14 @@ export const UploadPanel: React.FC<Props> = () => {
       </DescRow>
 
       <PurpleLabel>AI Code Analysis</PurpleLabel>
-      <AiBlock>{/* AI 분석 결과 렌더링 자리 */}</AiBlock>
+      <AiBlock>
+        {analysisError && <p style={{ color: 'red' }}>{analysisError}</p>}
+        {analysis && (
+          <div style={{ whiteSpace: 'pre-wrap', wordBreak: 'break-word' }}>
+            {analysis}
+          </div>
+        )}
+      </AiBlock>
     </Wrapper>
   );
 };

@@ -49,7 +49,7 @@ export const Sidebar = ({
           case SIDEBAR_TYPES.HOME:
             return <HomeSidebar />;
           case SIDEBAR_TYPES.CHAT:
-            return <ChatSidebar />;
+            return <ChatSidebar chatroomId='test'/>;
           default:
             return <TestSidebar />;
         }
