@@ -51,14 +51,10 @@ export const Sidebar = ({
           case SIDEBAR_TYPES.HOME:
             return <HomeSidebar />;
           case SIDEBAR_TYPES.CHAT:
-<<<<<<< HEAD
-            return <ChatSidebar chatroomId='test'/>;
-=======
             if (!currentOption.chatroomId) {
               return <HomeSidebar />;
             }
             return <ChatSidebar chatroomId={currentOption.chatroomId} />;
->>>>>>> 5753f6a4f088c2c13ae2455075be72627ab8fdcf
           default:
             return <TestSidebar />;
         }
