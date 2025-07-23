@@ -47,6 +47,15 @@ const ChatSidebar = ({ chatroomId = 'test' }: ChatSidebarProps) => {
     setMessages(prev => [...prev, incoming]);
   });
 
+  // 방 입장: 컴포넌트 마운트 시 chatroomId로 join
+  const sendJoinRoom = useSocketSender('join_room');
+  useEffect(() => {
+    if (chatroomId) {
+      sendJoinRoom({ chatroom_id: chatroomId });
+      console.log('Joined room:', chatroomId);
+    }
+  }, [chatroomId]);
+
   // 자동 스크롤
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: 'smooth' });
