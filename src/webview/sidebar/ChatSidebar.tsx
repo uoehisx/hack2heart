@@ -120,7 +120,6 @@ const ChatSidebar = ({ chatroomId = 'test' }: ChatSidebarProps) => {
       data: { content: text },
     });
 
-    setMessages(prev => [...prev, optimistic]);
     setDraft('');
   };
 
