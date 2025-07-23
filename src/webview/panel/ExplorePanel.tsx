@@ -151,14 +151,14 @@ export const ExplorePanel: React.FC = () => {
       {/* 코드 슬라이더 */}
       <StyledSlider
         {...{
-          dots: true,
+          dots: userCodes.length > 1,
           arrows: false,
           infinite: false,
           speed: 300,
           slidesToShow: 1,
           slidesToScroll: 1,
           centerMode: true,
-          draggable: true,
+          draggable: userCodes.length > 1,
           focusOnSelect: true,
           variableWidth: true,
         }}
@@ -183,6 +183,7 @@ export const ExplorePanel: React.FC = () => {
             <p>No code snippets available.</p>
           </Card>
         )}
+        {userCodes.length === 1 ? <div></div> : null}
       </StyledSlider>
       <InfoRow>
         <UserBar>
