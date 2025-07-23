@@ -52,11 +52,6 @@ export const TextField = styled.input`
   background: #2e2e2e;
   box-shadow: inset 4px 4px 8px #262626, inset -4px -4px 8px #363636;
   color: #e0e0e0;
-  outline: none;
-
-  &:focus {
-    outline: 2px solid #6a4bff;
-  }
 `;
 
 export const SendButton = styled.button`

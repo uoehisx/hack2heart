@@ -45,6 +45,7 @@ export const Label = styled.p`
 `;
 export const PurpleLabel = styled(Label)`
   color: #a37ef2;
+  margin-bottom: 20px;
 `;
 
 /* ───────── 코드 입력 영역 ───────── */

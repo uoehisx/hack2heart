@@ -328,21 +328,23 @@ export const UploadPanel: React.FC<Props> = ({
           </SelectGroup>
         </DescRow>
 
-        <PurpleLabel>AI Code Analysis</PurpleLabel>
-        <AiBlock>
-          {analysisError && <p style={{ color: 'red' }}>{analysisError}</p>}
-          {analysis && (
-            <div
-              style={{
-                whiteSpace: 'pre-wrap',
-                wordBreak: 'break-word',
-                overflowWrap: 'anywhere',
-              }}
-            >
-              {analysis}
-            </div>
-          )}
-        </AiBlock>
+        <div>
+          <PurpleLabel>AI Code Analysis</PurpleLabel>
+          <AiBlock>
+            {analysisError && <p style={{ color: 'red' }}>{analysisError}</p>}
+            {analysis && (
+              <div
+                style={{
+                  whiteSpace: 'pre-wrap',
+                  wordBreak: 'break-word',
+                  overflowWrap: 'anywhere',
+                }}
+              >
+                {analysis}
+              </div>
+            )}
+          </AiBlock>
+        </div>
       </Wrapper>
     </>
   );
