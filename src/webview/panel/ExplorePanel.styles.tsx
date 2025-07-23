@@ -34,7 +34,7 @@ export const Card = styled.div`
   height: 500px;
   width: ${CARD_WIDTH}px !important;
   overflow: hidden;
-
+  cursor: pointer;
   display: flex;
   align-items: center;
   justify-content: center;

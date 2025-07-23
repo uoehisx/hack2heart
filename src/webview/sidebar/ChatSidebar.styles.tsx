@@ -17,6 +17,7 @@ export const MessagesContainer = styled.div`
   display: flex;
   overflow-y: auto;
   flex-direction: column;
+  margin: 80px 0;
 `;
 
 export const Bubble = styled.div<{ self: boolean }>`
@@ -42,6 +43,7 @@ export const InputArea = styled.form`
 `;
 
 export const TextField = styled.input`
+  margin-left: 20px;
   flex: 1;
   padding: 12px 16px;
   border: none;
@@ -58,6 +60,7 @@ export const TextField = styled.input`
 `;
 
 export const SendButton = styled.button`
+  margin-right: 20px;
   padding: 0 20px;
   border: none;
   border-radius: 24px;

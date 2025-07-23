@@ -104,13 +104,6 @@ const ChatSidebar = ({ chatroomId = 'test' }: ChatSidebarProps) => {
     const text = draft.trim();
     if (!text) return;
 
-    const optimistic: ChatMessage = {
-      chatroom_id: chatroomId,
-      user_id: currentUser.id,
-      content: text,
-      created_at: new Date().toISOString(),
-    };
-
     await axiosRequest({
       method: 'POST',
       url: `/chatrooms/${chatroomId}/messages`,
@@ -131,7 +124,8 @@ const ChatSidebar = ({ chatroomId = 'test' }: ChatSidebarProps) => {
     <SidebarWrapper>
       <div
         style={{
-          width: '100%',
+          position: 'fixed',
+          width: 'calc(100% - 40px)',
           display: 'flex',
           flexDirection: 'row',
           justifyContent: 'space-between',

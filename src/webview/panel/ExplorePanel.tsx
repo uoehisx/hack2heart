@@ -206,7 +206,7 @@ export const ExplorePanel: React.FC = () => {
           </NameColumn>
         </UserBar>
         <LanguagesBar>
-          <LangTitle>Preferrences</LangTitle>
+          <LangTitle>Preferences</LangTitle>
           <p>
             <span style={{ fontSize: '14px' }}>
               {displayedUser.most_preferred_language.name},{' '}
