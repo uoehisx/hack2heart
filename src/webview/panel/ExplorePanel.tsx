@@ -45,19 +45,6 @@ export const ExplorePanel: React.FC = () => {
   const [displayedUser, setDisplayedUser] = useState<RecUser | null>(null);
   const [userCodes, setUserCodes] = useState<UserCode[]>([]);
 
-  const settings = {
-    dots: true,
-    arrows: false,
-    infinite: false,
-    speed: 300,
-    slidesToShow: 1,
-    slidesToScroll: 1,
-    centerMode: true,
-    draggable: true,
-    focusOnSelect: true,
-    variableWidth: true,
-  };
-
   useEffect(() => {
     console.log('Requesting session info from VS Code...');
     postVsCodeMessage({ type: 'requestSessionInfo' });
@@ -162,7 +149,20 @@ export const ExplorePanel: React.FC = () => {
   return (
     <Wrapper>
       {/* 코드 슬라이더 */}
-      <StyledSlider {...settings}>
+      <StyledSlider
+        {...{
+          dots: true,
+          arrows: false,
+          infinite: false,
+          speed: 300,
+          slidesToShow: 1,
+          slidesToScroll: 1,
+          centerMode: true,
+          draggable: true,
+          focusOnSelect: true,
+          variableWidth: true,
+        }}
+      >
         {userCodes.length > 0 ? (
           userCodes.map((code: UserCode) => (
             <Card key={code.id}>
@@ -195,17 +195,37 @@ export const ExplorePanel: React.FC = () => {
           <NameColumn>
             <UserName>{displayedUser.name}</UserName>
             <Meta>
-              {displayedUser.gender},{' '}
-              {getAge(new Date(displayedUser.birth_date))}
+              {displayedUser.gender === GENDER_TYPES.MALE
+                ? 'Male'
+                : displayedUser.gender === GENDER_TYPES.FEMALE
+                ? 'Female'
+                : 'Other'}
+              , {getAge(new Date(displayedUser.birth_date))}
             </Meta>
           </NameColumn>
         </UserBar>
         <LanguagesBar>
-          <LangTitle>
-            Preferred <span>Languages</span>
-          </LangTitle>
-          <UserName>{displayedUser.most_preferred_language.name}</UserName>
-          <UserName>{displayedUser.most_preferred_package.name}</UserName>
+          <LangTitle>Preferrences</LangTitle>
+          <p>
+            <span style={{ fontSize: '14px' }}>
+              {displayedUser.most_preferred_language.name},{' '}
+            </span>
+            <span style={{ fontSize: '14px', color: '#a37ef2' }}>
+              {displayedUser.most_preferred_package.name}
+            </span>
+          </p>
+          <p>
+            {displayedUser.tmis
+              .map(tmi => (
+                <span
+                  key={tmi.id}
+                  style={{ marginRight: '8px', fontSize: '12px' }}
+                >
+                  {tmi.name}
+                </span>
+              ))
+              .join(', ')}
+          </p>
         </LanguagesBar>
       </InfoRow>
 

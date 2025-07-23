@@ -12,11 +12,6 @@ export const Wrapper = styled.div`
 
 /* ───────── Slider 커스텀 ───────── */
 export const StyledSlider = styled(Slider)`
-  /* slide 간 여백 */
-  .slick-slide {
-    width: ${CARD_WIDTH}px !important;
-    box-sizing: border-box;
-  }
   /* dots 위치 & 간격 조정 */
   .slick-dots {
     position: absolute;
@@ -45,7 +40,7 @@ export const Card = styled.div`
   border-radius: 20px;
   box-shadow: 6px 6px 12px rgba(0, 0, 0, 0.08), -6px -6px 12px #1f1f1f;
   height: 500px;
-  width: 100%;
+  width: ${CARD_WIDTH}px !important;
   overflow: hidden;
 
   display: flex;
