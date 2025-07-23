@@ -23,7 +23,7 @@ import { Wrapper } from './UploadPanel.styles';
 import { postVsCodeMessage } from '../../utils/vscodeApi';
 import { useAuthContext } from '../../contexts/AuthContext';
 import { Loading } from '../components/loading';
-import { axiosRequest } from '../../hooks/useAxios'; // 경로 확인
+import { axiosRequest } from '../../hooks/useAxios';
 
 interface UserCode {
   id: number;
@@ -91,14 +91,15 @@ const DraggableCard = ({
         style={{
           whiteSpace: 'pre-wrap',
           wordBreak: 'break-all',
-          margin: 0,
+          maxHeight: '280px',
+          overflowY: 'hidden',
+          fontSize: '10px',
+          marginBottom: '10px',
         }}
         dangerouslySetInnerHTML={{ __html: code.content }}
       />
       {!compact && (
-        <span style={{ marginTop: 'auto', fontSize: 12, color: '#888' }}>
-          {code.line} lines
-        </span>
+        <span style={{ fontSize: 12, color: '#888' }}>{code.line} lines</span>
       )}
     </CardWrapper>
   );
@@ -139,18 +140,24 @@ export const MycodePanel = () => {
   const [blanks, setBlanks] = useState<BlankSlot[]>([
     { id: 'blank-1', codeId: null },
   ]);
+  const blanksRef = React.useRef(blanks);
   const [activeId, setActiveId] = useState<string | null>(null);
 
   const getCode = (id: string) => codesMap[id];
 
   const isInCodes = (id: string) => codes.includes(id);
   const findBlankIndexByCode = (id: string) =>
-    blanks.findIndex(b => b.codeId === id);
+    blanksRef.current.findIndex(b => b.codeId === id);
 
   useEffect(() => {
     console.log('Requesting session info from VS Code...');
     postVsCodeMessage({ type: 'requestSessionInfo' });
   }, []);
+
+  // blanks 상태가 변경될 때마다 ref에 최신값 저장
+  useEffect(() => {
+    blanksRef.current = blanks;
+  }, [blanks]);
 
   useEffect(() => {
     if (!session) return;
@@ -178,14 +185,25 @@ export const MycodePanel = () => {
         const map: Record<string, CodeCard> = {};
         const ids: string[] = [];
 
+        // blanks를 한 번에 세팅
+        const blanksArr: BlankSlot[] = [];
         userCodes.forEach(sc => {
           const card = toCard(sc);
           map[card.id] = card;
           ids.push(card.id);
+          if (sc.index !== null) {
+            blanksArr.push({ id: `blank-${sc.index + 1}`, codeId: card.id });
+          }
         });
+        // 최소 1개 blank는 항상 있도록 보장
+        setBlanks(
+          blanksArr.length > 0 ? blanksArr : [{ id: 'blank-1', codeId: null }]
+        );
 
         setCodesMap(map);
-        setCodes(ids);
+        // blanks에 들어간 코드 id를 codes에서 제외
+        const blankCodeIds = blanksArr.map(b => b.codeId).filter(Boolean);
+        setCodes(ids.filter(id => !blankCodeIds.includes(id)));
       } catch (err) {
         console.error(err);
       }
@@ -195,7 +213,9 @@ export const MycodePanel = () => {
 
   /* Sensors */
   const sensors = useSensors(
-    useSensor(PointerSensor, { activationConstraint: { distance: 3 } }),
+    useSensor(PointerSensor, {
+      activationConstraint: { distance: 3 },
+    }),
     useSensor(KeyboardSensor)
   );
 
@@ -229,12 +249,34 @@ export const MycodePanel = () => {
   };
 
   /* Delete code card from the list */
-  const deleteCodeCard = (codeId: string) => {
-    setCodes(prev => prev.filter(id => id !== codeId));
+  const deleteCodeCard = async (codeId: number) => {
+    if (!session) return;
+
+    try {
+      await axiosRequest({
+        method: 'DELETE',
+        url: `/users/me/codes/${codeId}`,
+        headers: {
+          Authorization: `Bearer ${session.serviceToken}`,
+        },
+      });
+      console.log(`Deleted code card ${codeId}`);
+
+      setCodes(prev => prev.filter(id => id !== `code-${codeId}`));
+      setBlanks(prev =>
+        prev.map(b =>
+          b.codeId === `code-${codeId}` ? { ...b, codeId: null } : b
+        )
+      );
+    } catch (err) {
+      console.error('Failed to delete code card:', err);
+    }
   };
 
   /* Drag End */
-  const handleDragEnd = (event: DragEndEvent) => {
+  const handleDragEnd = async (event: DragEndEvent) => {
+    if (!session) return;
+
     const { over, active } = event;
     setActiveId(null);
 
@@ -247,8 +289,8 @@ export const MycodePanel = () => {
     if (destId.startsWith('blank-')) {
       const originIdx = findBlankIndexByCode(srcId); // -1 if from library
 
-      setBlanks(prev =>
-        prev.map((b, idx) => {
+      setBlanks(prev => {
+        const newBlanks = prev.map((b, idx) => {
           // a) empty the source blank (if any)
           if (idx === originIdx) return { ...b, codeId: null };
 
@@ -263,8 +305,9 @@ export const MycodePanel = () => {
             return { ...b, codeId: srcId };
           }
           return b;
-        })
-      );
+        });
+        return newBlanks;
+      });
 
       // c) if src came from library, remove it there
       if (isInCodes(srcId)) {
@@ -284,9 +327,28 @@ export const MycodePanel = () => {
         }
       }
     }
-
-    console.log('pinned codes:', codes);
   };
+  // blanks가 변경될 때마다 API 호출
+  useEffect(() => {
+    if (!session) return;
+
+    console.log('Updating pinned codes indices:', blanks);
+    axiosRequest({
+      method: 'PUT',
+      url: '/users/me/codes/indices',
+      headers: {
+        Authorization: `Bearer ${session.serviceToken}`,
+      },
+      data: {
+        ids: blanks
+          .map(b => (b.codeId ? codesMap[b.codeId].raw.id : null))
+          .filter(id => id !== null),
+        indices: blanks
+          .map((b, idx) => (b.codeId ? idx : null))
+          .filter(idx => idx !== null),
+      },
+    });
+  }, [blanks]);
 
   if (!session) {
     return <Loading />;
@@ -294,7 +356,7 @@ export const MycodePanel = () => {
 
   return (
     <Wrapper>
-      <SectionTitle>Code List (Pinned Top)</SectionTitle>
+      <SectionTitle>Pinned Code List</SectionTitle>
 
       <DndContext
         sensors={sensors}
@@ -334,7 +396,7 @@ export const MycodePanel = () => {
                 <DraggableCard
                   key={card.id}
                   code={card}
-                  onRemove={deleteCodeCard}
+                  onRemove={() => deleteCodeCard(card.raw.id)}
                   showDelete
                 />
               );

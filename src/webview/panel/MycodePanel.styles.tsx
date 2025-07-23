@@ -12,7 +12,7 @@ export const Wrapper = styled.div`
 `;
 
 export const SectionTitle = styled.h2`
-  margin: 0 0 16px 0;
+  margin: 0 0 24px 0;
   font-size: 20px;
   font-weight: 600;
   color: #ffffff;
@@ -104,18 +104,7 @@ export const CardWrapper = styled.div<{ line: number; compact?: boolean }>`
   padding: ${p => (p.compact ? '12px' : '24px')};
   width: ${p => (p.compact ? '100%' : 'auto')};
   height: ${p => (p.compact ? '100%' : 'auto')};
-  min-height: ${p => (p.compact ? 'auto' : '120px')};
 
-  ${p =>
-    !p.compact &&
-    css`
-      ${p.line > 300 && 'min-height: 200px;'}
-      ${p.line > 600 && 'min-height: 280px;'}
-    `};
-
-  display: flex;
-  flex-direction: column;
   position: relative;
-
   overflow: hidden;
 `;
