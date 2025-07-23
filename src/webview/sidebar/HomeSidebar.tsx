@@ -136,20 +136,13 @@ export const HomeSidebar: React.FC = () => {
         </ProfileSection>
 
         <Buttons>
-          <PrimaryButton
+          <SecondaryButton
             onClick={() => {
-              openSidebar(SIDEBAR_TYPES.PROFILE);
+              openPanel(PANEL_TYPES.EXPLORE);
             }}
           >
-            Edit Profile
-          </PrimaryButton>
-          <PrimaryButton
-            onClick={() => {
-              openPanel(PANEL_TYPES.MYCODE);
-            }}
-          >
-            My Codes
-          </PrimaryButton>
+            Explore
+          </SecondaryButton>
           <SecondaryButton
             onClick={() => {
               openPanel(PANEL_TYPES.UPLOAD);
@@ -157,6 +150,20 @@ export const HomeSidebar: React.FC = () => {
           >
             Upload
           </SecondaryButton>
+          <PrimaryButton
+            onClick={() => {
+              openPanel(PANEL_TYPES.MYCODE);
+            }}
+          >
+            My Codes
+          </PrimaryButton>
+          <PrimaryButton
+            onClick={() => {
+              openSidebar(SIDEBAR_TYPES.PROFILE);
+            }}
+          >
+            Edit Profile
+          </PrimaryButton>
         </Buttons>
 
         <ChatsSection>

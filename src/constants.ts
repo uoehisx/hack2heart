@@ -70,6 +70,13 @@ export interface User {
   created_at: Date;
 }
 
+export interface UserCode {
+  id: number;
+  content: string;
+  index: number | null;
+  created_at: string;
+}
+
 export const AVATAR_IMG_SRC = [
   gopherImg,
   kodeeImg,

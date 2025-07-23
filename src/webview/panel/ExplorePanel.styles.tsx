@@ -1,7 +1,7 @@
 import styled from '@emotion/styled';
 import Slider from 'react-slick';
 
-export const CARD_WIDTH=580;
+export const CARD_WIDTH = 580;
 /* ───────── 레이아웃 컨테이너 ───────── */
 /* → 전체 ExplorePanel 을 원하는 만큼 아래로 이동 */
 export const Wrapper = styled.div`
@@ -12,16 +12,9 @@ export const Wrapper = styled.div`
 
 /* ───────── Slider 커스텀 ───────── */
 export const StyledSlider = styled(Slider)`
-  /* 좌·우 화살표 숨기기 */
-  .slick-prev,
-  .slick-next {
-    display: none !important;
-  }
-
   /* slide 간 여백 */
   .slick-slide {
     width: ${CARD_WIDTH}px !important;
-    padding: 0 12px;
     box-sizing: border-box;
   }
   /* dots 위치 & 간격 조정 */
@@ -53,11 +46,12 @@ export const Card = styled.div`
   box-shadow: 6px 6px 12px rgba(0, 0, 0, 0.08), -6px -6px 12px #1f1f1f;
   height: 500px;
   width: 100%;
+  overflow: hidden;
 
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 2rem;
+  font-size: ;
 `;
 export const InfoRow = styled.div`
   margin: 28px auto 0;
