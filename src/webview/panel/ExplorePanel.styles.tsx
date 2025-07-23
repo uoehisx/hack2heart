@@ -14,16 +14,8 @@ export const Wrapper = styled.div`
 export const StyledSlider = styled(Slider)`
   /* dots 위치 & 간격 조정 */
   .slick-dots {
-    position: absolute;
-    top: -24px;
-    left: 0;
-    right: 0;
-    display: flex !important;
-    justify-content: center;
-    /* 슬라이더 아래 여백 */
-    li {
-      margin: 0 4px;
-    }
+    position: relative;
+    bottom: 535px;
     button:before {
       font-size: 10px; /* 기본 점 크기 */
       color: #bbb; /* 비활성 색상 */
@@ -46,12 +38,11 @@ export const Card = styled.div`
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: ;
 `;
 export const InfoRow = styled.div`
-  margin: 28px auto 0;
+  margin: 0 auto;
   display: flex;
-  gap: 24px; /* 두 박스 사이 간격 */
+  gap: 20px; /* 두 박스 사이 간격 */
   justify-content: center;
   flex-wrap: wrap; /* 화면이 좁아지면 아래로 내려가도록 */
 `;
