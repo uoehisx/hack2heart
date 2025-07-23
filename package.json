@@ -119,6 +119,7 @@
         "@fontsource/jetbrains-mono": "^5.2.6",
         "@fontsource/source-code-pro": "^5.2.6",
         "@types/react": "^19.1.8",
+        "@vscode/vsce": "^3.6.0",
         "axios": "^1.10.0",
         "react": "^19.1.0",
         "react-dom": "^19.1.0",
