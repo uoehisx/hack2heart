@@ -1,9 +1,7 @@
-// MycodePanel.tsx
 import React, { useEffect, useState } from 'react';
 import {
   DndContext,
   DragEndEvent,
-  DragOverlay,
   PointerSensor,
   KeyboardSensor,
   useSensor,
@@ -12,7 +10,6 @@ import {
 } from '@dnd-kit/core';
 import { useDraggable, useDroppable } from '@dnd-kit/core';
 import { CSS } from '@dnd-kit/utilities';
-
 import {
   BlanksContainer,
   BlankWrapper,
@@ -28,8 +25,7 @@ import { useAuthContext } from '../../contexts/AuthContext';
 import { Loading } from '../components/loading';
 import { axiosRequest } from '../../hooks/useAxios'; // 경로 확인
 
-/* ─────────────── Types ─────────────── */
-interface ServerCode {
+interface UserCode {
   id: number;
   content: string;
   index: number | null;
@@ -38,9 +34,9 @@ interface ServerCode {
 
 interface CodeCard {
   id: string; // "code-<server id>"
-  title: string;
-  length: number;
-  raw: ServerCode;
+  content: string;
+  line: number;
+  raw: UserCode;
 }
 
 interface BlankSlot {
@@ -48,15 +44,8 @@ interface BlankSlot {
   codeId: string | null;
 }
 
-interface CodesResp {
-  message?: string;
-  codes: ServerCode[];
-}
-
-/* ─────────────── Constants ─────────────── */
 const MAX_BLANKS = 5;
 
-/* ─────────────── Reusable Components ─────────────── */
 interface DraggableCardProps {
   code: CodeCard;
   compact?: boolean;
@@ -64,28 +53,26 @@ interface DraggableCardProps {
   showDelete?: boolean;
 }
 
-const DraggableCard: React.FC<DraggableCardProps> = ({
+const DraggableCard = ({
   code,
   compact = false,
   onRemove,
   showDelete,
-}) => {
+}: DraggableCardProps) => {
   const { attributes, listeners, setNodeRef, transform, isDragging } =
     useDraggable({ id: code.id });
-
-  const style: React.CSSProperties = {
-    transform: CSS.Translate.toString(transform),
-    opacity: isDragging ? 0.4 : 1,
-    cursor: 'grab',
-  };
 
   return (
     <CardWrapper
       ref={setNodeRef}
-      style={style}
+      style={{
+        transform: CSS.Translate.toString(transform),
+        opacity: isDragging ? 0.4 : 1,
+        cursor: 'grab',
+      }}
       {...listeners}
       {...attributes}
-      length={code.length}
+      line={code.line}
       compact={compact}
     >
       {showDelete && !compact && (
@@ -100,10 +87,17 @@ const DraggableCard: React.FC<DraggableCardProps> = ({
           ×
         </CloseBtn>
       )}
-      <strong style={{ fontSize: compact ? 14 : 16 }}>{code.title}</strong>
+      <div
+        style={{
+          whiteSpace: 'pre-wrap',
+          wordBreak: 'break-all',
+          margin: 0,
+        }}
+        dangerouslySetInnerHTML={{ __html: code.content }}
+      />
       {!compact && (
         <span style={{ marginTop: 'auto', fontSize: 12, color: '#888' }}>
-          {code.length} chars
+          {code.line} lines
         </span>
       )}
     </CardWrapper>
@@ -138,17 +132,14 @@ const DroppableBlank: React.FC<DroppableBlankProps> = ({
   );
 };
 
-/* ─────────────── Main Component ─────────────── */
-export const MycodePanel: React.FC<{ pinned?: boolean }> = ({ pinned }) => {
+export const MycodePanel = () => {
   const { session } = useAuthContext();
-
   const [codesMap, setCodesMap] = useState<Record<string, CodeCard>>({});
   const [codes, setCodes] = useState<string[]>([]); // ids only
   const [blanks, setBlanks] = useState<BlankSlot[]>([
     { id: 'blank-1', codeId: null },
   ]);
   const [activeId, setActiveId] = useState<string | null>(null);
-  const [loading, setLoading] = useState(false);
 
   const getCode = (id: string) => codesMap[id];
 
@@ -156,30 +147,38 @@ export const MycodePanel: React.FC<{ pinned?: boolean }> = ({ pinned }) => {
   const findBlankIndexByCode = (id: string) =>
     blanks.findIndex(b => b.codeId === id);
 
-  /* ---------- Fetch Codes ---------- */
+  useEffect(() => {
+    console.log('Requesting session info from VS Code...');
+    postVsCodeMessage({ type: 'requestSessionInfo' });
+  }, []);
+
   useEffect(() => {
     if (!session) return;
+
     const fetchCodes = async () => {
-      setLoading(true);
       try {
-        const res = await axiosRequest<CodesResp>({
-          method: 'GET',
-          url: '/users/me/codes',
-          params: pinned !== undefined ? { pinned } : undefined,
-        });
+        const res = (
+          await axiosRequest({
+            method: 'GET',
+            url: '/users/me/codes',
+            headers: { Authorization: `Bearer ${session.serviceToken}` },
+          })
+        ).data;
 
-        const serverCodes: ServerCode[] = res.data?.codes ?? [];
+        console.log('Fetched pinned codes:', res);
+        const userCodes: UserCode[] = res.codes;
 
-        const toCard = (c: ServerCode): CodeCard => ({
+        const toCard = (c: UserCode): CodeCard => ({
           id: `code-${c.id}`,
-          title: (c.content.split(/\r?\n/)[0] || 'Untitled Code').slice(0, 40),
-          length: c.content.length,
+          content: c.content,
+          line: c.content.split(/\r?\n/).length,
           raw: c,
         });
 
         const map: Record<string, CodeCard> = {};
         const ids: string[] = [];
-        serverCodes.forEach(sc => {
+
+        userCodes.forEach(sc => {
           const card = toCard(sc);
           map[card.id] = card;
           ids.push(card.id);
@@ -187,25 +186,18 @@ export const MycodePanel: React.FC<{ pinned?: boolean }> = ({ pinned }) => {
 
         setCodesMap(map);
         setCodes(ids);
-      } catch (e) {
-        console.error(e);
-      } finally {
-        setLoading(false);
+      } catch (err) {
+        console.error(err);
       }
     };
     fetchCodes();
-  }, [session, pinned]);
+  }, [session]);
 
   /* Sensors */
   const sensors = useSensors(
-    useSensor(PointerSensor, { activationConstraint: { distance: 5 } }),
+    useSensor(PointerSensor, { activationConstraint: { distance: 3 } }),
     useSensor(KeyboardSensor)
   );
-
-  /* Ask VS Code host for session info (optional) */
-  useEffect(() => {
-    postVsCodeMessage({ type: 'requestSessionInfo' });
-  }, []);
 
   /* Add new blank slot */
   const addBlank = () => {
@@ -223,7 +215,9 @@ export const MycodePanel: React.FC<{ pinned?: boolean }> = ({ pinned }) => {
 
       // If slot contains a card, put it back into codes list
       if (target.codeId) {
-        setCodes(cPrev => (cPrev.includes(target.codeId!) ? cPrev : [...cPrev, target.codeId!]));
+        setCodes(cPrev =>
+          cPrev.includes(target.codeId!) ? cPrev : [...cPrev, target.codeId!]
+        );
       }
 
       // if only 1 slot, just clear
@@ -290,9 +284,11 @@ export const MycodePanel: React.FC<{ pinned?: boolean }> = ({ pinned }) => {
         }
       }
     }
+
+    console.log('pinned codes:', codes);
   };
 
-  if (!session || loading) {
+  if (!session) {
     return <Loading />;
   }
 
@@ -324,7 +320,9 @@ export const MycodePanel: React.FC<{ pinned?: boolean }> = ({ pinned }) => {
         </BlanksContainer>
 
         {/* ---------- Divider ---------- */}
-        <div style={{ height: 2, background: '#333', margin: '16px 0 24px 0' }} />
+        <div
+          style={{ height: 2, background: '#333', margin: '16px 0 24px 0' }}
+        />
 
         <SectionTitle>Uploaded Code Cards</SectionTitle>
         <div id="codes" style={{ width: '100%' }}>
@@ -343,11 +341,6 @@ export const MycodePanel: React.FC<{ pinned?: boolean }> = ({ pinned }) => {
             })}
           </CardGrid>
         </div>
-
-        {/* ---------- Drag Overlay ---------- */}
-        <DragOverlay dropAnimation={{ duration: 150 }}>
-          {activeId ? <DraggableCard code={getCode(activeId)!} /> : null}
-        </DragOverlay>
       </DndContext>
     </Wrapper>
   );

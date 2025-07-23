@@ -297,13 +297,15 @@ export const ProfileSidebar = () => {
   return (
     <>
       {toastMessage !== null ? <Toast>{toastMessage}</Toast> : null}
-      <BackButton
-        onClick={() => {
-          openSidebar(SIDEBAR_TYPES.HOME);
-        }}
-      >
-        ← back
-      </BackButton>
+      {isLogined ? (
+        <BackButton
+          onClick={() => {
+            openSidebar(SIDEBAR_TYPES.HOME);
+          }}
+        >
+          ← back
+        </BackButton>
+      ) : null}
       <Container>
         <Form>
           {/* Profile Image & Name */}

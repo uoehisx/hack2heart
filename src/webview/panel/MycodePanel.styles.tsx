@@ -99,7 +99,7 @@ export const CardGrid = styled.div`
   gap: 24px;
 `;
 
-export const CardWrapper = styled.div<{ length: number; compact?: boolean }>`
+export const CardWrapper = styled.div<{ line: number; compact?: boolean }>`
   ${neumorphismDark};
   padding: ${p => (p.compact ? '12px' : '24px')};
   width: ${p => (p.compact ? '100%' : 'auto')};
@@ -109,8 +109,8 @@ export const CardWrapper = styled.div<{ length: number; compact?: boolean }>`
   ${p =>
     !p.compact &&
     css`
-      ${p.length > 300 && 'min-height: 200px;'}
-      ${p.length > 600 && 'min-height: 280px;'}
+      ${p.line > 300 && 'min-height: 200px;'}
+      ${p.line > 600 && 'min-height: 280px;'}
     `};
 
   display: flex;

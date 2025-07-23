@@ -16,7 +16,6 @@ import likeBtn from '../../assets/buttons/Thumbs Up.png';
 import dislikeBtn from '../../assets/buttons/Thumbs Down.png';
 import { getAge } from '../../utils/ageUtil';
 import { postVsCodeMessage } from '../../utils/vscodeApi';
-
 import {
   StyledSlider,
   Wrapper,
@@ -39,7 +38,7 @@ interface RecUser extends User {
   previous_reaction_type: ReactionType | null;
 }
 
-export const ExplorePanel: React.FC = () => {
+export const ExplorePanel = () => {
   const { session } = useAuthContext();
   const [recs, setRecs] = useState<RecUser[]>([]);
   const [displayedUser, setDisplayedUser] = useState<RecUser | null>(null);
@@ -102,9 +101,9 @@ export const ExplorePanel: React.FC = () => {
             headers: { Authorization: `Bearer ${session.serviceToken}` },
           })
         ).data;
-        console.log('Fetched user codes:', res.userCodes);
+        console.log('Fetched user codes:', res.codes);
 
-        setUserCodes(res.userCodes);
+        setUserCodes(res.codes);
       } catch (err) {
         console.error('Failed to fetch user codes:', err);
       }
@@ -166,16 +165,15 @@ export const ExplorePanel: React.FC = () => {
         {userCodes.length > 0 ? (
           userCodes.map((code: UserCode) => (
             <Card key={code.id}>
-              <pre
+              <div
                 style={{
                   whiteSpace: 'pre-wrap',
                   wordBreak: 'break-all',
                   margin: 0,
                   padding: '20px',
                 }}
-              >
-                {code.content}
-              </pre>
+                dangerouslySetInnerHTML={{ __html: code.content }}
+              />
             </Card>
           ))
         ) : (
