@@ -29,9 +29,12 @@ import {
   okaidia,
   materialLight,
 } from 'react-syntax-highlighter/dist/esm/styles/prism';
+
 import { Loading } from '../components/loading';
 import { renderToStaticMarkup } from 'react-dom/server';
 import { Toast } from '../components/toast';
+
+import '../../webview/global.css';
 
 const themes = {
   Darcula: darcula,
@@ -40,17 +43,27 @@ const themes = {
   VscDarkPlus: vscDarkPlus,
   Okaidia: okaidia,
   MaterialLight: materialLight,
-};
+} as const;
+
+const withFont = (base: any, ff: string) => ({
+  ...base,
+  'pre[class*="language-"]': {
+    ...(base['pre[class*="language-"]'] || {}),
+    fontFamily: `'${ff}', monospace`,
+  },
+  'code[class*="language-"]': {
+    ...(base['code[class*="language-"]'] || {}),
+    fontFamily: `'${ff}', monospace`,
+  },
+});
 
 const fonts = [
   'Fira Code',
   'Source Code Pro',
-  'Menlo',
-  'Courier New',
   'JetBrains Mono',
   'Consolas',
   'Roboto Mono',
-];
+] as const;
 
 const languages = [
   'python',
@@ -62,12 +75,13 @@ const languages = [
   'ruby',
   'php',
   'rust',
-];
+] as const;
 
 interface Props {
   code?: string;
   language?: string;
 }
+
 export const UploadPanel: React.FC<Props> = ({
   code: initialCode = '',
   language: initialLanguage = 'python',
@@ -79,7 +93,7 @@ export const UploadPanel: React.FC<Props> = ({
   const [code, setCode] = useState(initialCode);
   const [codeLang, setCodeLang] = useState(initialLanguage);
   const [themeName, setThemeName] = useState<keyof typeof themes>('Darcula');
-  const [fontFamily, setFontFamily] = useState(fonts[0]);
+  const [fontFamily, setFontFamily] = useState<(typeof fonts)[number]>(fonts[0]);
 
   // analysis
   const [analysis, setAnalysis] = useState('');
@@ -99,7 +113,6 @@ export const UploadPanel: React.FC<Props> = ({
 
     const fetchUserProfile = async () => {
       if (!session) return;
-
       try {
         const response = await axiosRequest({
           method: 'GET',
@@ -111,8 +124,9 @@ export const UploadPanel: React.FC<Props> = ({
         console.error('Failed to fetch user profile:', error);
       }
     };
+
     fetchUserProfile();
-  }, []);
+  }, [session]);
 
   useEffect(() => {
     if (!uploadSuccess) return;
@@ -120,9 +134,7 @@ export const UploadPanel: React.FC<Props> = ({
     return () => clearTimeout(t);
   }, [uploadSuccess]);
 
-  if (!session) {
-    return <Loading />;
-  }
+  if (!session) return <Loading />;
 
   const handleCodeChange = (e: ChangeEvent<HTMLTextAreaElement>) => {
     setCode(e.target.value);
@@ -157,22 +169,25 @@ export const UploadPanel: React.FC<Props> = ({
     try {
       let htmlString = '';
 
-      // Prefer grabbing exactly what the user sees
       if (previewRef.current) {
-        // include wrapper to ensure font style is preserved
-        htmlString = `<div style="font-family:${fontFamily};">${previewRef.current.innerHTML}</div>`;
+        htmlString = `<div style="font-family:'${fontFamily}', monospace;">${previewRef.current.innerHTML}</div>`;
       } else {
-        // Fallback to static render (won’t include runtime CSS classes)
         htmlString = renderToStaticMarkup(
           <SyntaxHighlighter
             language={codeLang}
             style={themes[themeName]}
+            wrapLongLines
             customStyle={{
-              fontFamily,
+              fontFamily: `'${fontFamily}', monospace`,
               fontSize: 14,
               borderRadius: 4,
               overflow: 'auto',
+              margin: 0,
             }}
+            codeTagProps={{
+              style: { fontFamily: `'${fontFamily}', monospace` },
+            }}
+            key={`${themeName}-${codeLang}-${fontFamily}`}
           >
             {code}
           </SyntaxHighlighter>
@@ -204,7 +219,7 @@ export const UploadPanel: React.FC<Props> = ({
 
   return (
     <>
-      {uploadSuccess ? <Toast>Upload Success</Toast> : null}
+      {uploadSuccess && <Toast>Upload Success</Toast>}
       <Wrapper>
         <TopBar>
           <WhiteButton onClick={handleUpload} disabled={uploading}>
@@ -212,9 +227,7 @@ export const UploadPanel: React.FC<Props> = ({
           </WhiteButton>
         </TopBar>
 
-        <CodeBlockWrapper
-          style={{ display: 'flex', gap: '16px', alignItems: 'flex-start' }}
-        >
+        <CodeBlockWrapper style={{ display: 'flex', gap: 16, alignItems: 'flex-start' }}>
           {/* Code input */}
           <div style={{ flex: 1, display: 'flex', flexDirection: 'column' }}>
             <Label>Code</Label>
@@ -226,7 +239,7 @@ export const UploadPanel: React.FC<Props> = ({
             <AskButton
               onClick={handleAnalyze}
               disabled={loadingAnalysis}
-              style={{ marginTop: '8px', alignSelf: 'flex-end' }}
+              style={{ marginTop: 8, alignSelf: 'flex-end' }}
             >
               {loadingAnalysis ? 'Analyzing...' : 'Ask to AI'}
             </AskButton>
@@ -235,29 +248,34 @@ export const UploadPanel: React.FC<Props> = ({
           {/* Preview */}
           <PreviewWrapper>
             <Label>Preview</Label>
-            <SyntaxHighlighter
-              language={codeLang}
-              style={themes[themeName]}
-              customStyle={{
-                fontFamily,
-                fontSize: 14,
-                borderRadius: 4,
-                flex: 1,
-                overflow: 'auto',
-              }}
-            >
-              {code}
-            </SyntaxHighlighter>
+            <div ref={previewRef} style={{ fontFamily: `'${fontFamily}', monospace` }}>
+              <SyntaxHighlighter
+                key={`${themeName}-${codeLang}-${fontFamily}`}
+                language={codeLang}
+                style={withFont(themes[themeName], fontFamily)}
+                wrapLongLines
+                customStyle={{
+                  fontFamily: `'${fontFamily}', monospace`,
+                  fontSize: 14,
+                  borderRadius: 4,
+                  flex: 1,
+                  overflow: 'auto',
+                  margin: 0,
+                }}
+                codeTagProps={{
+                  style: { fontFamily: `'${fontFamily}', monospace` },
+                }}
+              >
+                {code}
+              </SyntaxHighlighter>
+            </div>
           </PreviewWrapper>
         </CodeBlockWrapper>
 
         <DescRow>
           <SelectGroup>
             <Label>Language</Label>
-            <SelectBox
-              value={codeLang}
-              onChange={e => setCodeLang(e.target.value)}
-            >
+            <SelectBox value={codeLang} onChange={e => setCodeLang(e.target.value)}>
               {languages.map(lang => (
                 <option key={lang} value={lang}>
                   {lang.charAt(0).toUpperCase() + lang.slice(1)}
@@ -268,10 +286,7 @@ export const UploadPanel: React.FC<Props> = ({
 
           <SelectGroup>
             <Label>Font Family</Label>
-            <SelectBox
-              value={fontFamily}
-              onChange={e => setFontFamily(e.target.value)}
-            >
+            <SelectBox value={fontFamily} onChange={e => setFontFamily(e.target.value as any)}>
               {fonts.map(f => (
                 <option key={f} value={f}>
                   {f}
@@ -284,7 +299,7 @@ export const UploadPanel: React.FC<Props> = ({
             <Label>Theme</Label>
             <SelectBox
               value={themeName}
-              onChange={e => setThemeName(e.target.value as any)}
+              onChange={e => setThemeName(e.target.value as keyof typeof themes)}
             >
               {Object.keys(themes).map(name => (
                 <option key={name} value={name}>
