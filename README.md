@@ -1,4 +1,4 @@
-# ❤️‍🔥 Hack2Heart: A Dating App for Developers ❤️‍🔥
+# Hack2Heart: A Dating App for Developers
 
 "Could I merge myself into your life?"
 
@@ -52,12 +52,12 @@ Hack2Heart helps you find your ideal type based on their coding style.
 
 ### 🤖 Backend
 
-- **API Server**
+- **[API Server](https://github.com/kweonminsung/hack2heart-api)**
   - **Language:** TypeScript
   - **Framework:** NestJS
   - **Database:** MySQL
   - **ORM:** Prisma
-- **AI Server**
+- **[Recommendation Server](https://github.com/kweonminsung/hack2heart-recommendation-server)**
   - **Language:** Python
   - **Libraries:** LightFM (for recommendation model)
   - **Communication:** gRPC, Kafka
