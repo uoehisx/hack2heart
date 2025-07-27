@@ -1,47 +1,69 @@
-# hack2heart README
+# ❤️‍🔥 Hack2Heart: A Dating App for Developers ❤️‍🔥
 
-This is the README for your extension "hack2heart". After writing up a brief description, we recommend including the following sections.
+"Could I merge myself into your life?"
 
-## Features
+Hack2Heart helps you find your ideal type based on their coding style.
 
-Describe specific features of your extension including screenshots of your extension in action. Image paths are relative to this README file.
+## 👨‍💻👩‍💻 Meet the Team
 
-For example if there is an image subfolder under your extension project workspace:
+- **[강시연 (Kang Siyeon)](https://github.com/uoehisx)**
 
-> Tip: Many popular extensions utilize animations. This is an excellent way to show off your extension! We recommend short, focused animations that are easy to follow.
+  - Ewha Womans University, Computer Science, '23
+  - Frontend Developer
 
-## Requirements
+- **[권민성 (Kweon Minsung)](https://github.com/kweonminsung)**
+  - Sungkyunkwan University, Software, '21
+  - Backend Developer
 
-If you have any requirements or dependencies, add a section describing those and how to install and configure them.
+## ✨ Features
 
-## Extension Settings
+### 1. **GitHub Login**
 
-Include if your extension adds any VS Code settings through the `contributes.configuration` extension point.
+- Easily sign up and log in using your GitHub account.
 
-For example:
+### 2. **Profile Setup**
 
-This extension contributes the following settings:
+- Enter your basic information to create your profile.
 
-- `myExtension.enable`: Enable/disable this extension.
-- `myExtension.thing`: Set to `blah` to do something.
+### 3. **Random Matching**
 
-## Following extension guidelines
+- Get matched with random users based on your profile and interactions.
 
-Ensure that you've read through the extensions guidelines and follow the best practices for creating your extension.
+### 4. **Showcase Your Code**
 
-- [Extension Guidelines](https://code.visualstudio.com/api/references/extension-guidelines)
+- Upload your code to show off your style.
+- Customize the syntax highlighting, font, and theme.
 
-## Working with Markdown
+### 5. **Code Gallery**
 
-You can author your README using Visual Studio Code. Here are some useful editor keyboard shortcuts:
+- View and manage all your uploaded code snippets in one place.
 
-- Split the editor (`Cmd+\` on macOS or `Ctrl+\` on Windows and Linux).
-- Toggle preview (`Shift+Cmd+V` on macOS or `Shift+Ctrl+V` on Windows and Linux).
-- Press `Ctrl+Space` (Windows, Linux, macOS) to see a list of Markdown snippets.
+### 6. **Chatting**
 
-## For more information
+- When two users like each other, a chat room is created for them to connect.
 
-- [Visual Studio Code's Markdown Support](http://code.visualstudio.com/docs/languages/markdown)
-- [Markdown Syntax Reference](https://help.github.com/articles/markdown-basics/)
+## 🛠️ Tech Stack
 
-**Enjoy!**
+### 🖥️ Frontend
+
+- **Framework:** React
+- **APIs:** VSCode Extension API
+- **Styling:** EmotionJS (CSS in JS)
+
+### 🤖 Backend
+
+- **API Server**
+  - **Language:** TypeScript
+  - **Framework:** NestJS
+  - **Database:** MySQL
+  - **ORM:** Prisma
+- **AI Server**
+  - **Language:** Python
+  - **Libraries:** LightFM (for recommendation model)
+  - **Communication:** gRPC, Kafka
+
+## 📢 Download and Installation
+
+1. **Download the VSIX file from [Release](https://github.com/uoehisx/madcamp2025-week3-frontend/raw/main/hack2heart-0.0.1.vsix)**
+2. **Install the VSIX file in VS Code:**  
+   Follow the instructions in this guide: [[VSCode] How to install a VSIX extension](https://goddaehee.tistory.com/291)
